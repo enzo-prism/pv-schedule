@@ -9,6 +9,7 @@ import MeetCard from "@/components/meet-card";
 import AddMeetForm from "@/components/add-meet-form";
 import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
+import DeleteConfirmation from "@/components/delete-confirmation";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past" | "all";
@@ -17,6 +18,8 @@ export default function Home() {
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<FilterType>("upcoming");
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [meetToDelete, setMeetToDelete] = useState<number | null>(null);
   const { toast } = useToast();
 
   const { data: meets = [], isLoading } = useQuery<Meet[]>({ 
@@ -66,6 +69,29 @@ export default function Home() {
       });
     },
   });
+  
+  const deleteMeetMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/meets/${id}`);
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
+      setMeetToDelete(null);
+      setDeleteConfirmOpen(false);
+      toast({
+        title: "Meet deleted",
+        description: "The meet has been successfully removed from the schedule.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to delete meet",
+        description: error.message || "There was an error deleting the meet. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleAddMeet = (meetData: { name: string; date: string; location: string; description?: string }) => {
     addMeetMutation.mutate(meetData);
@@ -82,6 +108,22 @@ export default function Home() {
 
   const handleEditClick = (meet: Meet) => {
     setEditMeet(meet);
+  };
+  
+  const handleDeleteClick = (meetId: number) => {
+    setMeetToDelete(meetId);
+    setDeleteConfirmOpen(true);
+  };
+  
+  const handleConfirmDelete = () => {
+    if (meetToDelete !== null) {
+      deleteMeetMutation.mutate(meetToDelete);
+    }
+  };
+  
+  const handleCancelDelete = () => {
+    setDeleteConfirmOpen(false);
+    setMeetToDelete(null);
   };
 
   const isPastDate = (dateString: string | Date) => {
@@ -147,6 +189,7 @@ export default function Home() {
                 key={meet.id} 
                 meet={meet} 
                 onEditClick={handleEditClick}
+                onDeleteClick={handleDeleteClick}
               />
             ))}
           </div>
@@ -205,6 +248,15 @@ export default function Home() {
           </DialogContent>
         </Dialog>
       )}
+      
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmation
+        isOpen={deleteConfirmOpen}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Delete Meet"
+        description="Are you sure you want to delete this meet? This action cannot be undone."
+      />
     </div>
   );
 }
