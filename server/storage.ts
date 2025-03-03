@@ -6,6 +6,7 @@ export interface IStorage {
   getMeetById(id: number): Promise<Meet | undefined>;
   createMeet(meet: InsertMeet): Promise<Meet>;
   updateMeet(id: number, meet: InsertMeet): Promise<Meet | undefined>;
+  deleteMeet(id: number): Promise<boolean>;
 }
 
 // PostgreSQL storage implementation
@@ -195,6 +196,25 @@ export class PgStorage implements IStorage {
       return undefined;
     }
   }
+  
+  async deleteMeet(id: number): Promise<boolean> {
+    try {
+      // First check if the meet exists
+      const existingMeet = await this.getMeetById(id);
+      if (!existingMeet) {
+        return false;
+      }
+      
+      const query = 'DELETE FROM meets WHERE id = $1';
+      const result = await db.query(query, [id]);
+      
+      // Return true if at least one row was affected
+      return result && typeof result.rowCount === 'number' && result.rowCount > 0;
+    } catch (error) {
+      console.error('[PgStorage] Error deleting meet:', error);
+      return false;
+    }
+  }
 }
 
 // In-memory storage implementation (kept for reference)
@@ -285,6 +305,14 @@ export class MemStorage implements IStorage {
     
     this.meets.set(id, updatedMeet);
     return updatedMeet;
+  }
+  
+  async deleteMeet(id: number): Promise<boolean> {
+    const exists = this.meets.has(id);
+    if (exists) {
+      return this.meets.delete(id);
+    }
+    return false;
   }
 }
 

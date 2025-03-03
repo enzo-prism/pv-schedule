@@ -77,6 +77,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update meet" });
     }
   });
+  
+  // DELETE - Delete an existing meet
+  app.delete("/api/meets/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid meet ID" });
+      }
+      
+      const success = await storage.deleteMeet(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Meet not found or could not be deleted" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete meet" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
