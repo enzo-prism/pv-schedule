@@ -1,6 +1,20 @@
 import { type Meet, type InsertMeet } from "@shared/schema";
 import db from './db';
 
+// Helper function to handle date timezone issues
+// PostgreSQL 'date' type doesn't include timezone, but JavaScript Date does
+// This ensures that when we save a date string like "2025-03-15", it returns the same date 
+// and doesn't get shifted due to timezone conversions
+function adjustDateForTimezone(dateStr: string): string {
+  // If the date string is in format YYYY-MM-DD, preserve it as-is
+  if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return dateStr;
+  }
+  // Otherwise, format it properly
+  const date = new Date(dateStr);
+  return date.toISOString().split('T')[0];
+}
+
 export interface IStorage {
   getAllMeets(): Promise<Meet[]>;
   getMeetById(id: number): Promise<Meet | undefined>;
@@ -131,7 +145,7 @@ export class PgStorage implements IStorage {
       
       const values = [
         insertMeet.name,
-        insertMeet.date,
+        adjustDateForTimezone(insertMeet.date), // Adjust date to avoid timezone issues
         insertMeet.location,
         insertMeet.description || null
       ];
@@ -170,7 +184,7 @@ export class PgStorage implements IStorage {
       
       const values = [
         updateMeet.name,
-        updateMeet.date,
+        adjustDateForTimezone(updateMeet.date), // Adjust date to avoid timezone issues
         updateMeet.location,
         updateMeet.description || null,
         id
@@ -280,7 +294,8 @@ export class MemStorage implements IStorage {
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     const id = this.currentId++;
     const meet: Meet = { 
-      ...insertMeet, 
+      ...insertMeet,
+      date: adjustDateForTimezone(insertMeet.date), // Adjust date to avoid timezone issues
       id,
       description: insertMeet.description || null,
       createdAt: new Date()
@@ -298,7 +313,7 @@ export class MemStorage implements IStorage {
     const updatedMeet: Meet = {
       ...existingMeet,
       name: updateMeet.name,
-      date: updateMeet.date,
+      date: adjustDateForTimezone(updateMeet.date), // Adjust date to avoid timezone issues
       location: updateMeet.location,
       description: updateMeet.description || null
     };
