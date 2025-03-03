@@ -70,15 +70,16 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-accent sticky top-0 z-10">
+      <header className="bg-white border-b border-accent/50 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold flex items-center">
-            <Calendar className="mr-2 text-secondary h-5 w-5" />
+          <h1 className="text-lg font-medium flex items-center">
+            <Calendar className="mr-2 text-primary h-5 w-5" />
             Track & Field Schedule
           </h1>
           <Button 
             onClick={() => setIsAddMeetOpen(true)}
-            className="bg-secondary hover:bg-secondary/90 text-white font-medium px-5 py-2 h-auto rounded-md shadow-sm transition-all hover:shadow-md"
+            className="bg-secondary hover:bg-secondary/90 text-white text-sm font-medium px-4 py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md"
+            aria-label="Add a new track and field meet"
           >
             Add Meet
           </Button>
@@ -114,7 +115,7 @@ export default function Home() {
             {currentFilter !== "past" && (
               <Button 
                 onClick={() => setIsAddMeetOpen(true)}
-                className="bg-secondary hover:bg-secondary/90 text-white font-medium px-5 py-2 h-auto rounded-md shadow-sm transition-all hover:shadow-md"
+                className="bg-secondary hover:bg-secondary/90 text-white text-sm font-medium px-4 py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md"
               >
                 Add Your First Meet
               </Button>
