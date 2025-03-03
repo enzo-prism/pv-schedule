@@ -1,13 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Edit2 } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 interface MeetCardProps {
   meet: Meet;
+  onEditClick?: (meet: Meet) => void;
 }
 
-export default function MeetCard({ meet }: MeetCardProps) {
+export default function MeetCard({ meet, onEditClick }: MeetCardProps) {
   const isPastDate = (dateString: string | Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -23,14 +25,33 @@ export default function MeetCard({ meet }: MeetCardProps) {
   const statusClass = isPast ? "text-gray-400" : "text-green-600";
   const statusText = isPast ? "Past" : "Upcoming";
 
+  const handleEditClick = () => {
+    if (onEditClick) {
+      onEditClick(meet);
+    }
+  };
+
   return (
-    <Card className="overflow-hidden border border-accent bg-white shadow-sm meet-transition">
+    <Card className="overflow-hidden border border-accent bg-white shadow-sm meet-transition relative">
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg">{meet.name}</h3>
-          <span className={`${statusClass} text-xs font-medium px-2 py-1 bg-gray-100 rounded`}>
-            {statusText}
-          </span>
+          <div className="flex items-center gap-2">
+            {onEditClick && (
+              <Button 
+                onClick={handleEditClick}
+                variant="ghost" 
+                size="sm" 
+                className="h-7 w-7 rounded-full p-0"
+                aria-label="Edit meet"
+              >
+                <Edit2 className="h-4 w-4 text-gray-500" />
+              </Button>
+            )}
+            <span className={`${statusClass} text-xs font-medium px-2 py-1 bg-gray-100 rounded`}>
+              {statusText}
+            </span>
+          </div>
         </div>
         <div className="mt-2 flex items-center text-sm text-gray-600">
           <Calendar className="text-secondary h-4 w-4 mr-1" />

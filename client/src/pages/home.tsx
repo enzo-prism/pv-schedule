@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Meet } from "@shared/schema";
 import MeetCard from "@/components/meet-card";
 import AddMeetForm from "@/components/add-meet-form";
+import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +16,7 @@ type FilterType = "upcoming" | "past" | "all";
 export default function Home() {
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<FilterType>("upcoming");
+  const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const { toast } = useToast();
 
   const { data: meets = [], isLoading } = useQuery<Meet[]>({ 
@@ -43,8 +45,43 @@ export default function Home() {
     },
   });
 
+  const editMeetMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string } }) => {
+      const res = await apiRequest("PUT", `/api/meets/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
+      setEditMeet(null);
+      toast({
+        title: "Meet updated",
+        description: "The meet has been successfully updated.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to update meet",
+        description: error.message || "There was an error updating the meet. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleAddMeet = (meetData: { name: string; date: string; location: string; description?: string }) => {
     addMeetMutation.mutate(meetData);
+  };
+
+  const handleEditMeet = (meetData: { name: string; date: string; location: string; description?: string }) => {
+    if (editMeet) {
+      editMeetMutation.mutate({
+        id: editMeet.id,
+        data: meetData,
+      });
+    }
+  };
+
+  const handleEditClick = (meet: Meet) => {
+    setEditMeet(meet);
   };
 
   const isPastDate = (dateString: string | Date) => {
@@ -102,7 +139,11 @@ export default function Home() {
         ) : filteredMeets.length > 0 ? (
           <div className="space-y-4 mt-6">
             {filteredMeets.map((meet: Meet) => (
-              <MeetCard key={meet.id} meet={meet} />
+              <MeetCard 
+                key={meet.id} 
+                meet={meet} 
+                onEditClick={handleEditClick}
+              />
             ))}
           </div>
         ) : (
@@ -138,6 +179,23 @@ export default function Home() {
           <AddMeetForm onSubmit={handleAddMeet} isLoading={addMeetMutation.isPending} />
         </DialogContent>
       </Dialog>
+
+      {/* Edit Meet Dialog */}
+      {editMeet && (
+        <Dialog 
+          open={editMeet !== null} 
+          onOpenChange={(open) => !open && setEditMeet(null)}
+        >
+          <DialogContent className="sm:max-w-md" aria-describedby="edit-meet-description">
+            <div id="edit-meet-description" className="sr-only">Edit track and field meet details</div>
+            <EditMeetForm 
+              meet={editMeet} 
+              onSubmit={handleEditMeet} 
+              isLoading={editMeetMutation.isPending} 
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
