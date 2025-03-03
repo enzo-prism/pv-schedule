@@ -14,8 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-import { X } from "lucide-react";
-import { DialogTitle, DialogHeader } from "@/components/ui/dialog";
+import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 
 const formSchema = z.object({
   name: z.string().min(2, {

@@ -132,7 +132,8 @@ export default function Home() {
 
       {/* Add Meet Dialog */}
       <Dialog open={isAddMeetOpen} onOpenChange={setIsAddMeetOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" aria-describedby="add-meet-description">
+          <div id="add-meet-description" className="sr-only">Add a new track and field meet to the schedule</div>
           <AddMeetForm onSubmit={handleAddMeet} isLoading={addMeetMutation.isPending} />
         </DialogContent>
       </Dialog>

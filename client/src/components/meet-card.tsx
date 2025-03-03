@@ -24,7 +24,7 @@ export default function MeetCard({ meet }: MeetCardProps) {
   const statusText = isPast ? "Past" : "Upcoming";
 
   return (
-    <Card className="overflow-hidden border border-accent shadow-sm">
+    <Card className="overflow-hidden border border-accent shadow-sm meet-transition">
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg">{meet.name}</h3>
