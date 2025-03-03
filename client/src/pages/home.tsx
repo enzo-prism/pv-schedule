@@ -87,7 +87,7 @@ export default function Home() {
       </header>
 
       {/* Main content */}
-      <main className="flex-grow max-w-3xl mx-auto w-full px-4 py-6">
+      <main className="flex-grow max-w-3xl mx-auto w-full px-4 py-5">
         <FilterSection 
           currentFilter={currentFilter}
           onFilterChange={handleFilterChange}
@@ -106,10 +106,10 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="bg-accent bg-opacity-30 rounded-lg p-8 text-center mt-6">
-            <Clock className="h-12 w-12 text-secondary mx-auto mb-3" />
-            <h3 className="text-lg font-medium mb-2">No meets found</h3>
-            <p className="text-sm text-gray-600 mb-4">
+          <div className="bg-accent/20 rounded p-8 text-center mt-6">
+            <Clock className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-base font-medium mb-2 text-primary">No meets found</h3>
+            <p className="text-sm text-gray-500 mb-4">
               No track and field meets are currently {currentFilter === "all" ? "scheduled" : currentFilter === "upcoming" ? "upcoming" : "in the past"}.
             </p>
             {currentFilter !== "past" && (
@@ -125,8 +125,8 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-accent bg-opacity-30 border-t border-accent py-4">
-        <div className="max-w-3xl mx-auto px-4 text-sm text-center text-gray-600">
+      <footer className="bg-accent/20 border-t border-accent/30 py-4">
+        <div className="max-w-3xl mx-auto px-4 text-xs text-center text-gray-500">
           &copy; {new Date().getFullYear()} Track & Field Meet Schedule
         </div>
       </footer>

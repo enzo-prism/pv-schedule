@@ -10,30 +10,30 @@ interface FilterSectionProps {
 export default function FilterSection({ currentFilter, onFilterChange }: FilterSectionProps) {
   return (
     <div className="mb-6 flex justify-between items-center">
-      <div className="text-lg font-medium">Meet Schedule</div>
-      <div className="bg-accent p-1 rounded-lg inline-flex items-center">
+      <div className="text-lg font-medium text-primary">Meet Schedule</div>
+      <div className="bg-accent/50 rounded inline-flex items-center p-0.5">
         <Button
-          variant={currentFilter === "upcoming" ? "default" : "ghost"}
-          className={`px-3 py-1 h-auto rounded text-sm font-medium ${
-            currentFilter === "upcoming" ? "bg-white text-primary" : "text-gray-700"
+          variant="ghost"
+          className={`px-3 py-1 h-auto rounded text-sm font-medium transition-colors ${
+            currentFilter === "upcoming" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
           }`}
           onClick={() => onFilterChange("upcoming")}
         >
           Upcoming
         </Button>
         <Button
-          variant={currentFilter === "past" ? "default" : "ghost"}
-          className={`px-3 py-1 h-auto rounded text-sm font-medium ${
-            currentFilter === "past" ? "bg-white text-primary" : "text-gray-700"
+          variant="ghost"
+          className={`px-3 py-1 h-auto rounded text-sm font-medium transition-colors ${
+            currentFilter === "past" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
           }`}
           onClick={() => onFilterChange("past")}
         >
           Past
         </Button>
         <Button
-          variant={currentFilter === "all" ? "default" : "ghost"}
-          className={`px-3 py-1 h-auto rounded text-sm font-medium ${
-            currentFilter === "all" ? "bg-white text-primary" : "text-gray-700"
+          variant="ghost"
+          className={`px-3 py-1 h-auto rounded text-sm font-medium transition-colors ${
+            currentFilter === "all" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
           }`}
           onClick={() => onFilterChange("all")}
         >

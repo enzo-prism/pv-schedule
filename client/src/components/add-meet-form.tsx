@@ -54,27 +54,28 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
   return (
     <>
       <DialogHeader className="pb-2">
-        <DialogTitle className="text-xl font-semibold text-primary">Add New Meet</DialogTitle>
-        <DialogDescription className="text-gray-600 mt-1">
+        <DialogTitle className="text-lg font-medium text-primary">Add New Meet</DialogTitle>
+        <DialogDescription className="text-gray-500 text-sm mt-1">
           Enter the details for the new track and field meet
         </DialogDescription>
       </DialogHeader>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-2">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 pt-2">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Meet Name</FormLabel>
+                <FormLabel className="text-sm font-medium">Meet Name</FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="e.g., State Championships" 
+                    className="border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
                     {...field} 
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -84,15 +85,16 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
             name="date"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date</FormLabel>
+                <FormLabel className="text-sm font-medium">Date</FormLabel>
                 <FormControl>
                   <Input 
                     type="date" 
                     min={today}
+                    className="border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
                     {...field} 
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -102,14 +104,15 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Location</FormLabel>
+                <FormLabel className="text-sm font-medium">Location</FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="e.g., Central Stadium, Springfield" 
+                    className="border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
                     {...field} 
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -119,23 +122,23 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description (Optional)</FormLabel>
+                <FormLabel className="text-sm font-medium">Description (Optional)</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="Add any additional details about the meet" 
-                    className="resize-none"
+                    className="resize-none border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
                     rows={3}
                     {...field} 
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
           
           <Button 
             type="submit" 
-            className="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-2 h-auto rounded-md shadow-sm transition-all hover:shadow-md mt-2"
+            className="w-full bg-secondary hover:bg-secondary/90 text-white text-sm font-medium py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md mt-2"
             disabled={isLoading}
           >
             {isLoading ? "Adding..." : "Add Meet"}
