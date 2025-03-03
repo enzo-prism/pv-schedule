@@ -71,7 +71,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., State Championships" 
-                    className="border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />
                 </FormControl>
@@ -90,7 +90,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     type="date" 
                     min={today}
-                    className="border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />
                 </FormControl>
@@ -108,7 +108,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., Central Stadium, Springfield" 
-                    className="border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />
                 </FormControl>
@@ -126,7 +126,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Textarea 
                     placeholder="Add any additional details about the meet" 
-                    className="resize-none border-accent/70 focus-visible:ring-offset-0 focus-visible:ring-1"
+                    className="resize-none border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     rows={3}
                     {...field} 
                   />
