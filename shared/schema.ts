@@ -1,4 +1,4 @@
-import { pgTable, text, serial, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, date, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -8,6 +8,7 @@ export const meets = pgTable("meets", {
   date: date("date").notNull(),
   location: text("location").notNull(),
   description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertMeetSchema = createInsertSchema(meets).pick({
