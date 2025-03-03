@@ -15,7 +15,7 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         <Button
           variant="ghost"
           className={`px-3 py-1 h-auto rounded text-sm font-medium transition-colors ${
-            currentFilter === "upcoming" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
+            currentFilter === "upcoming" ? "bg-white text-primary shadow-none hover:shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
           }`}
           onClick={() => onFilterChange("upcoming")}
         >
@@ -24,7 +24,7 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         <Button
           variant="ghost"
           className={`px-3 py-1 h-auto rounded text-sm font-medium transition-colors ${
-            currentFilter === "past" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
+            currentFilter === "past" ? "bg-white text-primary shadow-none hover:shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
           }`}
           onClick={() => onFilterChange("past")}
         >
@@ -33,7 +33,7 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         <Button
           variant="ghost"
           className={`px-3 py-1 h-auto rounded text-sm font-medium transition-colors ${
-            currentFilter === "all" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
+            currentFilter === "all" ? "bg-white text-primary shadow-none hover:shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
           }`}
           onClick={() => onFilterChange("all")}
         >
