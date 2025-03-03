@@ -17,7 +17,7 @@ export default function Home() {
   const [currentFilter, setCurrentFilter] = useState<FilterType>("upcoming");
   const { toast } = useToast();
 
-  const { data: meets = [], isLoading } = useQuery({ 
+  const { data: meets = [], isLoading } = useQuery<Meet[]>({ 
     queryKey: ["/api/meets"],
   });
 
@@ -54,14 +54,14 @@ export default function Home() {
     return meetDate < today;
   };
 
-  const filteredMeets = meets.filter((meet: Meet) => {
+  const filteredMeets = meets.filter((meet) => {
     if (currentFilter === "upcoming") {
       return !isPastDate(meet.date);
     } else if (currentFilter === "past") {
       return isPastDate(meet.date);
     }
     return true;
-  }).sort((a: Meet, b: Meet) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);
@@ -78,7 +78,7 @@ export default function Home() {
           </h1>
           <Button 
             onClick={() => setIsAddMeetOpen(true)}
-            className="bg-secondary hover:bg-secondary/90 text-white"
+            className="bg-secondary hover:bg-secondary/90 text-white font-medium px-5 py-2 h-auto rounded-md shadow-sm transition-all hover:shadow-md"
           >
             Add Meet
           </Button>
@@ -114,7 +114,7 @@ export default function Home() {
             {currentFilter !== "past" && (
               <Button 
                 onClick={() => setIsAddMeetOpen(true)}
-                className="bg-secondary hover:bg-secondary/90 text-white"
+                className="bg-secondary hover:bg-secondary/90 text-white font-medium px-5 py-2 h-auto rounded-md shadow-sm transition-all hover:shadow-md"
               >
                 Add Your First Meet
               </Button>

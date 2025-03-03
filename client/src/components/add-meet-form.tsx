@@ -53,8 +53,11 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle className="text-xl font-semibold">Add New Meet</DialogTitle>
+      <DialogHeader className="pb-2">
+        <DialogTitle className="text-xl font-semibold text-primary">Add New Meet</DialogTitle>
+        <DialogDescription className="text-gray-600 mt-1">
+          Enter the details for the new track and field meet
+        </DialogDescription>
       </DialogHeader>
       
       <Form {...form}>
@@ -132,7 +135,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
           
           <Button 
             type="submit" 
-            className="w-full bg-secondary hover:bg-secondary/90 text-white"
+            className="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-2 h-auto rounded-md shadow-sm transition-all hover:shadow-md mt-2"
             disabled={isLoading}
           >
             {isLoading ? "Adding..." : "Add Meet"}
