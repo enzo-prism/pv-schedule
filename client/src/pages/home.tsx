@@ -129,8 +129,20 @@ export default function Home() {
   const isPastDate = (dateString: string | Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const meetDate = new Date(dateString);
+    
+    // Parse date string consistently to avoid timezone issues
+    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
+      ? new Date(`${dateString}T00:00:00`)
+      : new Date(dateString);
+      
     return meetDate < today;
+  };
+
+  // Helper function for consistent date parsing
+  const parseDate = (dateString: string | Date) => {
+    return typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
+      ? new Date(`${dateString}T00:00:00`)
+      : new Date(dateString);
   };
 
   const filteredMeets = meets.filter((meet) => {
@@ -140,7 +152,7 @@ export default function Home() {
       return isPastDate(meet.date);
     }
     return true;
-  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }).sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);

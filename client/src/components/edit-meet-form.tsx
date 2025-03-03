@@ -38,7 +38,11 @@ interface EditMeetFormProps {
 export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetFormProps) {
   // Format the date as YYYY-MM-DD for the input field
   const formatDateForInput = (dateString: string | Date) => {
-    const date = new Date(dateString);
+    // Parse date string consistently to avoid timezone issues
+    const date = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
+      ? new Date(`${dateString}T00:00:00`)
+      : new Date(dateString);
+      
     return format(date, "yyyy-MM-dd");
   };
 

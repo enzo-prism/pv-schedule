@@ -14,12 +14,23 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
   const isPastDate = (dateString: string | Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const meetDate = new Date(dateString);
+    
+    // Parse date string with the same approach as formatDate to avoid timezone issues
+    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
+      ? new Date(`${dateString}T00:00:00`)
+      : new Date(dateString);
+      
     return meetDate < today;
   };
 
   const formatDate = (dateString: string | Date) => {
-    return format(new Date(dateString), "EEEE, MMMM d, yyyy");
+    // Parse date string with date-fns to avoid timezone issues
+    // If the input is "YYYY-MM-DD" format, ensure we preserve the date exactly
+    const date = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
+      ? new Date(`${dateString}T00:00:00`) 
+      : new Date(dateString);
+    
+    return format(date, "EEEE, MMMM d, yyyy");
   };
 
   const isPast = isPastDate(meet.date);
