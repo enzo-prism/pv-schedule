@@ -50,6 +50,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create meet" });
     }
   });
+  
+  // PUT - Update an existing meet
+  app.put("/api/meets/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid meet ID" });
+      }
+      
+      const result = insertMeetSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        const validationError = fromZodError(result.error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      
+      const updatedMeet = await storage.updateMeet(id, result.data);
+      
+      if (!updatedMeet) {
+        return res.status(404).json({ message: "Meet not found" });
+      }
+      
+      res.json(updatedMeet);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update meet" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

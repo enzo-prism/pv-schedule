@@ -5,6 +5,7 @@ export interface IStorage {
   getAllMeets(): Promise<Meet[]>;
   getMeetById(id: number): Promise<Meet | undefined>;
   createMeet(meet: InsertMeet): Promise<Meet>;
+  updateMeet(id: number, meet: InsertMeet): Promise<Meet | undefined>;
 }
 
 // PostgreSQL storage implementation
@@ -150,6 +151,50 @@ export class PgStorage implements IStorage {
       throw new Error('Failed to create meet');
     }
   }
+  
+  async updateMeet(id: number, updateMeet: InsertMeet): Promise<Meet | undefined> {
+    try {
+      // First check if the meet exists
+      const existingMeet = await this.getMeetById(id);
+      if (!existingMeet) {
+        return undefined;
+      }
+      
+      const query = `
+        UPDATE meets
+        SET name = $1, date = $2, location = $3, description = $4
+        WHERE id = $5
+        RETURNING *
+      `;
+      
+      const values = [
+        updateMeet.name,
+        updateMeet.date,
+        updateMeet.location,
+        updateMeet.description || null,
+        id
+      ];
+      
+      const result = await db.query(query, values);
+      
+      if (result.rows.length === 0) {
+        return undefined;
+      }
+      
+      const row = result.rows[0];
+      return {
+        id: row.id,
+        name: row.name,
+        date: row.date,
+        location: row.location,
+        description: row.description,
+        createdAt: row.created_at
+      };
+    } catch (error) {
+      console.error('[PgStorage] Error updating meet:', error);
+      return undefined;
+    }
+  }
 }
 
 // In-memory storage implementation (kept for reference)
@@ -222,6 +267,24 @@ export class MemStorage implements IStorage {
     };
     this.meets.set(id, meet);
     return meet;
+  }
+  
+  async updateMeet(id: number, updateMeet: InsertMeet): Promise<Meet | undefined> {
+    const existingMeet = await this.getMeetById(id);
+    if (!existingMeet) {
+      return undefined;
+    }
+    
+    const updatedMeet: Meet = {
+      ...existingMeet,
+      name: updateMeet.name,
+      date: updateMeet.date,
+      location: updateMeet.location,
+      description: updateMeet.description || null
+    };
+    
+    this.meets.set(id, updatedMeet);
+    return updatedMeet;
   }
 }
 
