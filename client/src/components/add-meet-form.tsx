@@ -138,10 +138,10 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
           
           <Button 
             type="submit" 
-            className="w-full bg-secondary hover:bg-secondary/90 text-white text-sm font-medium py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md mt-2"
+            className="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md mt-2"
             disabled={isLoading}
           >
-            {isLoading ? "Adding..." : "Add Meet"}
+            <span className="font-semibold">{isLoading ? "Adding..." : "Add Meet"}</span>
           </Button>
         </form>
       </Form>

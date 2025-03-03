@@ -78,10 +78,10 @@ export default function Home() {
           </h1>
           <Button 
             onClick={() => setIsAddMeetOpen(true)}
-            className="bg-secondary hover:bg-secondary/90 text-white text-sm font-medium px-4 py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md"
+            className="bg-secondary hover:bg-secondary/90 text-white font-medium px-4 py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md"
             aria-label="Add a new track and field meet"
           >
-            Add Meet
+            <span className="font-semibold">Add Meet</span>
           </Button>
         </div>
       </header>
@@ -115,9 +115,9 @@ export default function Home() {
             {currentFilter !== "past" && (
               <Button 
                 onClick={() => setIsAddMeetOpen(true)}
-                className="bg-secondary hover:bg-secondary/90 text-white text-sm font-medium px-4 py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md"
+                className="bg-secondary hover:bg-secondary/90 text-white font-medium px-4 py-1.5 h-auto rounded shadow-sm transition-all hover:shadow-md"
               >
-                Add Your First Meet
+                <span className="font-semibold">Add Your First Meet</span>
               </Button>
             )}
           </div>
