@@ -24,11 +24,11 @@ export default function MeetCard({ meet }: MeetCardProps) {
   const statusText = isPast ? "Past" : "Upcoming";
 
   return (
-    <Card className="overflow-hidden border border-accent shadow-sm meet-transition">
+    <Card className="overflow-hidden border border-accent bg-white shadow-sm meet-transition">
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg">{meet.name}</h3>
-          <span className={`${statusClass} text-xs font-medium px-2 py-1 bg-gray-100 rounded-full`}>
+          <span className={`${statusClass} text-xs font-medium px-2 py-1 bg-gray-100 rounded`}>
             {statusText}
           </span>
         </div>

@@ -96,7 +96,7 @@ export default function Home() {
         {isLoading ? (
           <div className="space-y-4 mt-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-accent animate-pulse rounded-lg" />
+              <div key={i} className="h-32 bg-accent/30 animate-pulse rounded" />
             ))}
           </div>
         ) : filteredMeets.length > 0 ? (
