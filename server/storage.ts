@@ -97,14 +97,21 @@ export class PgStorage implements IStorage {
       const query = 'SELECT * FROM meets ORDER BY date';
       const result = await db.query(query);
       
-      return result.rows.map((row: any) => ({
-        id: row.id,
-        name: row.name,
-        date: row.date,
-        location: row.location,
-        description: row.description,
-        createdAt: row.created_at
-      }));
+      return result.rows.map((row: any) => {
+        // Ensure date is returned as a YYYY-MM-DD string without timezone information
+        const dateStr = row.date instanceof Date 
+          ? row.date.toISOString().split('T')[0] 
+          : String(row.date).split('T')[0];
+          
+        return {
+          id: row.id,
+          name: row.name,
+          date: dateStr,
+          location: row.location,
+          description: row.description,
+          createdAt: row.created_at
+        };
+      });
     } catch (error) {
       console.error('[PgStorage] Error getting all meets:', error);
       return [];
@@ -121,10 +128,16 @@ export class PgStorage implements IStorage {
       }
       
       const row = result.rows[0];
+      
+      // Ensure date is returned as a YYYY-MM-DD string without timezone information
+      const dateStr = row.date instanceof Date 
+        ? row.date.toISOString().split('T')[0] 
+        : String(row.date).split('T')[0];
+        
       return {
         id: row.id,
         name: row.name,
-        date: row.date,
+        date: dateStr,
         location: row.location,
         description: row.description,
         createdAt: row.created_at
@@ -153,10 +166,15 @@ export class PgStorage implements IStorage {
       const result = await db.query(query, values);
       const row = result.rows[0];
       
+      // Ensure date is returned as a YYYY-MM-DD string without timezone information
+      const dateStr = row.date instanceof Date 
+        ? row.date.toISOString().split('T')[0] 
+        : String(row.date).split('T')[0];
+        
       return {
         id: row.id,
         name: row.name,
-        date: row.date,
+        date: dateStr,
         location: row.location,
         description: row.description,
         createdAt: row.created_at
@@ -197,10 +215,16 @@ export class PgStorage implements IStorage {
       }
       
       const row = result.rows[0];
+      
+      // Ensure date is returned as a YYYY-MM-DD string without timezone information
+      const dateStr = row.date instanceof Date 
+        ? row.date.toISOString().split('T')[0] 
+        : String(row.date).split('T')[0];
+        
       return {
         id: row.id,
         name: row.name,
-        date: row.date,
+        date: dateStr,
         location: row.location,
         description: row.description,
         createdAt: row.created_at
