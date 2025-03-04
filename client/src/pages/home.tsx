@@ -11,6 +11,7 @@ import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import CountdownTimer from "@/components/countdown-timer";
+import SponsorLogos from "@/components/sponsor-logos";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past" | "all";
@@ -164,6 +165,11 @@ export default function Home() {
       {/* Countdown Timer */}
       <div className="sticky top-0 z-20 w-full bg-white shadow-sm">
         {!isLoading && <CountdownTimer meets={meets} />}
+      </div>
+      
+      {/* Sponsor Logos */}
+      <div className="sticky top-[calc(2.5rem+1px)] z-10">
+        <SponsorLogos />
       </div>
 
       {/* Main content */}
