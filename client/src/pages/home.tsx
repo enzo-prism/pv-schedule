@@ -10,6 +10,7 @@ import AddMeetForm from "@/components/add-meet-form";
 import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
+import CountdownTimer from "@/components/countdown-timer";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past" | "all";
@@ -160,8 +161,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Countdown Timer */}
+      <div className="sticky top-0 z-20 w-full">
+        {!isLoading && <CountdownTimer meets={meets} />}
+      </div>
+      
       {/* Header */}
-      <header className="bg-white border-b border-accent/50 sticky top-0 z-10">
+      <header className="bg-white border-b border-accent/50 sticky top-[22px] z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-lg font-medium flex items-center">
             <Calendar className="text-primary h-6 w-6" aria-label="Track & Field Schedule" />
