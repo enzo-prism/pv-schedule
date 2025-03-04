@@ -161,22 +161,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Countdown Timer with Add Button */}
+      {/* Countdown Timer */}
       <div className="sticky top-0 z-20 w-full bg-white shadow-sm">
         {!isLoading && <CountdownTimer meets={meets} />}
-        <div className="max-w-3xl mx-auto px-4 py-3 flex justify-end">
-          <Button 
-            onClick={() => setIsAddMeetOpen(true)}
-            className="bg-gray-600 hover:bg-gray-700 text-white p-2 h-auto w-auto rounded-full shadow-none transition-all hover:shadow-md"
-            aria-label="Add a new track and field meet"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span className="sr-only">Add Meet</span>
-          </Button>
-        </div>
       </div>
 
       {/* Main content */}
@@ -229,8 +216,21 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-gray-50 border-t border-gray-100 py-4">
-        <div className="max-w-3xl mx-auto px-4 text-xs text-center text-gray-500">
-          &copy; {new Date().getFullYear()} Track & Field Meet Schedule
+        <div className="max-w-3xl mx-auto px-4 flex items-center justify-between">
+          <div className="text-xs text-gray-500">
+            &copy; {new Date().getFullYear()} Track & Field Meet Schedule
+          </div>
+          <Button 
+            onClick={() => setIsAddMeetOpen(true)}
+            className="bg-gray-600 hover:bg-gray-700 text-white p-2 h-auto w-auto rounded-full shadow-none transition-all hover:shadow-md"
+            aria-label="Add a new track and field meet"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span className="sr-only">Add Meet</span>
+          </Button>
         </div>
       </footer>
 
