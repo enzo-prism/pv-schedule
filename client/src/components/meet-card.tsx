@@ -56,10 +56,10 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
   };
 
   return (
-    <Card className="overflow-hidden border border-accent bg-white shadow-sm meet-transition relative">
+    <Card className="overflow-hidden border border-gray-200 bg-white shadow-sm meet-transition relative">
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
-          <h3 className="font-semibold text-lg">{meet.name}</h3>
+          <h3 className="font-semibold text-lg text-gray-800">{meet.name}</h3>
           <div className="flex items-center gap-1">
             {(onEditClick || onDeleteClick) && (
               <DropdownMenu>
@@ -98,15 +98,15 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
           </div>
         </div>
         <div className="mt-2 flex items-center text-sm text-gray-600">
-          <Calendar className="text-secondary h-4 w-4 mr-1" />
+          <Calendar className="text-gray-500 h-4 w-4 mr-1" />
           <span>{formatDate(meet.date)}</span>
         </div>
         <div className="mt-1 flex items-center text-sm text-gray-600">
-          <MapPin className="text-secondary h-4 w-4 mr-1" />
+          <MapPin className="text-gray-500 h-4 w-4 mr-1" />
           <span>{meet.location}</span>
         </div>
         {meet.description && (
-          <div className="mt-3 pt-3 border-t border-accent">
+          <div className="mt-3 pt-3 border-t border-gray-200">
             <p className="text-sm text-gray-600">{meet.description}</p>
           </div>
         )}

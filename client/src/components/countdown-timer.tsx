@@ -63,11 +63,11 @@ export default function CountdownTimer({ meets }: CountdownTimerProps) {
   return (
     <div className="py-3 text-center flex items-center justify-center w-full">
       <span className="text-sm font-medium tracking-tight flex items-center">
-        <span className="bg-primary text-white font-bold rounded-full px-2.5 py-1 text-xs mr-2">
+        <span className="bg-gray-600 text-white font-bold rounded-full px-2.5 py-1 text-xs mr-2">
           {daysUntil}
         </span>
-        <span className="text-gray-700">
-          day{daysUntil !== 1 ? 's' : ''} until <span className="text-primary font-medium">{nextMeet.name}</span>
+        <span className="text-gray-500">
+          day{daysUntil !== 1 ? 's' : ''} until <span className="text-gray-600 font-medium">{nextMeet.name}</span>
         </span>
       </span>
     </div>

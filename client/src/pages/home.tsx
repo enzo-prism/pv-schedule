@@ -167,7 +167,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto px-4 py-3 flex justify-end">
           <Button 
             onClick={() => setIsAddMeetOpen(true)}
-            className="bg-primary hover:bg-primary/90 text-white p-2 h-auto w-auto rounded-full shadow-none transition-all hover:shadow-md"
+            className="bg-gray-600 hover:bg-gray-700 text-white p-2 h-auto w-auto rounded-full shadow-none transition-all hover:shadow-md"
             aria-label="Add a new track and field meet"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -204,16 +204,16 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="bg-accent/20 rounded p-8 text-center mt-6">
+          <div className="bg-gray-50 rounded p-8 text-center mt-6">
             <Clock className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-            <h3 className="text-base font-medium mb-2 text-primary">No meets found</h3>
+            <h3 className="text-base font-medium mb-2 text-gray-600">No meets found</h3>
             <p className="text-sm text-gray-500 mb-4">
               No track and field meets are currently {currentFilter === "all" ? "scheduled" : currentFilter === "upcoming" ? "upcoming" : "in the past"}.
             </p>
             {currentFilter !== "past" && (
               <Button 
                 onClick={() => setIsAddMeetOpen(true)}
-                className="bg-secondary hover:bg-secondary/90 text-black p-2 h-10 w-10 rounded-full shadow-none transition-all hover:shadow-md flex items-center justify-center mx-auto"
+                className="bg-gray-600 hover:bg-gray-700 text-white p-2 h-10 w-10 rounded-full shadow-none transition-all hover:shadow-md flex items-center justify-center mx-auto"
                 aria-label="Add your first meet"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -228,7 +228,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-accent/20 border-t border-accent/30 py-4">
+      <footer className="bg-gray-50 border-t border-gray-100 py-4">
         <div className="max-w-3xl mx-auto px-4 text-xs text-center text-gray-500">
           &copy; {new Date().getFullYear()} Track & Field Meet Schedule
         </div>

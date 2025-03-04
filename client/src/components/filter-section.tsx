@@ -15,7 +15,7 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         <Button
           variant="ghost"
           className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
-            currentFilter === "upcoming" ? "bg-white text-primary shadow-sm font-medium" : "text-gray-700 hover:text-primary hover:bg-white/80"
+            currentFilter === "upcoming" ? "bg-white text-gray-600 shadow-sm font-medium" : "text-gray-500 hover:text-gray-600 hover:bg-white/80"
           }`}
           onClick={() => onFilterChange("upcoming")}
           aria-label="Show upcoming meets"
@@ -26,7 +26,7 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         <Button
           variant="ghost"
           className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
-            currentFilter === "past" ? "bg-white text-primary shadow-sm font-medium" : "text-gray-700 hover:text-primary hover:bg-white/80"
+            currentFilter === "past" ? "bg-white text-gray-600 shadow-sm font-medium" : "text-gray-500 hover:text-gray-600 hover:bg-white/80"
           }`}
           onClick={() => onFilterChange("past")}
           aria-label="Show past meets"
@@ -37,7 +37,7 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         <Button
           variant="ghost"
           className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
-            currentFilter === "all" ? "bg-white text-primary shadow-sm font-medium" : "text-gray-700 hover:text-primary hover:bg-white/80"
+            currentFilter === "all" ? "bg-white text-gray-600 shadow-sm font-medium" : "text-gray-500 hover:text-gray-600 hover:bg-white/80"
           }`}
           onClick={() => onFilterChange("all")}
           aria-label="Show all meets"
