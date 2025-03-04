@@ -30,9 +30,8 @@ export default function MeetDetails() {
 
   // Fetch meet details
   const { data: meet, isLoading, isError } = useQuery<Meet>({
-    queryKey: ["/api/meets", meetId],
+    queryKey: [`/api/meets/${meetId}`],
     enabled: meetId !== null,
-    select: (data) => Array.isArray(data) ? data[0] : data,
   });
 
   const editMeetMutation = useMutation({
@@ -42,7 +41,7 @@ export default function MeetDetails() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/meets", meetId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
       setEditMeet(null);
       toast({
         title: "Meet updated",
