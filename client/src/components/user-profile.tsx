@@ -34,7 +34,16 @@ export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
         </div>
         <div>
           <h2 className="text-lg font-medium text-gray-800">{name}</h2>
-          <p className="text-xs text-gray-500">🇵🇭 FilAm Sports</p>
+          <p className="text-xs text-gray-500">
+            <a 
+              href="https://www.filamsports.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:underline hover:text-gray-600 transition-colors"
+            >
+              🇵🇭 FilAm Sports
+            </a>
+          </p>
         </div>
       </div>
     </div>
