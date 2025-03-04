@@ -7,7 +7,7 @@ interface UserProfileProps {
   name?: string;
 }
 
-export default function UserProfile({ name = "Enzo" }: UserProfileProps) {
+export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
   return (
     <div className="flex items-center justify-between py-4 mb-2">
       <div className="flex items-center gap-3">

@@ -169,7 +169,7 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-grow max-w-3xl mx-auto w-full px-4 py-5">
-        <UserProfile name="Enzo" />
+        <UserProfile name="Enzo Sison" />
         <FilterSection 
           currentFilter={currentFilter}
           onFilterChange={handleFilterChange}
@@ -220,7 +220,7 @@ export default function Home() {
       <footer className="bg-gray-50 border-t border-gray-100 py-4">
         <div className="max-w-3xl mx-auto px-4 flex items-center justify-between">
           <div className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} Track & Field Meet Schedule
+            &copy; {new Date().getFullYear()} FilAm Sports
           </div>
           <Button 
             onClick={() => setIsAddMeetOpen(true)}
