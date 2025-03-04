@@ -220,7 +220,7 @@ export default function Home() {
       <footer className="bg-gray-50 border-t border-gray-100 py-4">
         <div className="max-w-3xl mx-auto px-4 flex items-center justify-between">
           <div className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} FilAm Sports
+            &copy; {new Date().getFullYear()} Design Prism LLC
           </div>
           <Button 
             onClick={() => setIsAddMeetOpen(true)}

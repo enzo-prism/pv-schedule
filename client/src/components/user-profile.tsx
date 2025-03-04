@@ -33,8 +33,8 @@ export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
           />
         </div>
         <div>
-          <h2 className="text-lg font-medium text-gray-800">{name}'s Meet Tracker</h2>
-          <p className="text-xs text-gray-500">Track your upcoming track & field events</p>
+          <h2 className="text-lg font-medium text-gray-800">{name}</h2>
+          <p className="text-xs text-gray-500">FilAm Sports</p>
         </div>
       </div>
     </div>
