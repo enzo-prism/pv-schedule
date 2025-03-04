@@ -1,23 +1,43 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FaRunning } from "react-icons/fa";
-
-// Simple cartoon icon of a person with sunglasses
-const PROFILE_IMAGE = `data:image/png;base64,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x44d0+bNm0MRI1dxSCaTWrx4saZOnWrl/KUI0PDzevnvxCv9/f3OztXf3+91fDLGZF2PYVNer9TV1el0JqPs4KC9hw9r1le+oj3btlk5944TJ/R6T482btxoZb1zjY9G9cVLLlFVWZmVc/qF63n9GJ+sAQrLZ0DGGLNnzx5JUn19vbZt2+Z4GuDPXM7rx/hkFZpbsHPl9YZUf/2rYrfcou59+6TmZmnhwmJHAfyprk76n/+Rfv976aqrBn8VGUB+N+gXvLGefBBau1Z6+WVp/37pnntcTwMU59AhabzBW1fhxecfUCwadb0RVj7XbmqS2tul3/1OSvJuWPCZri5JkokyoFYEaH5trf7zr/5Ky//lX3T31q2upgEwlqlTJUmRaFQTZ892PIwdBd+CfbK7W6f7+nRrQ4P6OjuLGUq/WL1aBw8e1KJFi4pamxvfbuexuQ7z5qer4Acl+a+96IK0urq7lclkPHkRAoD8FXwLNr2yUlJ3qWZxZuXKla5HAJCnggO04NJLdSyVUnd/f6nmAYCCb8G+dccdpZoDgJjfxdO0AMKCAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcIYAAXCGAAFwhgABcGaS6wGGW7hwYcHvWd/YaHkSAEHA46gAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOECAAzhAgAM4QIADOMCAA7kSMMa5nABBSfAYEwBkCBMAZAgTAGQIEwJn/BwAA//+A05SXND2G9wAAAABJRU5ErkJggg==`;
+import React, { useState, useEffect } from "react";
+import { FaUserCircle } from "react-icons/fa";
 
 interface UserProfileProps {
   name?: string;
 }
 
 export default function UserProfile({ name = "Enzo" }: UserProfileProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  useEffect(() => {
+    // Reset image states when component mounts
+    setImageLoaded(false);
+    setImageError(false);
+    
+    // Preload image to check if it's available
+    const img = new Image();
+    img.src = "/images/enzo-profile.png";
+    img.onload = () => setImageLoaded(true);
+    img.onerror = () => setImageError(true);
+  }, []);
+
   return (
     <div className="flex items-center justify-between py-4 mb-2">
       <div className="flex items-center gap-3">
-        <Avatar className="h-12 w-12 border-2 border-gray-200 shadow-sm">
-          <AvatarImage src={PROFILE_IMAGE} alt={name} />
-          <AvatarFallback className="bg-gray-100 text-gray-700">
-            <FaRunning className="h-6 w-6" />
-          </AvatarFallback>
-        </Avatar>
+        <div className="h-14 w-14 rounded-full overflow-hidden border-2 border-gray-200 shadow-sm bg-white flex items-center justify-center">
+          {!imageError ? (
+            <img 
+              src="/images/enzo-profile.png" 
+              alt={`${name}'s profile`}
+              className={`h-12 w-12 object-contain ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{ transition: 'opacity 0.2s ease-in-out' }}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <FaUserCircle className="h-12 w-12 text-gray-400" />
+          )}
+        </div>
         <div>
           <h2 className="text-lg font-medium text-gray-800">{name}'s Meet Tracker</h2>
           <p className="text-xs text-gray-500">Track your upcoming track & field events</p>
