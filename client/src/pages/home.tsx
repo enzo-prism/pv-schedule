@@ -11,6 +11,7 @@ import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import CountdownTimer from "@/components/countdown-timer";
+import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past" | "all";
@@ -168,6 +169,7 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-grow max-w-3xl mx-auto w-full px-4 py-5">
+        <UserProfile name="Enzo" />
         <FilterSection 
           currentFilter={currentFilter}
           onFilterChange={handleFilterChange}
