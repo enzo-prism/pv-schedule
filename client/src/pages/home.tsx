@@ -11,7 +11,7 @@ import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import CountdownTimer from "@/components/countdown-timer";
-import UserProfile from "@/components/user-profile-png";
+import UserProfile from "@/components/user-profile-final";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past" | "all";
