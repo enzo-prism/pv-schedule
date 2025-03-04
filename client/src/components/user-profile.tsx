@@ -34,7 +34,7 @@ export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
         </div>
         <div>
           <h2 className="text-lg font-medium text-gray-800">{name}</h2>
-          <p className="text-xs text-gray-500">FilAm Sports</p>
+          <p className="text-xs text-gray-500">🇵🇭 FilAm Sports</p>
         </div>
       </div>
     </div>
