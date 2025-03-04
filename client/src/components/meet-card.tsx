@@ -40,9 +40,8 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
     return format(date, "EEEE, MMMM d, yyyy");
   };
 
+  // We still calculate isPast for internal filtering, but don't display it on home page
   const isPast = isPastDate(meet.date);
-  const statusClass = isPast ? "text-gray-400" : "text-green-600";
-  const statusText = isPast ? "Past" : "Upcoming";
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -67,43 +66,6 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
           <CardContent className="p-4">
             <div className="flex justify-between items-start">
               <h3 className="font-semibold text-lg text-gray-800">{meet.name}</h3>
-              <div className="flex items-center gap-1">
-                {(onEditClick || onDeleteClick) && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-7 w-7 rounded-full p-0"
-                        aria-label="More options"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreVertical className="h-4 w-4 text-gray-500" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                      {onEditClick && (
-                        <DropdownMenuItem onClick={handleEditClick} className="cursor-pointer">
-                          <Edit2 className="h-4 w-4 mr-2" />
-                          <span>Edit</span>
-                        </DropdownMenuItem>
-                      )}
-                      {onDeleteClick && (
-                        <DropdownMenuItem 
-                          onClick={handleDeleteClick} 
-                          className="cursor-pointer text-red-500 focus:text-red-500"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          <span>Delete</span>
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-                <span className={`${statusClass} text-xs font-medium px-2 py-1 bg-gray-100 rounded ml-1`}>
-                  {statusText}
-                </span>
-              </div>
             </div>
             <div className="mt-2 flex items-center text-sm text-gray-600">
               <Calendar className="text-gray-500 h-4 w-4 mr-1" />

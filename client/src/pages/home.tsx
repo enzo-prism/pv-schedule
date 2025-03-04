@@ -184,9 +184,7 @@ export default function Home() {
             {filteredMeets.map((meet: Meet) => (
               <MeetCard 
                 key={meet.id} 
-                meet={meet} 
-                onEditClick={handleEditClick}
-                onDeleteClick={handleDeleteClick}
+                meet={meet}
               />
             ))}
           </div>
