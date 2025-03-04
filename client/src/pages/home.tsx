@@ -161,17 +161,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Countdown Timer */}
-      <div className="sticky top-0 z-20 w-full">
+      {/* Countdown Timer with Add Button */}
+      <div className="sticky top-0 z-20 w-full bg-white shadow-sm">
         {!isLoading && <CountdownTimer meets={meets} />}
-      </div>
-      
-      {/* Header */}
-      <header className="bg-white sticky top-[22px] z-10 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-lg font-semibold text-primary tracking-tight">
-            Track & Field Schedule
-          </h1>
+        <div className="max-w-3xl mx-auto px-4 py-3 flex justify-end">
           <Button 
             onClick={() => setIsAddMeetOpen(true)}
             className="bg-primary hover:bg-primary/90 text-white p-2 h-auto w-auto rounded-full shadow-none transition-all hover:shadow-md"
@@ -184,7 +177,7 @@ export default function Home() {
             <span className="sr-only">Add Meet</span>
           </Button>
         </div>
-      </header>
+      </div>
 
       {/* Main content */}
       <main className="flex-grow max-w-3xl mx-auto w-full px-4 py-5">
