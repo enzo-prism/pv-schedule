@@ -167,15 +167,14 @@ export default function Home() {
       </div>
       
       {/* Header */}
-      <header className="bg-white border-b border-accent/50 sticky top-[22px] z-10">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-lg font-medium flex items-center">
-            <Calendar className="text-primary h-6 w-6" aria-label="Track & Field Schedule" />
-            <span className="sr-only">Track & Field Schedule</span>
+      <header className="bg-white sticky top-[22px] z-10 shadow-sm">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+          <h1 className="text-lg font-semibold text-primary tracking-tight">
+            Track & Field Schedule
           </h1>
           <Button 
             onClick={() => setIsAddMeetOpen(true)}
-            className="bg-secondary hover:bg-secondary/90 text-black p-2 h-auto w-auto rounded-full shadow-none transition-all hover:shadow-md"
+            className="bg-primary hover:bg-primary/90 text-white p-2 h-auto w-auto rounded-full shadow-none transition-all hover:shadow-md"
             aria-label="Add a new track and field meet"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

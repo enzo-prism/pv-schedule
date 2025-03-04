@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { useMemo } from "react";
 
@@ -61,10 +61,12 @@ export default function CountdownTimer({ meets }: CountdownTimerProps) {
   }
 
   return (
-    <div className="bg-secondary/5 px-3 py-1 text-xs text-center border-b border-secondary/10 flex items-center justify-center gap-1.5 w-full text-gray-600">
-      <Clock className="h-3 w-3 text-secondary/60" />
-      <span>
-        <span className="font-medium">{daysUntil}</span> day{daysUntil !== 1 ? 's' : ''} until {nextMeet.name}
+    <div className="bg-gradient-to-r from-primary/5 to-secondary/5 px-4 py-1.5 text-center flex items-center justify-center gap-2 w-full text-gray-700 shadow-sm">
+      <span className="text-sm font-medium tracking-tight flex items-center">
+        <span className="bg-primary/10 text-primary font-bold rounded-full px-2 py-0.5 text-xs mr-2">
+          {daysUntil}
+        </span>
+        day{daysUntil !== 1 ? 's' : ''} until {nextMeet.name}
       </span>
     </div>
   );

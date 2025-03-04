@@ -11,42 +11,39 @@ interface FilterSectionProps {
 export default function FilterSection({ currentFilter, onFilterChange }: FilterSectionProps) {
   return (
     <div className="mb-6 flex justify-center items-center">
-      <div className="bg-accent/40 rounded-full inline-flex items-center p-1">
+      <div className="bg-gray-100 rounded-md inline-flex items-center p-0.5 gap-1">
         <Button
           variant="ghost"
-          className={`p-2 h-9 w-9 rounded-full transition-colors ${
-            currentFilter === "upcoming" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
+          className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+            currentFilter === "upcoming" ? "bg-white text-primary shadow-sm font-medium" : "text-gray-700 hover:text-primary hover:bg-white/80"
           }`}
           onClick={() => onFilterChange("upcoming")}
           aria-label="Show upcoming meets"
-          title="Upcoming"
         >
-          <CalendarClock size={18} />
-          <span className="sr-only">Upcoming</span>
+          <CalendarClock size={14} />
+          <span>Upcoming</span>
         </Button>
         <Button
           variant="ghost"
-          className={`p-2 h-9 w-9 rounded-full transition-colors ${
-            currentFilter === "past" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
+          className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+            currentFilter === "past" ? "bg-white text-primary shadow-sm font-medium" : "text-gray-700 hover:text-primary hover:bg-white/80"
           }`}
           onClick={() => onFilterChange("past")}
           aria-label="Show past meets"
-          title="Past"
         >
-          <History size={18} />
-          <span className="sr-only">Past</span>
+          <History size={14} />
+          <span>Past</span>
         </Button>
         <Button
           variant="ghost"
-          className={`p-2 h-9 w-9 rounded-full transition-colors ${
-            currentFilter === "all" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-primary hover:bg-white/50"
+          className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+            currentFilter === "all" ? "bg-white text-primary shadow-sm font-medium" : "text-gray-700 hover:text-primary hover:bg-white/80"
           }`}
           onClick={() => onFilterChange("all")}
           aria-label="Show all meets"
-          title="All"
         >
-          <ListFilter size={18} />
-          <span className="sr-only">All</span>
+          <ListFilter size={14} />
+          <span>All</span>
         </Button>
       </div>
     </div>
