@@ -1,8 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Edit2, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface MeetCardProps {
   meet: Meet;
@@ -55,29 +61,36 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg">{meet.name}</h3>
           <div className="flex items-center gap-1">
-            {onEditClick && (
-              <Button 
-                onClick={handleEditClick}
-                variant="ghost" 
-                size="sm" 
-                className="h-7 w-7 rounded-full p-0"
-                aria-label="Edit meet"
-                title="Edit"
-              >
-                <Edit2 className="h-4 w-4 text-gray-500" />
-              </Button>
-            )}
-            {onDeleteClick && (
-              <Button 
-                onClick={handleDeleteClick}
-                variant="ghost" 
-                size="sm" 
-                className="h-7 w-7 rounded-full p-0 hover:bg-red-50 hover:text-red-500"
-                aria-label="Delete meet"
-                title="Delete"
-              >
-                <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500" />
-              </Button>
+            {(onEditClick || onDeleteClick) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-7 w-7 rounded-full p-0"
+                    aria-label="More options"
+                  >
+                    <MoreVertical className="h-4 w-4 text-gray-500" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {onEditClick && (
+                    <DropdownMenuItem onClick={handleEditClick} className="cursor-pointer">
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      <span>Edit</span>
+                    </DropdownMenuItem>
+                  )}
+                  {onDeleteClick && (
+                    <DropdownMenuItem 
+                      onClick={handleDeleteClick} 
+                      className="cursor-pointer text-red-500 focus:text-red-500"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      <span>Delete</span>
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
             <span className={`${statusClass} text-xs font-medium px-2 py-1 bg-gray-100 rounded ml-1`}>
               {statusText}
