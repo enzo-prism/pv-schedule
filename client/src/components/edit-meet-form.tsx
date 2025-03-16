@@ -226,7 +226,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
           
           <Button 
             type="submit" 
-            className="w-full bg-secondary hover:bg-secondary/90 text-black py-2 h-auto rounded shadow-none transition-all hover:shadow-md mt-3 font-medium"
+            className="w-full bg-secondary hover:bg-secondary/90 text-black py-2 h-auto rounded shadow-none transition-all hover:shadow-md mt-3 font-medium mb-2"
             disabled={isLoading}
           >
             {isLoading ? "Saving..." : "Save Changes"}
