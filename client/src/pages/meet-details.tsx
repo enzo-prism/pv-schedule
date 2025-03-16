@@ -2,7 +2,7 @@ import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Meet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical, Ruler, Award, Navigation } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -35,7 +35,7 @@ export default function MeetDetails() {
   });
 
   const editMeetMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string } }) => {
       const res = await apiRequest("PUT", `/api/meets/${id}`, data);
       return res.json();
     },
@@ -81,7 +81,15 @@ export default function MeetDetails() {
     },
   });
 
-  const handleEditMeet = (meetData: { name: string; date: string; location: string; description?: string }) => {
+  const handleEditMeet = (meetData: { 
+    name: string; 
+    date: string; 
+    location: string; 
+    description?: string;
+    heightCleared?: string;
+    poleUsed?: string;
+    deepestTakeoff?: string;
+  }) => {
     if (meetId) {
       editMeetMutation.mutate({
         id: meetId,
@@ -247,6 +255,43 @@ export default function MeetDetails() {
               <div>
                 <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DESCRIPTION</h2>
                 <p className="text-gray-700 whitespace-pre-line text-sm">{meet.description}</p>
+              </div>
+            )}
+            
+            {/* Pole vault performance metrics section - only displayed if any of the fields have data */}
+            {(meet.heightCleared || meet.poleUsed || meet.deepestTakeoff) && (
+              <div className="pt-2 mt-2 border-t border-gray-100">
+                <h2 className="text-xs uppercase font-medium text-gray-500 mb-3">POLE VAULT METRICS</h2>
+                
+                {meet.heightCleared && (
+                  <div className="flex items-center text-gray-800 mb-3">
+                    <Ruler className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <div>
+                      <span className="text-xs text-gray-500 block">Height Cleared</span>
+                      <span className="text-sm">{meet.heightCleared}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {meet.poleUsed && (
+                  <div className="flex items-center text-gray-800 mb-3">
+                    <Award className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <div>
+                      <span className="text-xs text-gray-500 block">Pole Used</span>
+                      <span className="text-sm">{meet.poleUsed}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {meet.deepestTakeoff && (
+                  <div className="flex items-center text-gray-800">
+                    <Navigation className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <div>
+                      <span className="text-xs text-gray-500 block">Deepest Takeoff</span>
+                      <span className="text-sm">{meet.deepestTakeoff}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
