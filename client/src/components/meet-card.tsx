@@ -16,9 +16,10 @@ interface MeetCardProps {
   meet: Meet;
   onEditClick?: (meet: Meet) => void;
   onDeleteClick?: (meetId: number) => void;
+  isNextUpcoming?: boolean;
 }
 
-export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardProps) {
+export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcoming = false }: MeetCardProps) {
   const isPastDate = (dateString: string | Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -29,6 +30,21 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
       : new Date(dateString);
       
     return meetDate < today;
+  };
+  
+  // This function calculates how many days until the meet
+  const getDaysUntil = (dateString: string | Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
+      ? new Date(`${dateString}T00:00:00`)
+      : new Date(dateString);
+    
+    const diffTime = Math.abs(meetDate.getTime() - today.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
   };
 
   const formatDate = (dateString: string | Date) => {
@@ -60,11 +76,19 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
     }
   };
 
+  // Calculate days until the meet (for upcoming meets)
+  const daysUntil = !isPast ? getDaysUntil(meet.date) : 0;
+
   return (
     <Link href={`/meet/${meet.id}`}>
       <a className="block cursor-pointer hover:opacity-95 transition-opacity">
-        <Card className="overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200 relative">
-          <CardContent className="p-4">
+        <Card className={`overflow-hidden border ${isNextUpcoming && !isPast ? 'border-gray-400 bg-gray-50' : 'border-gray-200 bg-white'} shadow-sm hover:shadow-md transition-shadow duration-200 relative ${isNextUpcoming && !isPast ? 'ring-1 ring-gray-300' : ''}`}>
+          <CardContent className={`p-4 ${isNextUpcoming && !isPast ? 'pb-5' : ''}`}>
+            {isNextUpcoming && !isPast && (
+              <div className="absolute top-0 right-0 bg-gray-600 text-white text-xs px-2 py-1 rounded-bl font-medium">
+                {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
+              </div>
+            )}
             <div className="flex justify-between items-start">
               <h3 className="font-semibold text-lg text-gray-800">{meet.name}</h3>
             </div>

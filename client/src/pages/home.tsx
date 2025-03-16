@@ -174,6 +174,13 @@ export default function Home() {
       : new Date(dateString);
   };
 
+  // Find all upcoming meets
+  const upcomingMeets = meets.filter(meet => !isPastDate(meet.date))
+    .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
+  
+  // Get the ID of the next upcoming meet (first in the sorted list)
+  const nextUpcomingMeetId = upcomingMeets.length > 0 ? upcomingMeets[0].id : null;
+  
   const filteredMeets = meets.filter((meet) => {
     if (currentFilter === "upcoming") {
       return !isPastDate(meet.date);
@@ -223,6 +230,7 @@ export default function Home() {
                 meet={meet}
                 onEditClick={handleEditClick}
                 onDeleteClick={handleDeleteClick}
+                isNextUpcoming={meet.id === nextUpcomingMeetId && currentFilter !== "past"}
               />
             ))}
           </div>
