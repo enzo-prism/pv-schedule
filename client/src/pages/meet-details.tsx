@@ -253,57 +253,57 @@ export default function MeetDetails() {
               </div>
             </div>
             
-            {meet.description && (
-              <div>
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DESCRIPTION</h2>
-                <p className="text-gray-700 whitespace-pre-line text-sm">{meet.description}</p>
-              </div>
-            )}
-            
             {/* Pole vault performance metrics section - only displayed if any of the fields have data */}
             {(meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
-              <div className="pt-2 mt-2 border-t border-gray-100">
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-3">POLE VAULT METRICS</h2>
+              <div>
+                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">POLE VAULT METRICS</h2>
                 
                 {meet.heightCleared && (
                   <div className="flex items-center text-gray-800 mb-3">
-                    <HeightIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <HeightIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Height Cleared</span>
-                      <span className="text-sm">{meet.heightCleared}</span>
+                      <span className="text-base">{meet.heightCleared}</span>
                     </div>
                   </div>
                 )}
                 
                 {meet.poleUsed && (
                   <div className="flex items-center text-gray-800 mb-3">
-                    <PoleIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <PoleIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Pole Used</span>
-                      <span className="text-sm">{meet.poleUsed}</span>
+                      <span className="text-base">{meet.poleUsed}</span>
                     </div>
                   </div>
                 )}
                 
                 {meet.deepestTakeoff && (
                   <div className="flex items-center text-gray-800 mb-3">
-                    <TakeoffIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <TakeoffIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Deepest Takeoff</span>
-                      <span className="text-sm">{meet.deepestTakeoff}</span>
+                      <span className="text-base">{meet.deepestTakeoff}</span>
                     </div>
                   </div>
                 )}
 
                 {meet.place && (
                   <div className="flex items-center text-gray-800">
-                    <PlaceIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <PlaceIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Place/Ranking</span>
-                      <span className="text-sm">{meet.place}</span>
+                      <span className="text-base">{meet.place}</span>
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+            
+            {meet.description && (
+              <div>
+                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DESCRIPTION</h2>
+                <p className="text-gray-700 whitespace-pre-line text-sm">{meet.description}</p>
               </div>
             )}
           </div>
