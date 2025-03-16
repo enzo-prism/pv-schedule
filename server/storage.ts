@@ -112,6 +112,7 @@ export class PgStorage implements IStorage {
           heightCleared: row.height_cleared,
           poleUsed: row.pole_used,
           deepestTakeoff: row.deepest_takeoff,
+          place: row.place,
           createdAt: row.created_at
         };
       });
