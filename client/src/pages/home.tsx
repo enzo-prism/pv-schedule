@@ -29,7 +29,16 @@ export default function Home() {
   });
 
   const addMeetMutation = useMutation({
-    mutationFn: async (meetData: { name: string; date: string; location: string; description?: string }) => {
+    mutationFn: async (meetData: { 
+      name: string; 
+      date: string; 
+      location: string; 
+      description?: string;
+      heightCleared?: string;
+      poleUsed?: string;
+      deepestTakeoff?: string;
+      place?: string;
+    }) => {
       const res = await apiRequest("POST", "/api/meets", meetData);
       return res.json();
     },
@@ -51,7 +60,7 @@ export default function Home() {
   });
 
   const editMeetMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string } }) => {
       const res = await apiRequest("PUT", `/api/meets/${id}`, data);
       return res.json();
     },
@@ -95,11 +104,29 @@ export default function Home() {
     },
   });
 
-  const handleAddMeet = (meetData: { name: string; date: string; location: string; description?: string }) => {
+  const handleAddMeet = (meetData: { 
+    name: string; 
+    date: string; 
+    location: string; 
+    description?: string;
+    heightCleared?: string;
+    poleUsed?: string;
+    deepestTakeoff?: string;
+    place?: string;
+  }) => {
     addMeetMutation.mutate(meetData);
   };
 
-  const handleEditMeet = (meetData: { name: string; date: string; location: string; description?: string }) => {
+  const handleEditMeet = (meetData: { 
+    name: string; 
+    date: string; 
+    location: string; 
+    description?: string;
+    heightCleared?: string;
+    poleUsed?: string;
+    deepestTakeoff?: string;
+    place?: string;
+  }) => {
     if (editMeet) {
       editMeetMutation.mutate({
         id: editMeet.id,
@@ -154,7 +181,14 @@ export default function Home() {
       return isPastDate(meet.date);
     }
     return true;
-  }).sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
+  }).sort((a, b) => {
+    // For past meets, sort by most recent to oldest (descending order)
+    if (currentFilter === "past") {
+      return parseDate(b.date).getTime() - parseDate(a.date).getTime();
+    }
+    // For upcoming meets and all meets, sort by closest date first (ascending order)
+    return parseDate(a.date).getTime() - parseDate(b.date).getTime();
+  });
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);
