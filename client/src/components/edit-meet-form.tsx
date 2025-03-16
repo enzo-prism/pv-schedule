@@ -27,6 +27,9 @@ const formSchema = z.object({
     message: "Location must be at least 2 characters.",
   }),
   description: z.string().optional(),
+  heightCleared: z.string().optional(),
+  poleUsed: z.string().optional(),
+  deepestTakeoff: z.string().optional(),
 });
 
 interface EditMeetFormProps {
@@ -53,6 +56,9 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       date: formatDateForInput(meet.date),
       location: meet.location,
       description: meet.description || "",
+      heightCleared: meet.heightCleared || "",
+      poleUsed: meet.poleUsed || "",
+      deepestTakeoff: meet.deepestTakeoff || "",
     },
   });
 
@@ -136,6 +142,60 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                     placeholder="Add any additional details about the meet" 
                     className="resize-none border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     rows={3}
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="heightCleared"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Height Cleared (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., 2.10m" 
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="poleUsed"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Pole Used (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., Carbon Fiber 4.5m" 
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="deepestTakeoff"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Deepest Takeoff (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., 3.8m" 
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />
                 </FormControl>

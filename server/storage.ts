@@ -143,6 +143,9 @@ export class PgStorage implements IStorage {
         date: dateStr,
         location: row.location,
         description: row.description,
+        heightCleared: row.height_cleared,
+        poleUsed: row.pole_used,
+        deepestTakeoff: row.deepest_takeoff,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -333,10 +336,14 @@ export class MemStorage implements IStorage {
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     const id = this.currentId++;
     const meet: Meet = { 
-      ...insertMeet,
+      name: insertMeet.name,
       date: adjustDateForTimezone(insertMeet.date), // Adjust date to avoid timezone issues
-      id,
+      location: insertMeet.location,
       description: insertMeet.description || null,
+      heightCleared: insertMeet.heightCleared || null,
+      poleUsed: insertMeet.poleUsed || null,
+      deepestTakeoff: insertMeet.deepestTakeoff || null,
+      id,
       createdAt: new Date()
     };
     this.meets.set(id, meet);
