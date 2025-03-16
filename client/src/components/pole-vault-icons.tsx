@@ -65,3 +65,22 @@ export const TakeoffIcon: React.FC<IconProps> = ({ className = "" }) => (
     <path d="M17 13L12 14L7 13" />
   </svg>
 );
+
+export const PlaceIcon: React.FC<IconProps> = ({ className = "" }) => (
+  <svg 
+    width="16" 
+    height="16" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    stroke="currentColor" 
+    strokeWidth="1.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    {/* Abstract minimalist place/ranking icon */}
+    <path d="M12 7L14 10L18 11L15 14L16 18L12 16L8 18L9 14L6 11L10 10L12 7Z" />
+    <path d="M8 4H16" />
+  </svg>
+);

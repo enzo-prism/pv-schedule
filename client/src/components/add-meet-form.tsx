@@ -30,6 +30,7 @@ const formSchema = z.object({
   heightCleared: z.string().optional(),
   poleUsed: z.string().optional(),
   deepestTakeoff: z.string().optional(),
+  place: z.string().optional(),
 });
 
 interface AddMeetFormProps {
@@ -50,6 +51,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
       heightCleared: "",
       poleUsed: "",
       deepestTakeoff: "",
+      place: "",
     },
   });
 
@@ -187,6 +189,24 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., 3.8m" 
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="place"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Place/Ranking (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., 1st, 2nd, 3rd" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />

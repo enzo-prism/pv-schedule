@@ -30,6 +30,7 @@ const formSchema = z.object({
   heightCleared: z.string().optional(),
   poleUsed: z.string().optional(),
   deepestTakeoff: z.string().optional(),
+  place: z.string().optional(),
 });
 
 interface EditMeetFormProps {
