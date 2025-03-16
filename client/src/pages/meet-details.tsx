@@ -2,7 +2,8 @@ import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Meet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical, Ruler, Award, Navigation } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
+import { HeightIcon, PoleIcon, TakeoffIcon } from "@/components/pole-vault-icons";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -265,7 +266,7 @@ export default function MeetDetails() {
                 
                 {meet.heightCleared && (
                   <div className="flex items-center text-gray-800 mb-3">
-                    <Ruler className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <HeightIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Height Cleared</span>
                       <span className="text-sm">{meet.heightCleared}</span>
@@ -275,7 +276,7 @@ export default function MeetDetails() {
                 
                 {meet.poleUsed && (
                   <div className="flex items-center text-gray-800 mb-3">
-                    <Award className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <PoleIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Pole Used</span>
                       <span className="text-sm">{meet.poleUsed}</span>
@@ -285,7 +286,7 @@ export default function MeetDetails() {
                 
                 {meet.deepestTakeoff && (
                   <div className="flex items-center text-gray-800">
-                    <Navigation className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <TakeoffIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Deepest Takeoff</span>
                       <span className="text-sm">{meet.deepestTakeoff}</span>
