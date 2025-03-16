@@ -78,7 +78,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       </DialogHeader>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 pt-2">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 pt-2 overflow-y-auto max-h-[65vh] pr-2">
           <FormField
             control={form.control}
             name="name"

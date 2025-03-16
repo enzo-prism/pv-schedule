@@ -69,7 +69,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
       </DialogHeader>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 pt-2">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 pt-2 overflow-y-auto max-h-[65vh] pr-2">
           <FormField
             control={form.control}
             name="name"
@@ -218,7 +218,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
           
           <Button 
             type="submit" 
-            className="w-full bg-secondary hover:bg-secondary/90 text-black py-2 h-auto rounded shadow-none transition-all hover:shadow-md mt-3 font-medium"
+            className="w-full bg-secondary hover:bg-secondary/90 text-black py-2 h-auto rounded shadow-none transition-all hover:shadow-md mt-3 font-medium mb-2"
             disabled={isLoading}
           >
             {isLoading ? "Adding..." : "Add Meet"}
