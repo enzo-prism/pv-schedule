@@ -4,6 +4,7 @@ import { Meet } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,9 +76,46 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
               <MapPin className="text-gray-500 h-4 w-4 mr-1" />
               <span>{meet.location}</span>
             </div>
+            
             {meet.description && (
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <p className="text-sm text-gray-600 line-clamp-2">{meet.description}</p>
+              </div>
+            )}
+            
+            {/* Only show metrics for past meets and if at least one metric exists */}
+            {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <h4 className="text-xs uppercase font-medium text-gray-500 mb-2">Performance</h4>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-2">
+                  {meet.heightCleared && (
+                    <div className="flex items-center">
+                      <HeightIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-600 truncate">{meet.heightCleared}</span>
+                    </div>
+                  )}
+                  
+                  {meet.poleUsed && (
+                    <div className="flex items-center">
+                      <PoleIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-600 truncate">{meet.poleUsed}</span>
+                    </div>
+                  )}
+                  
+                  {meet.deepestTakeoff && (
+                    <div className="flex items-center">
+                      <TakeoffIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-600 truncate">{meet.deepestTakeoff}</span>
+                    </div>
+                  )}
+                  
+                  {meet.place && (
+                    <div className="flex items-center">
+                      <PlaceIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-600 truncate">{meet.place}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
