@@ -60,6 +60,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       heightCleared: meet.heightCleared || "",
       poleUsed: meet.poleUsed || "",
       deepestTakeoff: meet.deepestTakeoff || "",
+      place: meet.place || "",
     },
   });
 
@@ -196,6 +197,24 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 3.8m" 
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="place"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Place/Ranking (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., 1st, 2nd, 3rd" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />

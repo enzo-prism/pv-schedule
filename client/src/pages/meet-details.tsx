@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Meet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
-import { HeightIcon, PoleIcon, TakeoffIcon } from "@/components/pole-vault-icons";
+import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -36,7 +36,7 @@ export default function MeetDetails() {
   });
 
   const editMeetMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string } }) => {
       const res = await apiRequest("PUT", `/api/meets/${id}`, data);
       return res.json();
     },
@@ -90,6 +90,7 @@ export default function MeetDetails() {
     heightCleared?: string;
     poleUsed?: string;
     deepestTakeoff?: string;
+    place?: string;
   }) => {
     if (meetId) {
       editMeetMutation.mutate({
@@ -260,7 +261,7 @@ export default function MeetDetails() {
             )}
             
             {/* Pole vault performance metrics section - only displayed if any of the fields have data */}
-            {(meet.heightCleared || meet.poleUsed || meet.deepestTakeoff) && (
+            {(meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
               <div className="pt-2 mt-2 border-t border-gray-100">
                 <h2 className="text-xs uppercase font-medium text-gray-500 mb-3">POLE VAULT METRICS</h2>
                 
@@ -285,11 +286,21 @@ export default function MeetDetails() {
                 )}
                 
                 {meet.deepestTakeoff && (
-                  <div className="flex items-center text-gray-800">
+                  <div className="flex items-center text-gray-800 mb-3">
                     <TakeoffIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-gray-500 block">Deepest Takeoff</span>
                       <span className="text-sm">{meet.deepestTakeoff}</span>
+                    </div>
+                  </div>
+                )}
+
+                {meet.place && (
+                  <div className="flex items-center text-gray-800">
+                    <PlaceIcon className="h-4 w-4 mr-2 text-gray-600 flex-shrink-0" />
+                    <div>
+                      <span className="text-xs text-gray-500 block">Place/Ranking</span>
+                      <span className="text-sm">{meet.place}</span>
                     </div>
                   </div>
                 )}
