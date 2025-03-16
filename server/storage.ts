@@ -109,6 +109,9 @@ export class PgStorage implements IStorage {
           date: dateStr,
           location: row.location,
           description: row.description,
+          heightCleared: row.height_cleared,
+          poleUsed: row.pole_used,
+          deepestTakeoff: row.deepest_takeoff,
           createdAt: row.created_at
         };
       });
@@ -151,8 +154,8 @@ export class PgStorage implements IStorage {
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     try {
       const query = `
-        INSERT INTO meets (name, date, location, description)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *
       `;
       
@@ -160,7 +163,10 @@ export class PgStorage implements IStorage {
         insertMeet.name,
         adjustDateForTimezone(insertMeet.date), // Adjust date to avoid timezone issues
         insertMeet.location,
-        insertMeet.description || null
+        insertMeet.description || null,
+        insertMeet.heightCleared || null,
+        insertMeet.poleUsed || null,
+        insertMeet.deepestTakeoff || null
       ];
       
       const result = await db.query(query, values);
@@ -177,6 +183,9 @@ export class PgStorage implements IStorage {
         date: dateStr,
         location: row.location,
         description: row.description,
+        heightCleared: row.height_cleared,
+        poleUsed: row.pole_used,
+        deepestTakeoff: row.deepest_takeoff,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -195,8 +204,8 @@ export class PgStorage implements IStorage {
       
       const query = `
         UPDATE meets
-        SET name = $1, date = $2, location = $3, description = $4
-        WHERE id = $5
+        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7
+        WHERE id = $8
         RETURNING *
       `;
       
@@ -205,6 +214,9 @@ export class PgStorage implements IStorage {
         adjustDateForTimezone(updateMeet.date), // Adjust date to avoid timezone issues
         updateMeet.location,
         updateMeet.description || null,
+        updateMeet.heightCleared || null,
+        updateMeet.poleUsed || null,
+        updateMeet.deepestTakeoff || null,
         id
       ];
       
@@ -227,6 +239,9 @@ export class PgStorage implements IStorage {
         date: dateStr,
         location: row.location,
         description: row.description,
+        heightCleared: row.height_cleared,
+        poleUsed: row.pole_used,
+        deepestTakeoff: row.deepest_takeoff,
         createdAt: row.created_at
       };
     } catch (error) {

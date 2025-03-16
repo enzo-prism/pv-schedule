@@ -8,6 +8,9 @@ export const meets = pgTable("meets", {
   date: date("date").notNull(),
   location: text("location").notNull(),
   description: text("description"),
+  heightCleared: text("height_cleared"),
+  poleUsed: text("pole_used"),
+  deepestTakeoff: text("deepest_takeoff"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -16,6 +19,9 @@ export const insertMeetSchema = createInsertSchema(meets).pick({
   date: true,
   location: true,
   description: true,
+  heightCleared: true,
+  poleUsed: true,
+  deepestTakeoff: true,
 });
 
 export type InsertMeet = z.infer<typeof insertMeetSchema>;
