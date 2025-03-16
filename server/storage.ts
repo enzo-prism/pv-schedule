@@ -147,6 +147,7 @@ export class PgStorage implements IStorage {
         heightCleared: row.height_cleared,
         poleUsed: row.pole_used,
         deepestTakeoff: row.deepest_takeoff,
+        place: row.place,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -191,6 +192,7 @@ export class PgStorage implements IStorage {
         heightCleared: row.height_cleared,
         poleUsed: row.pole_used,
         deepestTakeoff: row.deepest_takeoff,
+        place: row.place,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -209,8 +211,8 @@ export class PgStorage implements IStorage {
       
       const query = `
         UPDATE meets
-        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7
-        WHERE id = $8
+        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7, place = $8
+        WHERE id = $9
         RETURNING *
       `;
       
@@ -222,6 +224,7 @@ export class PgStorage implements IStorage {
         updateMeet.heightCleared || null,
         updateMeet.poleUsed || null,
         updateMeet.deepestTakeoff || null,
+        updateMeet.place || null,
         id
       ];
       
@@ -247,6 +250,7 @@ export class PgStorage implements IStorage {
         heightCleared: row.height_cleared,
         poleUsed: row.pole_used,
         deepestTakeoff: row.deepest_takeoff,
+        place: row.place,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -345,6 +349,7 @@ export class MemStorage implements IStorage {
       heightCleared: insertMeet.heightCleared || null,
       poleUsed: insertMeet.poleUsed || null,
       deepestTakeoff: insertMeet.deepestTakeoff || null,
+      place: insertMeet.place || null,
       id,
       createdAt: new Date()
     };
