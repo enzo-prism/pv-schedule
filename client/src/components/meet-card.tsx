@@ -77,12 +77,6 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
               <span>{meet.location}</span>
             </div>
             
-            {meet.description && (
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <p className="text-sm text-gray-600 line-clamp-2">{meet.description}</p>
-              </div>
-            )}
-            
             {/* Only show metrics for past meets and if at least one metric exists */}
             {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
               <div className="mt-3 pt-3 border-t border-gray-200">
@@ -116,6 +110,12 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick }: MeetCardP
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+            
+            {meet.description && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <p className="text-sm text-gray-600 line-clamp-2">{meet.description}</p>
               </div>
             )}
           </CardContent>
