@@ -158,8 +158,8 @@ export class PgStorage implements IStorage {
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     try {
       const query = `
-        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff, place)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
       `;
       
@@ -170,7 +170,8 @@ export class PgStorage implements IStorage {
         insertMeet.description || null,
         insertMeet.heightCleared || null,
         insertMeet.poleUsed || null,
-        insertMeet.deepestTakeoff || null
+        insertMeet.deepestTakeoff || null,
+        insertMeet.place || null
       ];
       
       const result = await db.query(query, values);
