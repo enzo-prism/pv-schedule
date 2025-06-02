@@ -876,7 +876,7 @@ export default function Home() {
   const nextUpcomingMeetId = upcomingMeets.length > 0 ? upcomingMeets[0].id : null;
   
   const filteredMeets = currentFilter === "filam" 
-    ? filamMeets.sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
+    ? filamMeets.filter(meet => !isPastDate(meet.date)).sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
     : meets.filter((meet) => {
         if (currentFilter === "upcoming") {
           return !isPastDate(meet.date);
