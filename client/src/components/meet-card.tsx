@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Edit2, Trash2, MoreVertical, Clock } from "lucide-react";
+import { Calendar, MapPin, Edit2, Trash2, MoreVertical, Car } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -127,7 +127,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                 
                 {meet.driveTime && (
                   <div className="flex items-center text-xs text-gray-500">
-                    <Clock className="h-3 w-3 mr-1" />
+                    <Car className="h-3 w-3 mr-1" />
                     <span>{meet.driveTime}</span>
                   </div>
                 )}
