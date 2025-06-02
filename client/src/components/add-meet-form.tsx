@@ -31,6 +31,8 @@ const formSchema = z.object({
   poleUsed: z.string().optional(),
   deepestTakeoff: z.string().optional(),
   place: z.string().optional(),
+  link: z.string().optional(),
+  driveTime: z.string().optional(),
 });
 
 interface AddMeetFormProps {
@@ -52,6 +54,8 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
       poleUsed: "",
       deepestTakeoff: "",
       place: "",
+      link: "",
+      driveTime: "",
     },
   });
 
@@ -207,6 +211,43 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., 1st, 2nd, 3rd" 
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="link"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Meet Link (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., https://athletic.net/meet/12345" 
+                    type="url"
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="driveTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Drive Time to Meet (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., 2 hours, 45 minutes" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />

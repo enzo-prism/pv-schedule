@@ -31,6 +31,8 @@ const formSchema = z.object({
   poleUsed: z.string().optional(),
   deepestTakeoff: z.string().optional(),
   place: z.string().optional(),
+  link: z.string().optional(),
+  driveTime: z.string().optional(),
 });
 
 interface EditMeetFormProps {
