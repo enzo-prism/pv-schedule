@@ -223,6 +223,11 @@ export default function MeetDetails() {
                 <Badge variant="outline" className={`${statusClass} font-normal text-xs px-2 py-0.5`}>
                   {isPast ? 'Past' : 'Upcoming'}
                 </Badge>
+                {isFilamMeet && (
+                  <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 font-normal text-xs px-2 py-0.5">
+                    🇵🇭 FilAm
+                  </Badge>
+                )}
                 <div className="flex items-center text-gray-500">
                   <Clock className="h-3.5 w-3.5 mr-1" />
                   <span className="text-xs">{getDayDifference(meet.date)}</span>
@@ -244,15 +249,17 @@ export default function MeetDetails() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setEditMeet(meet)} className="cursor-pointer">
                   <Edit2 className="h-4 w-4 mr-2" />
-                  <span>Edit</span>
+                  <span>{isFilamMeet ? "Add to Schedule" : "Edit"}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setDeleteConfirmOpen(true)} 
-                  className="cursor-pointer text-red-500 focus:text-red-500"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  <span>Delete</span>
-                </DropdownMenuItem>
+                {!isFilamMeet && (
+                  <DropdownMenuItem 
+                    onClick={() => setDeleteConfirmOpen(true)} 
+                    className="cursor-pointer text-red-500 focus:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
