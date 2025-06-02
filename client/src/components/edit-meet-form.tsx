@@ -63,6 +63,8 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       poleUsed: meet.poleUsed || "",
       deepestTakeoff: meet.deepestTakeoff || "",
       place: meet.place || "",
+      link: meet.link || "",
+      driveTime: meet.driveTime || "",
     },
   });
 
@@ -217,6 +219,43 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 1st, 2nd, 3rd" 
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="link"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Meet Link (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., https://athletic.net/meet/12345" 
+                    type="url"
+                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="driveTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Drive Time to Meet (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g., 2 hours, 45 minutes" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
                     {...field} 
                   />

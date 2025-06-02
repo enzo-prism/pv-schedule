@@ -91,6 +91,8 @@ export default function MeetDetails() {
     poleUsed?: string;
     deepestTakeoff?: string;
     place?: string;
+    link?: string;
+    driveTime?: string;
   }) => {
     if (meetId) {
       editMeetMutation.mutate({
@@ -297,6 +299,41 @@ export default function MeetDetails() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+            
+            {/* Meet Link */}
+            {meet.link && (
+              <div>
+                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">MEET LINK</h2>
+                <div className="flex items-center text-gray-800">
+                  <svg className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                  <a 
+                    href={meet.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline text-base break-all"
+                  >
+                    {meet.link}
+                  </a>
+                </div>
+              </div>
+            )}
+            
+            {/* Drive Time */}
+            {meet.driveTime && (
+              <div>
+                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DRIVE TIME</h2>
+                <div className="flex items-center text-gray-800">
+                  <svg className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12,6 12,12 16,14"></polyline>
+                  </svg>
+                  <span className="text-base">{meet.driveTime}</span>
+                </div>
               </div>
             )}
             
