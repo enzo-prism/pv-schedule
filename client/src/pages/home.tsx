@@ -311,8 +311,8 @@ export default function Home() {
               <MeetCard 
                 key={meet.id} 
                 meet={meet}
-                onEditClick={handleEditClick}
-                onDeleteClick={handleDeleteClick}
+                onEditClick={currentFilter === "filam" ? undefined : handleEditClick}
+                onDeleteClick={currentFilter === "filam" ? undefined : handleDeleteClick}
                 isNextUpcoming={meet.id === nextUpcomingMeetId && currentFilter !== "past"}
               />
             ))}
