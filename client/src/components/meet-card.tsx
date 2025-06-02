@@ -91,9 +91,6 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             )}
             <div className="flex justify-between items-start">
               <h3 className="font-semibold text-lg text-gray-800">{meet.name}</h3>
-              {meet.link && (
-                <ExternalLink className="h-4 w-4 text-blue-500 flex-shrink-0 ml-2" />
-              )}
             </div>
             <div className="mt-2 flex items-center text-sm text-gray-600">
               <Calendar className="text-gray-500 h-4 w-4 mr-1" />
