@@ -228,17 +228,10 @@ export default function Home() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6">
-        {/* User profile and action button */}
-        <div className="flex items-center justify-between mb-6">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 pb-20">
+        {/* User profile */}
+        <div className="mb-6">
           <UserProfile name="Enzo Sison" />
-          <Button 
-            onClick={() => setIsAddMeetOpen(true)}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 h-10 rounded shadow-none transition-all hover:shadow-md flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add Meet
-          </Button>
         </div>
 
         <FilterSection
@@ -326,6 +319,19 @@ export default function Home() {
         title="Delete Meet"
         description="Are you sure you want to delete this meet? This action cannot be undone."
       />
+      
+      {/* Floating Add Meet Button */}
+      {currentFilter !== "past" && currentFilter !== "filam" && (
+        <div className="fixed bottom-6 right-6 z-30">
+          <Button 
+            onClick={() => setIsAddMeetOpen(true)}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 h-14 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-3"
+          >
+            <Plus className="h-5 w-5" />
+            <span className="font-medium">Add Meet</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
