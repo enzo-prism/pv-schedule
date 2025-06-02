@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Edit2, Trash2, MoreVertical } from "lucide-react";
+import { Calendar, MapPin, Edit2, Trash2, MoreVertical, Clock } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -101,25 +101,36 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               <span>{meet.location}</span>
             </div>
             
-            {/* Show registration status for upcoming meets */}
-            {!isPast && meet.registrationStatus && (
-              <div className="mt-2 flex items-center">
-                <Badge 
-                  variant="secondary"
-                  className={`text-xs font-medium ${
-                    meet.registrationStatus === "registered" 
-                      ? "bg-green-100 text-green-800 border-green-200" 
-                      : meet.registrationStatus === "contacted director"
-                      ? "bg-blue-100 text-blue-800 border-blue-200"
-                      : "bg-orange-100 text-orange-800 border-orange-200"
-                  }`}
-                >
-                  {meet.registrationStatus === "registered" 
-                    ? "Registered" 
-                    : meet.registrationStatus === "contacted director"
-                    ? "Contacted Director"
-                    : "Not Registered"}
-                </Badge>
+            {/* Show registration status and drive time for upcoming meets */}
+            {!isPast && (
+              <div className="mt-2 flex items-center justify-between">
+                <div className="flex items-center">
+                  {meet.registrationStatus && (
+                    <Badge 
+                      variant="secondary"
+                      className={`text-xs font-medium ${
+                        meet.registrationStatus === "registered" 
+                          ? "bg-green-100 text-green-800 border-green-200" 
+                          : meet.registrationStatus === "contacted director"
+                          ? "bg-blue-100 text-blue-800 border-blue-200"
+                          : "bg-orange-100 text-orange-800 border-orange-200"
+                      }`}
+                    >
+                      {meet.registrationStatus === "registered" 
+                        ? "Registered" 
+                        : meet.registrationStatus === "contacted director"
+                        ? "Contacted Director"
+                        : "Not Registered"}
+                    </Badge>
+                  )}
+                </div>
+                
+                {meet.driveTime && (
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span>{meet.driveTime}</span>
+                  </div>
+                )}
               </div>
             )}
             
