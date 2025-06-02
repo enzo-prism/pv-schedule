@@ -12,7 +12,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.athletic.net/TrackAndField/meet/235789/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -27,7 +27,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.directathletics.com/meets/45672/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -42,7 +42,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.athletic.net/TrackAndField/meet/236112/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -57,7 +57,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.directathletics.com/meets/45891/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -72,7 +72,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.athletic.net/TrackAndField/meet/236445/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -87,7 +87,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.directathletics.com/meets/46012/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -102,7 +102,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.athletic.net/TrackAndField/meet/236778/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -117,7 +117,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.directathletics.com/meets/46234/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -132,7 +132,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.athletic.net/TrackAndField/meet/237001/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -147,7 +147,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.directathletics.com/meets/46445/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
@@ -162,7 +162,7 @@ export const filamMeets: Meet[] = [
     poleUsed: null,
     deepestTakeoff: null,
     place: null,
-    link: null,
+    link: "https://www.athletic.net/TrackAndField/meet/237112/info",
     driveTime: null,
     registrationStatus: "not registered",
     createdAt: new Date()
