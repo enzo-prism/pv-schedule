@@ -105,14 +105,20 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             {!isPast && meet.registrationStatus && (
               <div className="mt-2 flex items-center">
                 <Badge 
-                  variant={meet.registrationStatus === "registered" ? "default" : "secondary"}
+                  variant="secondary"
                   className={`text-xs font-medium ${
                     meet.registrationStatus === "registered" 
                       ? "bg-green-100 text-green-800 border-green-200" 
+                      : meet.registrationStatus === "contacted director"
+                      ? "bg-blue-100 text-blue-800 border-blue-200"
                       : "bg-orange-100 text-orange-800 border-orange-200"
                   }`}
                 >
-                  {meet.registrationStatus === "registered" ? "Registered" : "Not Registered"}
+                  {meet.registrationStatus === "registered" 
+                    ? "Registered" 
+                    : meet.registrationStatus === "contacted director"
+                    ? "Contacted Director"
+                    : "Not Registered"}
                 </Badge>
               </div>
             )}

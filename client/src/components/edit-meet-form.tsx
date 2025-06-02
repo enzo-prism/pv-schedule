@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Meet } from "@shared/schema";
@@ -272,21 +272,21 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
             control={form.control}
             name="registrationStatus"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border border-accent p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-sm font-medium">Registration Status</FormLabel>
-                  <div className="text-xs text-gray-500">
-                    Toggle your registration status for this meet
-                  </div>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value === "registered"}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked ? "registered" : "not registered");
-                    }}
-                  />
-                </FormControl>
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Registration Status</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="border-accent focus:ring-offset-0 focus:ring-1 bg-white">
+                      <SelectValue placeholder="Select registration status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="not registered">Not Registered</SelectItem>
+                    <SelectItem value="contacted director">Contacted Director</SelectItem>
+                    <SelectItem value="registered">Registered</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />

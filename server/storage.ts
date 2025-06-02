@@ -170,13 +170,8 @@ export class PgStorage implements IStorage {
         RETURNING *
       `;
       
-      // Determine registration status based on date
-      const meetDate = new Date(adjustDateForTimezone(insertMeet.date));
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      meetDate.setHours(0, 0, 0, 0);
-      
-      const defaultRegistrationStatus = meetDate < today ? "registered" : "not registered";
+      // Default registration status is "not registered" for all meets
+      const defaultRegistrationStatus = "not registered";
       
       const values = [
         insertMeet.name,
@@ -367,12 +362,8 @@ export class MemStorage implements IStorage {
 
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     const id = this.currentId++;
-    // Determine registration status based on date
-    const meetDate = new Date(adjustDateForTimezone(insertMeet.date));
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    meetDate.setHours(0, 0, 0, 0);
-    const defaultRegistrationStatus = meetDate < today ? "registered" : "not registered";
+    // Default registration status is "not registered" for all meets
+    const defaultRegistrationStatus = "not registered";
 
     const meet: Meet = { 
       name: insertMeet.name,
