@@ -1,6 +1,7 @@
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Meet } from "@shared/schema";
+import { filamMeets } from "@shared/filam-meets";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
@@ -29,14 +30,9 @@ export default function MeetDetails() {
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  // FilAm meets data - same as in home page
-  const filamMeets = [
-    // ... (we'll need to import this from a shared location)
-  ];
-
   // Check if this is a FilAm meet (ID >= 9900)
   const isFilamMeet = meetId !== null && meetId >= 9900;
-  const filamMeet = isFilamMeet ? filamMeets.find(m => m.id === meetId) : null;
+  const filamMeet = isFilamMeet ? filamMeets.find((m: Meet) => m.id === meetId) : null;
 
   // Fetch meet details (only for non-FilAm meets)
   const { data: apiMeet, isLoading, isError } = useQuery<Meet>({
@@ -49,8 +45,14 @@ export default function MeetDetails() {
 
   const editMeetMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string; link?: string; driveTime?: string; registrationStatus?: string } }) => {
-      const res = await apiRequest("PUT", `/api/meets/${id}`, data);
-      return res.json();
+      if (isFilamMeet) {
+        // For FilAm meets, create a new personal copy in the database
+        const res = await apiRequest("POST", "/api/meets", data);
+        return res.json();
+      } else {
+        const res = await apiRequest("PUT", `/api/meets/${id}`, data);
+        return res.json();
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
@@ -58,7 +60,9 @@ export default function MeetDetails() {
       setEditMeet(null);
       toast({
         title: "Meet updated",
-        description: "The meet has been successfully updated.",
+        description: isFilamMeet 
+          ? "FilAm meet saved to your personal schedule with your updates."
+          : "The meet has been successfully updated.",
       });
     },
     onError: (error) => {
@@ -72,6 +76,9 @@ export default function MeetDetails() {
   
   const deleteMeetMutation = useMutation({
     mutationFn: async (id: number) => {
+      if (isFilamMeet) {
+        throw new Error("FilAm meets cannot be deleted as they are reference data.");
+      }
       await apiRequest("DELETE", `/api/meets/${id}`);
       return id;
     },
@@ -87,8 +94,8 @@ export default function MeetDetails() {
     },
     onError: (error) => {
       toast({
-        title: "Failed to delete meet",
-        description: error.message || "There was an error deleting the meet. Please try again.",
+        title: "Cannot delete meet",
+        description: error.message || "There was an error deleting the meet.",
         variant: "destructive",
       });
     },
