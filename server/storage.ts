@@ -115,6 +115,7 @@ export class PgStorage implements IStorage {
           place: row.place,
           link: row.link,
           driveTime: row.drive_time,
+          registrationStatus: row.registration_status,
           createdAt: row.created_at
         };
       });
@@ -152,6 +153,7 @@ export class PgStorage implements IStorage {
         place: row.place,
         link: row.link,
         driveTime: row.drive_time,
+        registrationStatus: row.registration_status,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -163,10 +165,18 @@ export class PgStorage implements IStorage {
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     try {
       const query = `
-        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff, place, link, drive_time)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff, place, link, drive_time, registration_status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *
       `;
+      
+      // Determine registration status based on date
+      const meetDate = new Date(adjustDateForTimezone(insertMeet.date));
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      meetDate.setHours(0, 0, 0, 0);
+      
+      const defaultRegistrationStatus = meetDate < today ? "registered" : "not registered";
       
       const values = [
         insertMeet.name,
@@ -178,7 +188,8 @@ export class PgStorage implements IStorage {
         insertMeet.deepestTakeoff || null,
         insertMeet.place || null,
         insertMeet.link || null,
-        insertMeet.driveTime || null
+        insertMeet.driveTime || null,
+        insertMeet.registrationStatus || defaultRegistrationStatus
       ];
       
       const result = await db.query(query, values);
@@ -201,6 +212,7 @@ export class PgStorage implements IStorage {
         place: row.place,
         link: row.link,
         driveTime: row.drive_time,
+        registrationStatus: row.registration_status,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -219,8 +231,8 @@ export class PgStorage implements IStorage {
       
       const query = `
         UPDATE meets
-        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7, place = $8, link = $9, drive_time = $10
-        WHERE id = $11
+        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7, place = $8, link = $9, drive_time = $10, registration_status = $11
+        WHERE id = $12
         RETURNING *
       `;
       
@@ -235,6 +247,7 @@ export class PgStorage implements IStorage {
         updateMeet.place || null,
         updateMeet.link || null,
         updateMeet.driveTime || null,
+        updateMeet.registrationStatus || "not registered",
         id
       ];
       

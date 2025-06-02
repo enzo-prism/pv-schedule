@@ -14,6 +14,7 @@ export const meets = pgTable("meets", {
   place: text("place"),
   link: text("link"),
   driveTime: text("drive_time"),
+  registrationStatus: text("registration_status").default("not registered").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -28,6 +29,7 @@ export const insertMeetSchema = createInsertSchema(meets).pick({
   place: true,
   link: true,
   driveTime: true,
+  registrationStatus: true,
 });
 
 export type InsertMeet = z.infer<typeof insertMeetSchema>;
