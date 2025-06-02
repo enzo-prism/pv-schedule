@@ -67,6 +67,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       place: meet.place || "",
       link: meet.link || "",
       driveTime: meet.driveTime || "",
+      registrationStatus: meet.registrationStatus || "not registered",
     },
   });
 
@@ -263,6 +264,29 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   />
                 </FormControl>
                 <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="registrationStatus"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border border-accent p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-sm font-medium">Registration Status</FormLabel>
+                  <div className="text-xs text-gray-500">
+                    Toggle your registration status for this meet
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value === "registered"}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked ? "registered" : "not registered");
+                    }}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />

@@ -3,6 +3,7 @@ import { Calendar, MapPin, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import {
@@ -99,6 +100,22 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               <MapPin className="text-gray-500 h-4 w-4 mr-1" />
               <span>{meet.location}</span>
             </div>
+            
+            {/* Show registration status for upcoming meets */}
+            {!isPast && meet.registrationStatus && (
+              <div className="mt-2 flex items-center">
+                <Badge 
+                  variant={meet.registrationStatus === "registered" ? "default" : "secondary"}
+                  className={`text-xs font-medium ${
+                    meet.registrationStatus === "registered" 
+                      ? "bg-green-100 text-green-800 border-green-200" 
+                      : "bg-orange-100 text-orange-800 border-orange-200"
+                  }`}
+                >
+                  {meet.registrationStatus === "registered" ? "Registered" : "Not Registered"}
+                </Badge>
+              </div>
+            )}
             
             {/* Only show metrics for past meets and if at least one metric exists */}
             {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
