@@ -113,6 +113,8 @@ export class PgStorage implements IStorage {
           poleUsed: row.pole_used,
           deepestTakeoff: row.deepest_takeoff,
           place: row.place,
+          link: row.link,
+          driveTime: row.drive_time,
           createdAt: row.created_at
         };
       });
@@ -148,6 +150,8 @@ export class PgStorage implements IStorage {
         poleUsed: row.pole_used,
         deepestTakeoff: row.deepest_takeoff,
         place: row.place,
+        link: row.link,
+        driveTime: row.drive_time,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -159,8 +163,8 @@ export class PgStorage implements IStorage {
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     try {
       const query = `
-        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff, place)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff, place, link, drive_time)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *
       `;
       
@@ -172,7 +176,9 @@ export class PgStorage implements IStorage {
         insertMeet.heightCleared || null,
         insertMeet.poleUsed || null,
         insertMeet.deepestTakeoff || null,
-        insertMeet.place || null
+        insertMeet.place || null,
+        insertMeet.link || null,
+        insertMeet.driveTime || null
       ];
       
       const result = await db.query(query, values);
@@ -193,6 +199,8 @@ export class PgStorage implements IStorage {
         poleUsed: row.pole_used,
         deepestTakeoff: row.deepest_takeoff,
         place: row.place,
+        link: row.link,
+        driveTime: row.drive_time,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -211,8 +219,8 @@ export class PgStorage implements IStorage {
       
       const query = `
         UPDATE meets
-        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7, place = $8
-        WHERE id = $9
+        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7, place = $8, link = $9, drive_time = $10
+        WHERE id = $11
         RETURNING *
       `;
       
@@ -225,6 +233,8 @@ export class PgStorage implements IStorage {
         updateMeet.poleUsed || null,
         updateMeet.deepestTakeoff || null,
         updateMeet.place || null,
+        updateMeet.link || null,
+        updateMeet.driveTime || null,
         id
       ];
       
@@ -251,6 +261,8 @@ export class PgStorage implements IStorage {
         poleUsed: row.pole_used,
         deepestTakeoff: row.deepest_takeoff,
         place: row.place,
+        link: row.link,
+        driveTime: row.drive_time,
         createdAt: row.created_at
       };
     } catch (error) {
