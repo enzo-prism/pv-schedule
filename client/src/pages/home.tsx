@@ -14,7 +14,56 @@ import CountdownTimer from "@/components/countdown-timer";
 import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
 
-type FilterType = "upcoming" | "past" | "all";
+type FilterType = "filam" | "upcoming" | "past" | "all";
+
+// FilAm meets data - major meets to potentially attend
+const filamMeets = [
+  {
+    id: 9999,
+    name: "USATF Outdoor Championships",
+    date: "2025-06-26",
+    location: "Eugene, OR",
+    description: "National championship meet featuring the best track and field athletes in the USA",
+    heightCleared: null,
+    poleUsed: null,
+    deepestTakeoff: null,
+    place: null,
+    link: null,
+    driveTime: null,
+    registrationStatus: "not registered",
+    createdAt: new Date()
+  },
+  {
+    id: 9998,
+    name: "Prefontaine Classic",
+    date: "2025-05-17",
+    location: "Eugene, OR", 
+    description: "Premier Diamond League meet attracting world-class athletes",
+    heightCleared: null,
+    poleUsed: null,
+    deepestTakeoff: null,
+    place: null,
+    link: null,
+    driveTime: null,
+    registrationStatus: "not registered",
+    createdAt: new Date()
+  },
+  {
+    id: 9997,
+    name: "Mt. SAC Relays",
+    date: "2025-04-18",
+    location: "Walnut, CA",
+    description: "One of the largest track and field meets in the world",
+    heightCleared: null,
+    poleUsed: null,
+    deepestTakeoff: null,
+    place: null,
+    link: null,
+    driveTime: null,
+    registrationStatus: "not registered",
+    createdAt: new Date()
+  }
+];
 
 export default function Home() {
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
@@ -181,21 +230,23 @@ export default function Home() {
   // Get the ID of the next upcoming meet (first in the sorted list)
   const nextUpcomingMeetId = upcomingMeets.length > 0 ? upcomingMeets[0].id : null;
   
-  const filteredMeets = meets.filter((meet) => {
-    if (currentFilter === "upcoming") {
-      return !isPastDate(meet.date);
-    } else if (currentFilter === "past") {
-      return isPastDate(meet.date);
-    }
-    return true;
-  }).sort((a, b) => {
-    // For past meets, sort by most recent to oldest (descending order)
-    if (currentFilter === "past") {
-      return parseDate(b.date).getTime() - parseDate(a.date).getTime();
-    }
-    // For upcoming meets and all meets, sort by closest date first (ascending order)
-    return parseDate(a.date).getTime() - parseDate(b.date).getTime();
-  });
+  const filteredMeets = currentFilter === "filam" 
+    ? filamMeets.sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
+    : meets.filter((meet) => {
+        if (currentFilter === "upcoming") {
+          return !isPastDate(meet.date);
+        } else if (currentFilter === "past") {
+          return isPastDate(meet.date);
+        }
+        return true;
+      }).sort((a, b) => {
+        // For past meets, sort by most recent to oldest (descending order)
+        if (currentFilter === "past") {
+          return parseDate(b.date).getTime() - parseDate(a.date).getTime();
+        }
+        // For upcoming meets and all meets, sort by closest date first (ascending order)
+        return parseDate(a.date).getTime() - parseDate(b.date).getTime();
+      });
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);
@@ -271,7 +322,7 @@ export default function Home() {
             <Clock className="h-10 w-10 text-gray-400 mx-auto mb-3" />
             <h3 className="text-base font-medium mb-2 text-gray-600">No meets found</h3>
             <p className="text-sm text-gray-500 mb-4">
-              No track and field meets are currently {currentFilter === "all" ? "scheduled" : currentFilter === "upcoming" ? "upcoming" : "in the past"}.
+              No track and field meets are currently {currentFilter === "all" ? "scheduled" : currentFilter === "upcoming" ? "upcoming" : currentFilter === "past" ? "in the past" : "available in FilAm"}.
             </p>
             {currentFilter !== "past" && (
               <Button 

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { CalendarClock, History, ListFilter } from "lucide-react";
+import { CalendarClock, History, ListFilter, Trophy } from "lucide-react";
 
-type FilterType = "upcoming" | "past" | "all";
+type FilterType = "filam" | "upcoming" | "past" | "all";
 
 interface FilterSectionProps {
   currentFilter: FilterType;
@@ -12,6 +12,17 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
   return (
     <div className="mb-6 flex justify-center items-center">
       <div className="bg-gray-100 rounded-md inline-flex items-center p-0.5 gap-1">
+        <Button
+          variant="ghost"
+          className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+            currentFilter === "filam" ? "bg-white text-gray-600 shadow-sm font-medium" : "text-gray-500 hover:text-gray-600 hover:bg-white/80"
+          }`}
+          onClick={() => onFilterChange("filam")}
+          aria-label="Show FilAm meets"
+        >
+          <Trophy size={14} />
+          <span>FilAm</span>
+        </Button>
         <Button
           variant="ghost"
           className={`px-3 py-1.5 h-8 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
