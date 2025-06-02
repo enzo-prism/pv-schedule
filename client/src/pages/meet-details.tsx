@@ -36,7 +36,7 @@ export default function MeetDetails() {
   });
 
   const editMeetMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string; link?: string; driveTime?: string; registrationStatus?: string } }) => {
       const res = await apiRequest("PUT", `/api/meets/${id}`, data);
       return res.json();
     },
@@ -93,6 +93,7 @@ export default function MeetDetails() {
     place?: string;
     link?: string;
     driveTime?: string;
+    registrationStatus?: string;
   }) => {
     if (meetId) {
       editMeetMutation.mutate({
@@ -251,9 +252,34 @@ export default function MeetDetails() {
               <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">LOCATION</h2>
               <div className="flex items-center text-gray-800">
                 <MapPin className="h-4 w-4 mr-2 text-gray-600" />
-                <span className="text-base">{meet.location}</span>
+                <span className="text-base">{meet.location} 🇺🇸</span>
               </div>
             </div>
+            
+            {/* Registration Status */}
+            {meet.registrationStatus && (
+              <div>
+                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">REGISTRATION STATUS</h2>
+                <div className="flex items-center">
+                  <Badge 
+                    variant="secondary"
+                    className={`text-sm font-medium ${
+                      meet.registrationStatus === "registered" 
+                        ? "bg-green-100 text-green-800 border-green-200" 
+                        : meet.registrationStatus === "contacted director"
+                        ? "bg-blue-100 text-blue-800 border-blue-200"
+                        : "bg-orange-100 text-orange-800 border-orange-200"
+                    }`}
+                  >
+                    {meet.registrationStatus === "registered" 
+                      ? "Registered" 
+                      : meet.registrationStatus === "contacted director"
+                      ? "Contacted Director"
+                      : "Not Registered"}
+                  </Badge>
+                </div>
+              </div>
+            )}
             
             {/* Pole vault performance metrics section - only displayed if any of the fields have data */}
             {(meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
