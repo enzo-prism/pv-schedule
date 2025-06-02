@@ -276,6 +276,7 @@ export class PgStorage implements IStorage {
         place: row.place,
         link: row.link,
         driveTime: row.drive_time,
+        registrationStatus: row.registration_status,
         createdAt: row.created_at
       };
     } catch (error) {
@@ -366,6 +367,13 @@ export class MemStorage implements IStorage {
 
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     const id = this.currentId++;
+    // Determine registration status based on date
+    const meetDate = new Date(adjustDateForTimezone(insertMeet.date));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    meetDate.setHours(0, 0, 0, 0);
+    const defaultRegistrationStatus = meetDate < today ? "registered" : "not registered";
+
     const meet: Meet = { 
       name: insertMeet.name,
       date: adjustDateForTimezone(insertMeet.date), // Adjust date to avoid timezone issues
@@ -377,6 +385,7 @@ export class MemStorage implements IStorage {
       place: insertMeet.place || null,
       link: insertMeet.link || null,
       driveTime: insertMeet.driveTime || null,
+      registrationStatus: insertMeet.registrationStatus || defaultRegistrationStatus,
       id,
       createdAt: new Date()
     };
@@ -401,7 +410,8 @@ export class MemStorage implements IStorage {
       deepestTakeoff: updateMeet.deepestTakeoff || null,
       place: updateMeet.place || null,
       link: updateMeet.link || null,
-      driveTime: updateMeet.driveTime || null
+      driveTime: updateMeet.driveTime || null,
+      registrationStatus: updateMeet.registrationStatus || "not registered"
     };
     
     this.meets.set(id, updatedMeet);

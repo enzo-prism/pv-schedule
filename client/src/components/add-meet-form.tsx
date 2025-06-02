@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { format } from "date-fns";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 
@@ -33,6 +34,7 @@ const formSchema = z.object({
   place: z.string().optional(),
   link: z.string().optional(),
   driveTime: z.string().optional(),
+  registrationStatus: z.string().optional(),
 });
 
 interface AddMeetFormProps {
@@ -56,6 +58,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
       place: "",
       link: "",
       driveTime: "",
+      registrationStatus: "not registered",
     },
   });
 
@@ -253,6 +256,29 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   />
                 </FormControl>
                 <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="registrationStatus"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border border-accent p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-sm font-medium">Registration Status</FormLabel>
+                  <div className="text-xs text-gray-500">
+                    Toggle your registration status for this meet
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value === "registered"}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked ? "registered" : "not registered");
+                    }}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />

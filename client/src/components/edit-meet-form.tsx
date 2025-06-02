@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Meet } from "@shared/schema";
@@ -33,6 +34,7 @@ const formSchema = z.object({
   place: z.string().optional(),
   link: z.string().optional(),
   driveTime: z.string().optional(),
+  registrationStatus: z.string().optional(),
 });
 
 interface EditMeetFormProps {
