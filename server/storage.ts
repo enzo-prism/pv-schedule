@@ -362,6 +362,8 @@ export class MemStorage implements IStorage {
       poleUsed: insertMeet.poleUsed || null,
       deepestTakeoff: insertMeet.deepestTakeoff || null,
       place: insertMeet.place || null,
+      link: insertMeet.link || null,
+      driveTime: insertMeet.driveTime || null,
       id,
       createdAt: new Date()
     };
@@ -380,7 +382,13 @@ export class MemStorage implements IStorage {
       name: updateMeet.name,
       date: adjustDateForTimezone(updateMeet.date), // Adjust date to avoid timezone issues
       location: updateMeet.location,
-      description: updateMeet.description || null
+      description: updateMeet.description || null,
+      heightCleared: updateMeet.heightCleared || null,
+      poleUsed: updateMeet.poleUsed || null,
+      deepestTakeoff: updateMeet.deepestTakeoff || null,
+      place: updateMeet.place || null,
+      link: updateMeet.link || null,
+      driveTime: updateMeet.driveTime || null
     };
     
     this.meets.set(id, updatedMeet);
