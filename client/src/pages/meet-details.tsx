@@ -29,11 +29,23 @@ export default function MeetDetails() {
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  // Fetch meet details
-  const { data: meet, isLoading, isError } = useQuery<Meet>({
+  // FilAm meets data - same as in home page
+  const filamMeets = [
+    // ... (we'll need to import this from a shared location)
+  ];
+
+  // Check if this is a FilAm meet (ID >= 9900)
+  const isFilamMeet = meetId !== null && meetId >= 9900;
+  const filamMeet = isFilamMeet ? filamMeets.find(m => m.id === meetId) : null;
+
+  // Fetch meet details (only for non-FilAm meets)
+  const { data: apiMeet, isLoading, isError } = useQuery<Meet>({
     queryKey: [`/api/meets/${meetId}`],
-    enabled: meetId !== null,
+    enabled: meetId !== null && !isFilamMeet,
   });
+
+  // Use FilAm meet data or API data
+  const meet = isFilamMeet ? filamMeet : apiMeet;
 
   const editMeetMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string; link?: string; driveTime?: string; registrationStatus?: string } }) => {
