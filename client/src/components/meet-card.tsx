@@ -18,9 +18,10 @@ interface MeetCardProps {
   onEditClick?: (meet: Meet) => void;
   onDeleteClick?: (meetId: number) => void;
   isNextUpcoming?: boolean;
+  isFilamMeet?: boolean;
 }
 
-export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcoming = false }: MeetCardProps) {
+export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcoming = false, isFilamMeet = false }: MeetCardProps) {
   const isPastDate = (dateString: string | Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -101,8 +102,8 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               <span>{meet.location}</span>
             </div>
             
-            {/* Show registration status and drive time for upcoming meets */}
-            {!isPast && (
+            {/* Show registration status and drive time for upcoming meets (but not for FilAm meets) */}
+            {!isPast && !isFilamMeet && (
               <div className="mt-2 flex items-center justify-between">
                 <div className="flex items-center">
                   {meet.registrationStatus && (
