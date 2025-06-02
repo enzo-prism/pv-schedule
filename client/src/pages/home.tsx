@@ -211,6 +211,38 @@ export default function Home() {
       {/* Main content */}
       <main className="flex-grow max-w-3xl mx-auto w-full px-4 py-5">
         <UserProfile name="Enzo Sison" />
+        
+        {/* External Meet Resources */}
+        <div className="flex gap-3 mt-4 mb-6">
+          <a 
+            href="https://www.athletic.net/events/usa/oregon/2025-06-02" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors text-sm text-gray-700 hover:text-gray-800"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15,3 21,3 21,9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            Athletic.net
+          </a>
+          
+          <a 
+            href="https://www.directathletics.com/upcoming_meets.html" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors text-sm text-gray-700 hover:text-gray-800"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15,3 21,3 21,9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            DirectAthletics
+          </a>
+        </div>
+        
         <FilterSection 
           currentFilter={currentFilter}
           onFilterChange={handleFilterChange}

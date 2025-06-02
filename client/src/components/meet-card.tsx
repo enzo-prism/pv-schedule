@@ -80,11 +80,10 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   const daysUntil = !isPast ? getDaysUntil(meet.date) : 0;
 
   return (
-    <Link href={`/meet/${meet.id}`}>
-      <a className="block cursor-pointer hover:opacity-95 transition-opacity">
-        <Card className={`overflow-hidden border ${isNextUpcoming && !isPast ? 'border-gray-400 bg-gray-50' : 'border-gray-200 bg-white'} shadow-sm hover:shadow-md transition-shadow duration-200 relative ${isNextUpcoming && !isPast ? 'ring-1 ring-gray-300' : ''}`}>
-          <CardContent className={`p-4 ${isNextUpcoming && !isPast ? 'pb-5' : ''}`}>
-            {isNextUpcoming && !isPast && (
+    <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-95 transition-opacity">
+      <Card className={`overflow-hidden border ${isNextUpcoming && !isPast ? 'border-gray-400 bg-gray-50' : 'border-gray-200 bg-white'} shadow-sm hover:shadow-md transition-shadow duration-200 relative ${isNextUpcoming && !isPast ? 'ring-1 ring-gray-300' : ''}`}>
+        <CardContent className={`p-4 ${isNextUpcoming && !isPast ? 'pb-5' : ''}`}>
+          {isNextUpcoming && !isPast && (
               <div className="absolute top-0 right-0 bg-gray-600 text-white text-xs px-2 py-1 rounded-bl font-medium">
                 {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
               </div>
@@ -142,9 +141,8 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                 <p className="text-sm text-gray-600 line-clamp-2">{meet.description}</p>
               </div>
             )}
-          </CardContent>
-        </Card>
-      </a>
+        </CardContent>
+      </Card>
     </Link>
   );
 }
