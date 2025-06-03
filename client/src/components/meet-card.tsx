@@ -82,92 +82,39 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   const daysUntil = !isPast ? getDaysUntil(meet.date) : 0;
 
   return (
-    <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-95 transition-opacity">
-      <Card className={`overflow-hidden border ${isNextUpcoming && !isPast ? 'border-gray-400 bg-gray-50' : 'border-gray-200 bg-white'} shadow-sm hover:shadow-md transition-shadow duration-200 relative ${isNextUpcoming && !isPast ? 'ring-1 ring-gray-300' : ''}`}>
-        <CardContent className={`p-4 ${isNextUpcoming && !isPast ? 'pb-5' : ''}`}>
-          {isNextUpcoming && !isPast && (
-              <div className="absolute top-0 right-0 bg-gray-600 text-white text-xs px-2 py-1 rounded-bl font-medium">
-                {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
-              </div>
-            )}
-            <div className="flex justify-between items-start">
-              <h3 className="font-semibold text-lg text-gray-800">{meet.name}</h3>
-            </div>
-            <div className="mt-2 flex items-center text-sm text-gray-600">
-              <Calendar className="text-gray-500 h-4 w-4 mr-1" />
-              <span>{formatDate(meet.date)}</span>
-            </div>
-            <div className="mt-1 flex items-center text-sm text-gray-600">
-              <MapPin className="text-gray-500 h-4 w-4 mr-1" />
-              <span>{meet.location}</span>
-            </div>
-            
-            {/* Show registration status and drive time for upcoming meets (but not for FilAm meets) */}
-            {!isPast && !isFilamMeet && (
-              <div className="mt-2 flex items-center justify-between">
-                <div className="flex items-center">
-                  {meet.registrationStatus && (
-                    <Badge 
-                      variant="secondary"
-                      className={`text-xs font-medium ${
-                        meet.registrationStatus === "registered" 
-                          ? "bg-green-100 text-green-800 border-green-200" 
-                          : meet.registrationStatus === "contacted director"
-                          ? "bg-blue-100 text-blue-800 border-blue-200"
-                          : "bg-orange-100 text-orange-800 border-orange-200"
-                      }`}
-                    >
-                      {meet.registrationStatus === "registered" 
-                        ? "Registered" 
-                        : meet.registrationStatus === "contacted director"
-                        ? "Contacted Director"
-                        : "Not Registered"}
-                    </Badge>
-                  )}
+    <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-90 transition-opacity">
+      <Card className={`overflow-hidden ${isNextUpcoming && !isPast ? 'border-l-4 border-l-gray-800 border-gray-100' : 'border-gray-100'} bg-white hover:bg-gray-50 transition-colors duration-150 relative`}>
+        <CardContent className="p-5">
+          <div>
+            <h3 className="font-medium text-gray-900 leading-tight">{meet.name}</h3>
+            <div className="mt-1 text-sm text-gray-500 space-y-0.5">
+              <div>{formatDate(meet.date)}</div>
+              <div>{meet.location}</div>
+              {isNextUpcoming && !isPast && (
+                <div className="text-xs font-medium text-gray-700">
+                  {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
                 </div>
-                
+              )}
+            </div>
+          </div>
+            
+            {/* Show simplified status for upcoming meets (but not for FilAm meets) */}
+            {!isPast && !isFilamMeet && (meet.registrationStatus || meet.driveTime) && (
+              <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+                {meet.registrationStatus && meet.registrationStatus !== "not registered" && (
+                  <div>{meet.registrationStatus === "registered" ? "Registered" : "Contacted"}</div>
+                )}
                 {meet.driveTime && (
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Car className="h-3 w-3 mr-1" />
-                    <span>{meet.driveTime}</span>
-                  </div>
+                  <div>{meet.driveTime} drive</div>
                 )}
               </div>
             )}
             
-            {/* Only show metrics for past meets and if at least one metric exists */}
-            {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <h4 className="text-xs uppercase font-medium text-gray-500 mb-2">Performance</h4>
-                <div className="grid grid-cols-2 gap-x-2 gap-y-2">
-                  {meet.heightCleared && (
-                    <div className="flex items-center">
-                      <HeightIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-600 truncate">{meet.heightCleared}</span>
-                    </div>
-                  )}
-                  
-                  {meet.poleUsed && (
-                    <div className="flex items-center">
-                      <PoleIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-600 truncate">{meet.poleUsed}</span>
-                    </div>
-                  )}
-                  
-                  {meet.deepestTakeoff && (
-                    <div className="flex items-center">
-                      <TakeoffIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-600 truncate">{meet.deepestTakeoff}</span>
-                    </div>
-                  )}
-                  
-                  {meet.place && (
-                    <div className="flex items-center">
-                      <PlaceIcon className="h-3.5 w-3.5 mr-1.5 text-gray-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-600 truncate">{meet.place}</span>
-                    </div>
-                  )}
-                </div>
+            {/* Simplified metrics for past meets */}
+            {isPast && (meet.heightCleared || meet.place) && (
+              <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+                {meet.heightCleared && <div>{meet.heightCleared}</div>}
+                {meet.place && <div>#{meet.place}</div>}
               </div>
             )}
             

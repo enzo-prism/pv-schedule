@@ -221,16 +221,11 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Countdown Timer */}
-      <div className="sticky top-0 z-20 w-full bg-white shadow-sm">
-        {!isLoading && <CountdownTimer meets={meets} />}
-      </div>
-
+    <div className="min-h-screen bg-white">
       {/* Main content */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 pb-20">
+      <main className="max-w-2xl mx-auto px-6 py-8 pb-24">
         {/* User profile */}
-        <div className="mb-6">
+        <div className="mb-8">
           <UserProfile name="Enzo Sison" />
         </div>
 
@@ -240,13 +235,13 @@ export default function Home() {
         />
 
         {isLoading ? (
-          <div className="space-y-4 mt-6">
+          <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-accent/30 animate-pulse rounded" />
+              <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-lg" />
             ))}
           </div>
         ) : filteredMeets.length > 0 ? (
-          <div className="space-y-4 mt-6">
+          <div className="space-y-3">
             {filteredMeets.map((meet: Meet) => (
               <MeetCard 
                 key={meet.id} 
@@ -259,21 +254,10 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="bg-gray-50 rounded p-8 text-center mt-6">
-            <Clock className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-            <h3 className="text-base font-medium mb-2 text-gray-600">No meets found</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              No track and field meets are currently {currentFilter === "all" ? "scheduled" : currentFilter === "upcoming" ? "upcoming" : currentFilter === "past" ? "in the past" : "available in FilAm"}.
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-sm">
+              No {currentFilter === "all" ? "" : currentFilter} meets found
             </p>
-            {currentFilter !== "past" && currentFilter !== "filam" && (
-              <Button 
-                onClick={() => setIsAddMeetOpen(true)}
-                className="bg-gray-600 hover:bg-gray-700 text-white p-2 h-10 w-10 rounded-full shadow-none transition-all hover:shadow-md flex items-center justify-center mx-auto"
-                aria-label="Add your first meet"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         )}
       </main>
@@ -322,15 +306,12 @@ export default function Home() {
       
       {/* Floating Add Meet Button */}
       {currentFilter !== "past" && currentFilter !== "filam" && (
-        <div className="fixed bottom-6 right-6 z-30">
-          <Button 
-            onClick={() => setIsAddMeetOpen(true)}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 h-14 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-3"
-          >
-            <Plus className="h-5 w-5" />
-            <span className="font-medium">Add Meet</span>
-          </Button>
-        </div>
+        <button
+          onClick={() => setIsAddMeetOpen(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center justify-center shadow-lg z-30"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
       )}
     </div>
   );
