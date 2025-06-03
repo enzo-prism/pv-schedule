@@ -110,11 +110,13 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               </div>
             )}
             
-            {/* Simplified metrics for past meets */}
-            {isPast && (meet.heightCleared || meet.place) && (
+            {/* All metrics for past meets */}
+            {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
               <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 space-y-1">
-                {meet.heightCleared && <div>{meet.heightCleared}</div>}
-                {meet.place && <div>#{meet.place}</div>}
+                {meet.heightCleared && <div>Height: {meet.heightCleared}</div>}
+                {meet.poleUsed && <div>Pole: {meet.poleUsed}</div>}
+                {meet.deepestTakeoff && <div>Takeoff: {meet.deepestTakeoff}</div>}
+                {meet.place && <div>Place: #{meet.place}</div>}
               </div>
             )}
             
