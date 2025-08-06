@@ -221,9 +221,35 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
+      {/* Subtle rainbow gradient bar */}
+      <div className="fixed top-0 left-0 right-0 h-0.5 z-50 overflow-hidden">
+        <div 
+          className="h-full w-[200%] animate-gradient"
+          style={{
+            background: 'linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #00d2d3, #54a0ff, #667eea, #764ba2, #ff6b6b)',
+            boxShadow: '0 1px 15px rgba(102, 126, 234, 0.25), 0 1px 8px rgba(255, 107, 107, 0.15)',
+            animation: 'slide 8s linear infinite'
+          }}
+        />
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #00d2d3, #54a0ff, #667eea, #764ba2)',
+            filter: 'blur(8px)',
+            opacity: 0.4
+          }}
+        />
+      </div>
+      <style>{`
+        @keyframes slide {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+      
       {/* Main content */}
-      <main className="max-w-2xl mx-auto px-6 py-8 pb-24">
+      <main className="max-w-2xl mx-auto px-6 pt-8 pb-24">
         {/* User profile */}
         <div className="mb-8">
           <UserProfile name="Enzo Sison" />
