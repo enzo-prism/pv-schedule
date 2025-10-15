@@ -15,7 +15,7 @@ import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
 import { filamMeets } from "@shared/filam-meets";
 
-type FilterType = "filam" | "upcoming" | "past" | "all";
+type FilterType = "filam" | "upcoming" | "past";
 
 export default function Home() {
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
@@ -282,7 +282,7 @@ export default function Home() {
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-500 text-sm">
-              No {currentFilter === "all" ? "" : currentFilter} meets found
+              No {currentFilter} meets found
             </p>
           </div>
         )}

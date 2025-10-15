@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-type FilterType = "filam" | "upcoming" | "past" | "all";
+type FilterType = "filam" | "upcoming" | "past";
 
 interface FilterSectionProps {
   currentFilter: FilterType;
@@ -34,14 +34,6 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
           onClick={() => onFilterChange("past")}
         >
           Past
-        </button>
-        <button
-          className={`px-4 py-2 text-sm transition-colors border-l border-gray-200 ${
-            currentFilter === "all" ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-50"
-          }`}
-          onClick={() => onFilterChange("all")}
-        >
-          All
         </button>
       </div>
     </div>
