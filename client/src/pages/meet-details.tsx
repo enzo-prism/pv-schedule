@@ -259,7 +259,7 @@ export default function MeetDetails() {
               <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">LOCATION</h2>
               <div className="flex items-center text-gray-800">
                 <MapPin className="h-4 w-4 mr-2 text-gray-600" />
-                <span className="text-base">{meet.location} 🇺🇸</span>
+                <span className="text-base">{meet.location}</span>
               </div>
             </div>
             
