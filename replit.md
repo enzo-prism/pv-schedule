@@ -2,7 +2,7 @@
 
 ## Overview
 
-A modern web application for managing track and field competition schedules, specifically designed for tracking meets and pole vault performance data. The application features a React frontend with shadcn/ui components and a Node.js/Express backend using PostgreSQL for data persistence. It includes both personal meet tracking and pre-populated FilAm Sports competition data.
+A modern web application for managing track and field competition schedules, specifically designed for tracking meets and pole vault performance data. The application features a React frontend with shadcn/ui components and a Node.js/Express backend using PostgreSQL for data persistence.
 
 ## User Preferences
 
@@ -15,7 +15,7 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful endpoints under `/api/meets` for CRUD operations
 - **Database Access**: Direct PostgreSQL queries using a custom query wrapper in `server/db.ts`
 - **Schema Management**: Drizzle ORM for schema definition and migrations
-- **Data Storage**: Hybrid approach combining user-generated meets with pre-populated FilAm Sports data
+- **Data Storage**: User-generated meets persisted in PostgreSQL with optional sample seed data for development
 - **Error Handling**: Centralized error middleware with structured error responses
 
 ### Frontend Architecture  

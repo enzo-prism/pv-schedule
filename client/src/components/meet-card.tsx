@@ -18,10 +18,9 @@ interface MeetCardProps {
   onEditClick?: (meet: Meet) => void;
   onDeleteClick?: (meetId: number) => void;
   isNextUpcoming?: boolean;
-  isFilamMeet?: boolean;
 }
 
-export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcoming = false, isFilamMeet = false }: MeetCardProps) {
+export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcoming = false }: MeetCardProps) {
   const isPastDate = (dateString: string | Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -99,7 +98,6 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               </div>
             </div>
             
-            {/* Dropdown menu for edit/delete - now available for all meets including FilAm */}
             {onEditClick && onDeleteClick && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => {
@@ -124,8 +122,8 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             )}
           </div>
             
-            {/* Show simplified status for upcoming meets (but not for FilAm meets) */}
-            {!isPast && !isFilamMeet && (meet.registrationStatus || meet.driveTime) && (
+            {/* Show simplified status for upcoming meets */}
+            {!isPast && (meet.registrationStatus || meet.driveTime) && (
               <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 space-y-1">
                 {meet.registrationStatus && meet.registrationStatus !== "not registered" && (
                   <div>{meet.registrationStatus === "registered" ? "Registered" : "Contacted"}</div>

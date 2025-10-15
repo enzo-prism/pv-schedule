@@ -1,4 +1,4 @@
-import { pgTable, text, serial, date, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, date, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -15,7 +15,6 @@ export const meets = pgTable("meets", {
   link: text("link"),
   driveTime: text("drive_time"),
   registrationStatus: text("registration_status").default("not registered").notNull(),
-  isFilamMeet: boolean("is_filam_meet").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -31,7 +30,6 @@ export const insertMeetSchema = createInsertSchema(meets).pick({
   link: true,
   driveTime: true,
   registrationStatus: true,
-  isFilamMeet: true,
 });
 
 export type InsertMeet = z.infer<typeof insertMeetSchema>;

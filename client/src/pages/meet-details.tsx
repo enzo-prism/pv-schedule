@@ -29,7 +29,6 @@ export default function MeetDetails() {
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  // Fetch meet details from the API (for all meets, including FilAm)
   const { data: meet, isLoading, isError } = useQuery<Meet>({
     queryKey: [`/api/meets/${meetId}`],
     enabled: meetId !== null,
@@ -204,11 +203,6 @@ export default function MeetDetails() {
                 <Badge variant="outline" className={`${statusClass} font-normal text-xs px-2 py-0.5`}>
                   {isPast ? 'Past' : 'Upcoming'}
                 </Badge>
-                {meet.isFilamMeet && (
-                  <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 font-normal text-xs px-2 py-0.5">
-                    🇵🇭 FilAm
-                  </Badge>
-                )}
                 <div className="flex items-center text-gray-500">
                   <Clock className="h-3.5 w-3.5 mr-1" />
                   <span className="text-xs">{getDayDifference(meet.date)}</span>

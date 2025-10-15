@@ -272,7 +272,6 @@ export default function Home() {
                 onEditClick={handleEditClick}
                 onDeleteClick={handleDeleteClick}
                 isNextUpcoming={meet.id === nextUpcomingMeetId && currentFilter !== "past"}
-                isFilamMeet={meet.isFilamMeet}
               />
             ))}
           </div>
