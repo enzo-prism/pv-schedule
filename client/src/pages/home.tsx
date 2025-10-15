@@ -14,7 +14,7 @@ import CountdownTimer from "@/components/countdown-timer";
 import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
 
-type FilterType = "filam" | "upcoming" | "past";
+type FilterType = "upcoming" | "past";
 
 export default function Home() {
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
@@ -198,12 +198,10 @@ export default function Home() {
   const nextUpcomingMeetId = upcomingMeets.length > 0 ? upcomingMeets[0].id : null;
   
   const filteredMeets = meets.filter((meet) => {
-    if (currentFilter === "filam") {
-      return meet.isFilamMeet && !isPastDate(meet.date);
-    } else if (currentFilter === "upcoming") {
-      return !meet.isFilamMeet && !isPastDate(meet.date);
+    if (currentFilter === "upcoming") {
+      return !isPastDate(meet.date);
     } else if (currentFilter === "past") {
-      return !meet.isFilamMeet && isPastDate(meet.date);
+      return isPastDate(meet.date);
     }
     return true;
   }).sort((a, b) => {
@@ -211,7 +209,7 @@ export default function Home() {
     if (currentFilter === "past") {
       return parseDate(b.date).getTime() - parseDate(a.date).getTime();
     }
-    // For upcoming and FilAm meets, sort by closest date first (ascending order)
+    // For upcoming meets, sort by closest date first (ascending order)
     return parseDate(a.date).getTime() - parseDate(b.date).getTime();
   });
 
