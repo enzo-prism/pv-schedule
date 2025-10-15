@@ -85,17 +85,43 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
     <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-90 transition-opacity">
       <Card className={`overflow-hidden ${isNextUpcoming && !isPast ? 'border-l-4 border-l-gray-800 border-gray-100' : 'border-gray-100'} bg-white hover:bg-gray-50 transition-colors duration-150 relative`}>
         <CardContent className="p-5">
-          <div>
-            <h3 className="font-medium text-gray-900 leading-tight">{meet.name}</h3>
-            <div className="mt-1 text-sm text-gray-500 space-y-0.5">
-              <div>{formatDate(meet.date)}</div>
-              <div>{meet.location}</div>
-              {isNextUpcoming && !isPast && (
-                <div className="text-xs font-medium text-gray-700">
-                  {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
-                </div>
-              )}
+          <div className="flex justify-between items-start">
+            <div className="flex-grow">
+              <h3 className="font-medium text-gray-900 leading-tight">{meet.name}</h3>
+              <div className="mt-1 text-sm text-gray-500 space-y-0.5">
+                <div>{formatDate(meet.date)}</div>
+                <div>{meet.location}</div>
+                {isNextUpcoming && !isPast && (
+                  <div className="text-xs font-medium text-gray-700">
+                    {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
+                  </div>
+                )}
+              </div>
             </div>
+            
+            {/* Dropdown menu for edit/delete - now available for all meets including FilAm */}
+            {onEditClick && onDeleteClick && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4 text-gray-500" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleEditClick}>
+                    <Edit2 className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDeleteClick} className="text-red-600">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
             
             {/* Show simplified status for upcoming meets (but not for FilAm meets) */}

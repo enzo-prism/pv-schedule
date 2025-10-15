@@ -13,7 +13,6 @@ import DeleteConfirmation from "@/components/delete-confirmation";
 import CountdownTimer from "@/components/countdown-timer";
 import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
-import { filamMeets } from "@shared/filam-meets";
 
 type FilterType = "filam" | "upcoming" | "past";
 
@@ -198,23 +197,23 @@ export default function Home() {
   // Get the ID of the next upcoming meet (first in the sorted list)
   const nextUpcomingMeetId = upcomingMeets.length > 0 ? upcomingMeets[0].id : null;
   
-  const filteredMeets = currentFilter === "filam" 
-    ? filamMeets.filter(meet => !isPastDate(meet.date)).sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
-    : meets.filter((meet) => {
-        if (currentFilter === "upcoming") {
-          return !isPastDate(meet.date);
-        } else if (currentFilter === "past") {
-          return isPastDate(meet.date);
-        }
-        return true;
-      }).sort((a, b) => {
-        // For past meets, sort by most recent to oldest (descending order)
-        if (currentFilter === "past") {
-          return parseDate(b.date).getTime() - parseDate(a.date).getTime();
-        }
-        // For upcoming meets and all meets, sort by closest date first (ascending order)
-        return parseDate(a.date).getTime() - parseDate(b.date).getTime();
-      });
+  const filteredMeets = meets.filter((meet) => {
+    if (currentFilter === "filam") {
+      return meet.isFilamMeet && !isPastDate(meet.date);
+    } else if (currentFilter === "upcoming") {
+      return !meet.isFilamMeet && !isPastDate(meet.date);
+    } else if (currentFilter === "past") {
+      return !meet.isFilamMeet && isPastDate(meet.date);
+    }
+    return true;
+  }).sort((a, b) => {
+    // For past meets, sort by most recent to oldest (descending order)
+    if (currentFilter === "past") {
+      return parseDate(b.date).getTime() - parseDate(a.date).getTime();
+    }
+    // For upcoming and FilAm meets, sort by closest date first (ascending order)
+    return parseDate(a.date).getTime() - parseDate(b.date).getTime();
+  });
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);
@@ -275,7 +274,7 @@ export default function Home() {
                 onEditClick={handleEditClick}
                 onDeleteClick={handleDeleteClick}
                 isNextUpcoming={meet.id === nextUpcomingMeetId && currentFilter !== "past"}
-                isFilamMeet={currentFilter === "filam"}
+                isFilamMeet={meet.isFilamMeet}
               />
             ))}
           </div>
@@ -331,7 +330,7 @@ export default function Home() {
       />
       
       {/* Floating Add Meet Button */}
-      {currentFilter !== "past" && currentFilter !== "filam" && (
+      {currentFilter === "upcoming" && (
         <button
           onClick={() => setIsAddMeetOpen(true)}
           className="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center justify-center shadow-lg z-30"

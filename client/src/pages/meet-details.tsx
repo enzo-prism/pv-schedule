@@ -1,7 +1,6 @@
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Meet } from "@shared/schema";
-import { filamMeets } from "@shared/filam-meets";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
@@ -30,29 +29,16 @@ export default function MeetDetails() {
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  // Check if this is a FilAm meet (ID >= 9900)
-  const isFilamMeet = meetId !== null && meetId >= 9900;
-  const filamMeet = isFilamMeet ? filamMeets.find((m: Meet) => m.id === meetId) : null;
-
-  // Fetch meet details (only for non-FilAm meets)
-  const { data: apiMeet, isLoading, isError } = useQuery<Meet>({
+  // Fetch meet details from the API (for all meets, including FilAm)
+  const { data: meet, isLoading, isError } = useQuery<Meet>({
     queryKey: [`/api/meets/${meetId}`],
-    enabled: meetId !== null && !isFilamMeet,
+    enabled: meetId !== null,
   });
-
-  // Use FilAm meet data or API data
-  const meet = isFilamMeet ? filamMeet : apiMeet;
 
   const editMeetMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string; link?: string; driveTime?: string; registrationStatus?: string } }) => {
-      if (isFilamMeet) {
-        // For FilAm meets, create a new personal copy in the database
-        const res = await apiRequest("POST", "/api/meets", data);
-        return res.json();
-      } else {
-        const res = await apiRequest("PUT", `/api/meets/${id}`, data);
-        return res.json();
-      }
+      const res = await apiRequest("PUT", `/api/meets/${id}`, data);
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
@@ -60,9 +46,7 @@ export default function MeetDetails() {
       setEditMeet(null);
       toast({
         title: "Meet updated",
-        description: isFilamMeet 
-          ? "FilAm meet saved to your personal schedule with your updates."
-          : "The meet has been successfully updated.",
+        description: "The meet has been successfully updated.",
       });
     },
     onError: (error) => {
@@ -76,9 +60,6 @@ export default function MeetDetails() {
   
   const deleteMeetMutation = useMutation({
     mutationFn: async (id: number) => {
-      if (isFilamMeet) {
-        throw new Error("FilAm meets cannot be deleted as they are reference data.");
-      }
       await apiRequest("DELETE", `/api/meets/${id}`);
       return id;
     },
@@ -223,7 +204,7 @@ export default function MeetDetails() {
                 <Badge variant="outline" className={`${statusClass} font-normal text-xs px-2 py-0.5`}>
                   {isPast ? 'Past' : 'Upcoming'}
                 </Badge>
-                {isFilamMeet && (
+                {meet.isFilamMeet && (
                   <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 font-normal text-xs px-2 py-0.5">
                     🇵🇭 FilAm
                   </Badge>
@@ -249,9 +230,9 @@ export default function MeetDetails() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setEditMeet(meet)} className="cursor-pointer">
                   <Edit2 className="h-4 w-4 mr-2" />
-                  <span>{isFilamMeet ? "Add to Schedule" : "Edit"}</span>
+                  <span>Edit</span>
                 </DropdownMenuItem>
-                {!isFilamMeet && (
+                {(
                   <DropdownMenuItem 
                     onClick={() => setDeleteConfirmOpen(true)} 
                     className="cursor-pointer text-red-500 focus:text-red-500"
