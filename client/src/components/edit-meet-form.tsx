@@ -15,7 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Meet } from "@shared/schema";
+import { Meet, MediaItem } from "@shared/schema";
+import MediaUpload from "@/components/media-upload";
+import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -290,6 +292,20 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
+          
+          {/* Media Upload Section */}
+          <div className="pt-2">
+            <Separator className="mb-4" />
+            <div className="mb-3">
+              <FormLabel className="text-sm font-medium">Photos & Videos</FormLabel>
+              <p className="text-xs text-gray-500 mt-1">Add photos and videos from this meet</p>
+            </div>
+            <MediaUpload 
+              meetId={meet.id}
+              existingMedia={meet.media || []}
+              isEditing={true}
+            />
+          </div>
           
           <Button 
             type="submit" 
