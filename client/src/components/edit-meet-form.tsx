@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,9 +16,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Meet, MediaItem } from "@shared/schema";
+import { Meet, type MediaItem } from "@shared/schema";
 import MediaUpload from "@/components/media-upload";
 import { Separator } from "@/components/ui/separator";
+
+const mediaItemSchema = z.object({
+  id: z.string(),
+  type: z.enum(["photo", "video"]),
+  url: z.string(),
+  thumbnail: z.string().optional(),
+  caption: z.string().optional(),
+  uploadedAt: z.string(),
+});
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -37,6 +47,7 @@ const formSchema = z.object({
   link: z.string().optional(),
   driveTime: z.string().optional(),
   registrationStatus: z.string().optional(),
+  media: z.array(mediaItemSchema).optional(),
 });
 
 interface EditMeetFormProps {
@@ -56,6 +67,8 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
     return format(date, "yyyy-MM-dd");
   };
 
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>(meet.media ?? []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -70,11 +83,33 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       link: meet.link || "",
       driveTime: meet.driveTime || "",
       registrationStatus: meet.registrationStatus || "not registered",
+      media: meet.media ?? [],
     },
   });
 
+  useEffect(() => {
+    setMediaItems(meet.media ?? []);
+    form.reset({
+      name: meet.name,
+      date: formatDateForInput(meet.date),
+      location: meet.location,
+      description: meet.description || "",
+      heightCleared: meet.heightCleared || "",
+      poleUsed: meet.poleUsed || "",
+      deepestTakeoff: meet.deepestTakeoff || "",
+      place: meet.place || "",
+      link: meet.link || "",
+      driveTime: meet.driveTime || "",
+      registrationStatus: meet.registrationStatus || "not registered",
+      media: meet.media ?? [],
+    });
+  }, [meet, form]);
+
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values);
+    onSubmit({
+      ...values,
+      media: mediaItems,
+    });
   };
 
   return (
@@ -302,7 +337,11 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
             </div>
             <MediaUpload 
               meetId={meet.id}
-              existingMedia={meet.media || []}
+              existingMedia={mediaItems}
+              onMediaUpdate={(updated) => {
+                setMediaItems(updated);
+                form.setValue("media", updated);
+              }}
               isEditing={true}
             />
           </div>

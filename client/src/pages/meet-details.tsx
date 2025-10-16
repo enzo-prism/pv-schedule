@@ -1,6 +1,6 @@
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Meet } from "@shared/schema";
+import { Meet, type MediaItem } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical, Camera } from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
@@ -30,13 +30,28 @@ export default function MeetDetails() {
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
+  type MeetPayload = {
+    name: string;
+    date: string;
+    location: string;
+    description?: string;
+    heightCleared?: string;
+    poleUsed?: string;
+    deepestTakeoff?: string;
+    place?: string;
+    link?: string;
+    driveTime?: string;
+    registrationStatus?: string;
+    media?: MediaItem[];
+  };
+
   const { data: meet, isLoading, isError } = useQuery<Meet>({
     queryKey: [`/api/meets/${meetId}`],
     enabled: meetId !== null,
   });
 
   const editMeetMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: { name: string; date: string; location: string; description?: string; heightCleared?: string; poleUsed?: string; deepestTakeoff?: string; place?: string; link?: string; driveTime?: string; registrationStatus?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: MeetPayload }) => {
       const res = await apiRequest("PUT", `/api/meets/${id}`, data);
       return res.json();
     },
@@ -82,19 +97,7 @@ export default function MeetDetails() {
     },
   });
 
-  const handleEditMeet = (meetData: { 
-    name: string; 
-    date: string; 
-    location: string; 
-    description?: string;
-    heightCleared?: string;
-    poleUsed?: string;
-    deepestTakeoff?: string;
-    place?: string;
-    link?: string;
-    driveTime?: string;
-    registrationStatus?: string;
-  }) => {
+  const handleEditMeet = (meetData: MeetPayload) => {
     if (meetId) {
       editMeetMutation.mutate({
         id: meetId,

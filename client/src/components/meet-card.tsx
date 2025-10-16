@@ -1,9 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Edit2, Trash2, MoreVertical, Car, ExternalLink, Camera } from "lucide-react";
+import { Edit2, Trash2, MoreVertical } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import MediaGallery from "@/components/media-gallery";
@@ -80,10 +79,32 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
 
   // Calculate days until the meet (for upcoming meets)
   const daysUntil = !isPast ? getDaysUntil(meet.date) : 0;
+  const firstMedia = meet.media && meet.media.length > 0 ? meet.media[0] : undefined;
 
   return (
     <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-90 transition-opacity">
       <Card className={`overflow-hidden ${isNextUpcoming && !isPast ? 'border-l-4 border-l-gray-800 border-gray-100' : 'border-gray-100'} bg-white hover:bg-gray-50 transition-colors duration-150 relative`}>
+        {firstMedia && (
+          <div className="relative aspect-video bg-gray-100 overflow-hidden">
+            {firstMedia.type === "video" ? (
+              <video
+                src={firstMedia.url}
+                className="w-full h-full object-cover"
+                muted
+                loop
+                playsInline
+                aria-label="Meet video preview"
+              />
+            ) : (
+              <img
+                src={firstMedia.url}
+                alt={firstMedia.caption || `${meet.name} preview`}
+                className="w-full h-full object-cover"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+          </div>
+        )}
         <CardContent className="p-5">
           <div className="flex justify-between items-start">
             <div className="flex-grow">

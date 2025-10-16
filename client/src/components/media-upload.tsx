@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
-import { Upload, X, Image, Film } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Upload, X, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { MediaItem } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 interface MediaUploadProps {
   meetId?: number;
@@ -13,10 +14,16 @@ interface MediaUploadProps {
 }
 
 export default function MediaUpload({ meetId, existingMedia = [], onMediaUpdate, isEditing = false }: MediaUploadProps) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [media, setMedia] = useState<MediaItem[]>(existingMedia);
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<{ file: File; url: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMedia(existingMedia);
+  }, [existingMedia]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -56,6 +63,7 @@ export default function MediaUpload({ meetId, existingMedia = [], onMediaUpdate,
       const response = await fetch(`/api/meets/${meetId}/media`, {
         method: 'POST',
         body: formData,
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -63,15 +71,31 @@ export default function MediaUpload({ meetId, existingMedia = [], onMediaUpdate,
       }
 
       const data = await response.json();
-      const newMedia = [...media, ...data.media];
+      const newMedia = data.meet?.media ?? data.media ?? [];
+      const uploadedCount = Array.isArray(data.media) ? data.media.length : previewFiles.length;
       setMedia(newMedia);
       setPreviewFiles([]);
       
       if (onMediaUpdate) {
         onMediaUpdate(newMedia);
       }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/meets"] }),
+        meetId ? queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] }) : Promise.resolve(),
+      ]);
+
+      toast({
+        title: "Media uploaded",
+        description: `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} added to this meet.`,
+      });
     } catch (error) {
       console.error('Error uploading files:', error);
+      toast({
+        title: "Upload failed",
+        description: "We couldn't save those files. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
     }
@@ -82,14 +106,27 @@ export default function MediaUpload({ meetId, existingMedia = [], onMediaUpdate,
 
     try {
       const response = await apiRequest('DELETE', `/api/meets/${meetId}/media/${mediaId}`);
-      const updatedMedia = media.filter(item => item.id !== mediaId);
+      const data = await response.json();
+      const updatedMedia: MediaItem[] = data.meet?.media ?? media.filter(item => item.id !== mediaId);
       setMedia(updatedMedia);
-      
-      if (onMediaUpdate) {
-        onMediaUpdate(updatedMedia);
-      }
+      onMediaUpdate?.(updatedMedia);
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/meets"] }),
+        meetId ? queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] }) : Promise.resolve(),
+      ]);
+
+      toast({
+        title: "Media removed",
+        description: "The selected file has been deleted from this meet.",
+      });
     } catch (error) {
       console.error('Error deleting media:', error);
+      toast({
+        title: "Failed to delete media",
+        description: "We couldn't remove that file. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

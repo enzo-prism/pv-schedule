@@ -4,7 +4,7 @@ import { Plus, Clock } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Meet } from "@shared/schema";
+import { Meet, type MediaItem } from "@shared/schema";
 import MeetCard from "@/components/meet-card";
 import AddMeetForm from "@/components/add-meet-form";
 import EditMeetForm from "@/components/edit-meet-form";
@@ -15,6 +15,21 @@ import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past";
+
+type MeetPayload = {
+  name: string;
+  date: string;
+  location: string;
+  description?: string;
+  heightCleared?: string;
+  poleUsed?: string;
+  deepestTakeoff?: string;
+  place?: string;
+  link?: string;
+  driveTime?: string;
+  registrationStatus?: string;
+  media?: MediaItem[];
+};
 
 export default function Home() {
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
@@ -29,19 +44,7 @@ export default function Home() {
   });
 
   const addMeetMutation = useMutation({
-    mutationFn: async (meetData: { 
-      name: string; 
-      date: string; 
-      location: string; 
-      description?: string;
-      heightCleared?: string;
-      poleUsed?: string;
-      deepestTakeoff?: string;
-      place?: string;
-      link?: string;
-      driveTime?: string;
-      registrationStatus?: string;
-    }) => {
+    mutationFn: async (meetData: MeetPayload) => {
       const res = await apiRequest("POST", "/api/meets", meetData);
       return res.json();
     },
@@ -63,19 +66,7 @@ export default function Home() {
   });
 
   const editMeetMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: { 
-      name: string; 
-      date: string; 
-      location: string; 
-      description?: string;
-      heightCleared?: string;
-      poleUsed?: string;
-      deepestTakeoff?: string;
-      place?: string;
-      link?: string;
-      driveTime?: string;
-      registrationStatus?: string;
-    } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: MeetPayload }) => {
       const res = await apiRequest("PUT", `/api/meets/${id}`, data);
       return res.json();
     },
@@ -119,35 +110,11 @@ export default function Home() {
     },
   });
 
-  const handleAddMeet = (meetData: { 
-    name: string; 
-    date: string; 
-    location: string; 
-    description?: string;
-    heightCleared?: string;
-    poleUsed?: string;
-    deepestTakeoff?: string;
-    place?: string;
-    link?: string;
-    driveTime?: string;
-    registrationStatus?: string;
-  }) => {
+  const handleAddMeet = (meetData: MeetPayload) => {
     addMeetMutation.mutate(meetData);
   };
 
-  const handleEditMeet = (meetData: { 
-    name: string; 
-    date: string; 
-    location: string; 
-    description?: string;
-    heightCleared?: string;
-    poleUsed?: string;
-    deepestTakeoff?: string;
-    place?: string;
-    link?: string;
-    driveTime?: string;
-    registrationStatus?: string;
-  }) => {
+  const handleEditMeet = (meetData: MeetPayload) => {
     if (editMeet) {
       editMeetMutation.mutate({
         id: editMeet.id,

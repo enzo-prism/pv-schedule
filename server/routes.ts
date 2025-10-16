@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express, type Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMeetSchema, type MediaItem } from "@shared/schema";
@@ -7,14 +7,39 @@ import multer from "multer";
 import path from "path";
 import { promises as fs } from "fs";
 
+const UPLOADS_DIRECTORY = path.join(process.cwd(), "uploads");
+
+interface UploadedFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+  buffer: Buffer;
+}
+
+type ExpressRequestWithFiles = Request & {
+  files?: UploadedFile[];
+};
+
 // Configure multer for file uploads
 const storage_multer = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    const uploadDir = path.join(process.cwd(), 'client', 'public', 'uploads');
-    await fs.mkdir(uploadDir, { recursive: true });
-    cb(null, uploadDir);
+  destination: async (
+    _req: Request,
+    _file: UploadedFile,
+    cb: (error: Error | null, destination: string) => void,
+  ) => {
+    await fs.mkdir(UPLOADS_DIRECTORY, { recursive: true });
+    cb(null, UPLOADS_DIRECTORY);
   },
-  filename: (req, file, cb) => {
+  filename: (
+    req: Request,
+    file: UploadedFile,
+    cb: (error: Error | null, filename: string) => void,
+  ) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
     cb(null, file.fieldname + '-' + uniqueSuffix + ext);
@@ -26,7 +51,11 @@ const upload = multer({
   limits: {
     fileSize: 50 * 1024 * 1024 // 50MB max file size
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (
+    req: Request,
+    file: UploadedFile,
+    cb: (error: Error | null, acceptFile?: boolean) => void,
+  ) => {
     // Accept images and videos
     const allowedMimes = [
       'image/jpeg',
@@ -48,6 +77,10 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure uploads directory exists and is served statically
+  await fs.mkdir(UPLOADS_DIRECTORY, { recursive: true });
+  app.use("/uploads", express.static(UPLOADS_DIRECTORY));
+
   // GET - Get all meets
   app.get("/api/meets", async (_req, res) => {
     try {
@@ -154,11 +187,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Meet not found" });
       }
 
-      if (!req.files || !Array.isArray(req.files)) {
+      const multerReq = req as ExpressRequestWithFiles;
+
+      if (!multerReq.files || !Array.isArray(multerReq.files)) {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      const newMediaItems: MediaItem[] = req.files.map((file: Express.Multer.File) => {
+      const newMediaItems: MediaItem[] = multerReq.files.map((file: UploadedFile) => {
         const isVideo = file.mimetype.startsWith('video/');
         return {
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -177,6 +212,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...meet,
         media: updatedMedia
       });
+
+      if (!updatedMeet) {
+        return res.status(500).json({ message: "Failed to update meet with uploaded media" });
+      }
 
       res.json({ media: newMediaItems, meet: updatedMeet });
     } catch (error) {
@@ -199,6 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const mediaId = req.params.mediaId;
+      const removedItems = (meet.media || []).filter((item: MediaItem) => item.id === mediaId);
       const updatedMedia = (meet.media || []).filter((item: MediaItem) => item.id !== mediaId);
 
       // Update the meet with filtered media
@@ -206,6 +246,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...meet,
         media: updatedMedia
       });
+
+      if (!updatedMeet) {
+        return res.status(500).json({ message: "Failed to update meet after deleting media" });
+      }
+
+      // Attempt to remove files for deleted media items
+      for (const item of removedItems) {
+        if (!item?.url) {
+          continue;
+        }
+        const filename = path.basename(item.url);
+        const filePath = path.join(UPLOADS_DIRECTORY, filename);
+        try {
+          await fs.unlink(filePath);
+        } catch {
+          // Ignore unlink errors (file may already be gone)
+        }
+      }
 
       res.json({ meet: updatedMeet });
     } catch (error) {

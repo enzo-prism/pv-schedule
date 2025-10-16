@@ -1,4 +1,4 @@
-import { type Meet, type InsertMeet } from "@shared/schema";
+import { type Meet, type InsertMeet, type MediaItem } from "@shared/schema";
 import db from './db';
 
 // Helper function to handle date timezone issues
@@ -13,6 +13,56 @@ function adjustDateForTimezone(dateStr: string): string {
   // Otherwise, format it properly
   const date = new Date(dateStr);
   return date.toISOString().split('T')[0];
+}
+
+function coerceMedia(media: unknown): MediaItem[] {
+  if (!media) {
+    return [];
+  }
+
+  if (Array.isArray(media)) {
+    return media as MediaItem[];
+  }
+
+  if (typeof media === "string") {
+    try {
+      const parsed = JSON.parse(media);
+      return Array.isArray(parsed) ? (parsed as MediaItem[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  if (typeof media === "object") {
+    return (media as MediaItem[]) ?? [];
+  }
+
+  return [];
+}
+
+function mapRowToMeet(row: any): Meet {
+  const dateStr =
+    row?.date instanceof Date
+      ? row.date.toISOString().split("T")[0]
+      : String(row?.date ?? "").split("T")[0];
+
+  return {
+    id: row.id,
+    name: row.name,
+    date: dateStr,
+    location: row.location,
+    description: row.description,
+    heightCleared: row.height_cleared,
+    poleUsed: row.pole_used,
+    deepestTakeoff: row.deepest_takeoff,
+    place: row.place,
+    link: row.link,
+    driveTime: row.drive_time,
+    registrationStatus: row.registration_status ?? "not registered",
+    isFilamMeet: row.is_filam_meet ?? false,
+    media: coerceMedia(row.media),
+    createdAt: row.created_at,
+  };
 }
 
 export interface IStorage {
@@ -96,29 +146,8 @@ export class PgStorage implements IStorage {
     try {
       const query = 'SELECT * FROM meets ORDER BY date';
       const result = await db.query(query);
-      
-      return result.rows.map((row: any) => {
-        // Ensure date is returned as a YYYY-MM-DD string without timezone information
-        const dateStr = row.date instanceof Date 
-          ? row.date.toISOString().split('T')[0] 
-          : String(row.date).split('T')[0];
-          
-        return {
-          id: row.id,
-          name: row.name,
-          date: dateStr,
-          location: row.location,
-          description: row.description,
-          heightCleared: row.height_cleared,
-          poleUsed: row.pole_used,
-          deepestTakeoff: row.deepest_takeoff,
-          place: row.place,
-          link: row.link,
-          driveTime: row.drive_time,
-          registrationStatus: row.registration_status,
-          createdAt: row.created_at
-        };
-      });
+
+      return result.rows.map(mapRowToMeet);
     } catch (error) {
       console.error('[PgStorage] Error getting all meets:', error);
       return [];
@@ -135,27 +164,8 @@ export class PgStorage implements IStorage {
       }
       
       const row = result.rows[0];
-      
-      // Ensure date is returned as a YYYY-MM-DD string without timezone information
-      const dateStr = row.date instanceof Date 
-        ? row.date.toISOString().split('T')[0] 
-        : String(row.date).split('T')[0];
-        
-      return {
-        id: row.id,
-        name: row.name,
-        date: dateStr,
-        location: row.location,
-        description: row.description,
-        heightCleared: row.height_cleared,
-        poleUsed: row.pole_used,
-        deepestTakeoff: row.deepest_takeoff,
-        place: row.place,
-        link: row.link,
-        driveTime: row.drive_time,
-        registrationStatus: row.registration_status,
-        createdAt: row.created_at
-      };
+
+      return mapRowToMeet(row);
     } catch (error) {
       console.error('[PgStorage] Error getting meet by id:', error);
       return undefined;
@@ -165,8 +175,22 @@ export class PgStorage implements IStorage {
   async createMeet(insertMeet: InsertMeet): Promise<Meet> {
     try {
       const query = `
-        INSERT INTO meets (name, date, location, description, height_cleared, pole_used, deepest_takeoff, place, link, drive_time, registration_status)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        INSERT INTO meets (
+          name,
+          date,
+          location,
+          description,
+          height_cleared,
+          pole_used,
+          deepest_takeoff,
+          place,
+          link,
+          drive_time,
+          registration_status,
+          is_filam_meet,
+          media
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING *
       `;
       
@@ -184,32 +208,15 @@ export class PgStorage implements IStorage {
         insertMeet.place || null,
         insertMeet.link || null,
         insertMeet.driveTime || null,
-        insertMeet.registrationStatus || defaultRegistrationStatus
+        insertMeet.registrationStatus || defaultRegistrationStatus,
+        insertMeet.isFilamMeet ?? false,
+        JSON.stringify(insertMeet.media ?? [])
       ];
       
       const result = await db.query(query, values);
       const row = result.rows[0];
-      
-      // Ensure date is returned as a YYYY-MM-DD string without timezone information
-      const dateStr = row.date instanceof Date 
-        ? row.date.toISOString().split('T')[0] 
-        : String(row.date).split('T')[0];
-        
-      return {
-        id: row.id,
-        name: row.name,
-        date: dateStr,
-        location: row.location,
-        description: row.description,
-        heightCleared: row.height_cleared,
-        poleUsed: row.pole_used,
-        deepestTakeoff: row.deepest_takeoff,
-        place: row.place,
-        link: row.link,
-        driveTime: row.drive_time,
-        registrationStatus: row.registration_status,
-        createdAt: row.created_at
-      };
+
+      return mapRowToMeet(row);
     } catch (error) {
       console.error('[PgStorage] Error creating meet:', error);
       throw new Error('Failed to create meet');
@@ -226,23 +233,45 @@ export class PgStorage implements IStorage {
       
       const query = `
         UPDATE meets
-        SET name = $1, date = $2, location = $3, description = $4, height_cleared = $5, pole_used = $6, deepest_takeoff = $7, place = $8, link = $9, drive_time = $10, registration_status = $11
-        WHERE id = $12
+        SET
+          name = $1,
+          date = $2,
+          location = $3,
+          description = $4,
+          height_cleared = $5,
+          pole_used = $6,
+          deepest_takeoff = $7,
+          place = $8,
+          link = $9,
+          drive_time = $10,
+          registration_status = $11,
+          is_filam_meet = $12,
+          media = $13
+        WHERE id = $14
         RETURNING *
       `;
+
+      const mergedMediaInput = updateMeet.media ?? existingMeet.media ?? [];
+      const mergedMedia = coerceMedia(mergedMediaInput);
+      const mergedRegistrationStatus =
+        updateMeet.registrationStatus ?? existingMeet.registrationStatus ?? "not registered";
+      const mergedIsFilamMeet =
+        updateMeet.isFilamMeet ?? existingMeet.isFilamMeet ?? false;
       
       const values = [
-        updateMeet.name,
-        adjustDateForTimezone(updateMeet.date), // Adjust date to avoid timezone issues
-        updateMeet.location,
-        updateMeet.description || null,
-        updateMeet.heightCleared || null,
-        updateMeet.poleUsed || null,
-        updateMeet.deepestTakeoff || null,
-        updateMeet.place || null,
-        updateMeet.link || null,
-        updateMeet.driveTime || null,
-        updateMeet.registrationStatus || "not registered",
+        updateMeet.name ?? existingMeet.name,
+        adjustDateForTimezone(updateMeet.date ?? existingMeet.date), // Adjust date to avoid timezone issues
+        updateMeet.location ?? existingMeet.location,
+        updateMeet.description ?? existingMeet.description ?? null,
+        updateMeet.heightCleared ?? existingMeet.heightCleared ?? null,
+        updateMeet.poleUsed ?? existingMeet.poleUsed ?? null,
+        updateMeet.deepestTakeoff ?? existingMeet.deepestTakeoff ?? null,
+        updateMeet.place ?? existingMeet.place ?? null,
+        updateMeet.link ?? existingMeet.link ?? null,
+        updateMeet.driveTime ?? existingMeet.driveTime ?? null,
+        mergedRegistrationStatus,
+        mergedIsFilamMeet,
+        JSON.stringify(mergedMedia),
         id
       ];
       
@@ -253,27 +282,8 @@ export class PgStorage implements IStorage {
       }
       
       const row = result.rows[0];
-      
-      // Ensure date is returned as a YYYY-MM-DD string without timezone information
-      const dateStr = row.date instanceof Date 
-        ? row.date.toISOString().split('T')[0] 
-        : String(row.date).split('T')[0];
-        
-      return {
-        id: row.id,
-        name: row.name,
-        date: dateStr,
-        location: row.location,
-        description: row.description,
-        heightCleared: row.height_cleared,
-        poleUsed: row.pole_used,
-        deepestTakeoff: row.deepest_takeoff,
-        place: row.place,
-        link: row.link,
-        driveTime: row.drive_time,
-        registrationStatus: row.registration_status,
-        createdAt: row.created_at
-      };
+
+      return mapRowToMeet(row);
     } catch (error) {
       console.error('[PgStorage] Error updating meet:', error);
       return undefined;
@@ -377,6 +387,8 @@ export class MemStorage implements IStorage {
       link: insertMeet.link || null,
       driveTime: insertMeet.driveTime || null,
       registrationStatus: insertMeet.registrationStatus || defaultRegistrationStatus,
+      isFilamMeet: insertMeet.isFilamMeet ?? false,
+      media: coerceMedia(insertMeet.media ?? []),
       id,
       createdAt: new Date()
     };
@@ -402,7 +414,9 @@ export class MemStorage implements IStorage {
       place: updateMeet.place || null,
       link: updateMeet.link || null,
       driveTime: updateMeet.driveTime || null,
-      registrationStatus: updateMeet.registrationStatus || "not registered"
+      registrationStatus: updateMeet.registrationStatus || "not registered",
+      isFilamMeet: updateMeet.isFilamMeet ?? existingMeet.isFilamMeet ?? false,
+      media: coerceMedia(updateMeet.media ?? existingMeet.media ?? [])
     };
     
     this.meets.set(id, updatedMeet);
