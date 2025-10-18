@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Upload, X, Film } from "lucide-react";
+import { Upload, X, Film, Pencil, Check, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaItem } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 
 interface MediaUploadProps {
   meetId?: number;
@@ -29,9 +30,14 @@ export default function MediaUpload({
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<{ file: File; url: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingMediaId, setEditingMediaId] = useState<string | null>(null);
+  const [captionDraft, setCaptionDraft] = useState("");
+  const [savingCaption, setSavingCaption] = useState(false);
 
   useEffect(() => {
     setMedia(existingMedia);
+    setEditingMediaId(null);
+    setCaptionDraft("");
   }, [existingMedia]);
 
   const uploadFiles = useCallback(
@@ -60,8 +66,8 @@ export default function MediaUpload({
         }
 
         const data = await response.json();
-        const newMedia = data.meet?.media ?? data.media ?? [];
-        const uploadedCount = Array.isArray(data.media) ? data.media.length : queue.length;
+        const newMedia = data.media ?? data.meet?.media ?? [];
+        const uploadedCount = queue.length;
         setMedia(newMedia);
         queue.forEach(({ url }) => URL.revokeObjectURL(url));
         setPreviewFiles([]);
@@ -148,9 +154,13 @@ export default function MediaUpload({
     try {
       const response = await apiRequest('DELETE', `/api/meets/${meetId}/media/${mediaId}`);
       const data = await response.json();
-      const updatedMedia: MediaItem[] = data.meet?.media ?? media.filter(item => item.id !== mediaId);
+      const updatedMedia: MediaItem[] = data.media ?? data.meet?.media ?? media.filter(item => item.id !== mediaId);
       setMedia(updatedMedia);
       onMediaUpdate?.(updatedMedia);
+      if (editingMediaId === mediaId) {
+        setEditingMediaId(null);
+        setCaptionDraft("");
+      }
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["/api/meets"] }),
@@ -168,6 +178,45 @@ export default function MediaUpload({
         description: "We couldn't remove that file. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const startEditingCaption = (item: MediaItem) => {
+    setEditingMediaId(item.id);
+    setCaptionDraft(item.caption ?? "");
+  };
+
+  const cancelCaptionEdit = () => {
+    setEditingMediaId(null);
+    setCaptionDraft("");
+  };
+
+  const saveCaption = async () => {
+    if (!meetId || !editingMediaId) return;
+
+    setSavingCaption(true);
+    try {
+      const response = await apiRequest("PATCH", `/api/meets/${meetId}/media/${editingMediaId}`, {
+        caption: captionDraft,
+      });
+      const data = await response.json();
+      const updatedMedia: MediaItem[] = data.media ?? data.meet?.media ?? [];
+      setMedia(updatedMedia);
+      onMediaUpdate?.(updatedMedia);
+      toast({
+        title: "Caption updated",
+        description: "The caption for this media item has been saved.",
+      });
+      cancelCaptionEdit();
+    } catch (error) {
+      console.error("Error updating caption:", error);
+      toast({
+        title: "Failed to update caption",
+        description: "We couldn't update that caption. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingCaption(false);
     }
   };
 
@@ -245,35 +294,101 @@ export default function MediaUpload({
       {/* Existing media */}
       {media.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
-          {media.map((item) => (
-            <div key={item.id} className="relative aspect-square group">
-              {item.type === 'video' ? (
-                <div className="relative w-full h-full">
-                  <video
+          {media.map((item) => {
+            const isEditingCaption = editingMediaId === item.id;
+            return (
+              <div key={item.id} className="relative aspect-square group">
+                {item.type === 'video' ? (
+                  <div className="relative w-full h-full">
+                    <video
+                      src={item.url}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <Film className="absolute bottom-1 left-1 h-5 w-5 text-white drop-shadow-lg" />
+                  </div>
+                ) : (
+                  <img
                     src={item.url}
+                    alt={item.caption || 'Meet media'}
                     className="w-full h-full object-cover rounded-lg"
                   />
-                  <Film className="absolute bottom-1 left-1 h-5 w-5 text-white drop-shadow-lg" />
-                </div>
-              ) : (
-                <img
-                  src={item.url}
-                  alt={item.caption || 'Meet media'}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              )}
-              {isEditing && (
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => deleteMedia(item.id)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          ))}
+                )}
+
+                {item.caption && !isEditingCaption && (
+                  <div className="absolute inset-x-1 bottom-1 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                    {item.caption}
+                  </div>
+                )}
+
+                {isEditing && !isEditingCaption && (
+                  <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => startEditingCaption(item)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => deleteMedia(item.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+
+                {isEditingCaption && (
+                  <div className="absolute inset-0 rounded-lg bg-black/80 flex flex-col p-3 text-white">
+                    <label htmlFor={`caption-${item.id}`} className="text-xs uppercase tracking-wide text-white/70">
+                      Caption
+                    </label>
+                    <Textarea
+                      id={`caption-${item.id}`}
+                      value={captionDraft}
+                      onChange={(event) => setCaptionDraft(event.target.value)}
+                      placeholder="Add a short description"
+                      className="mt-2 flex-1 resize-none bg-white/90 text-gray-900"
+                      maxLength={300}
+                    />
+                    <div className="mt-3 flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-white hover:bg-white/10"
+                        onClick={cancelCaptionEdit}
+                        disabled={savingCaption}
+                      >
+                        <XCircle className="mr-1 h-4 w-4" />
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => void saveCaption()}
+                        disabled={savingCaption}
+                      >
+                        {savingCaption ? (
+                          'Saving...'
+                        ) : (
+                          <>
+                            <Check className="mr-1 h-4 w-4" />
+                            Save
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

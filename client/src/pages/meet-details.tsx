@@ -1,6 +1,6 @@
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Meet, type MediaItem } from "@shared/schema";
+import { Meet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical, Camera } from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
@@ -30,20 +30,19 @@ export default function MeetDetails() {
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  type MeetPayload = {
-    name: string;
-    date: string;
-    location: string;
-    description?: string;
-    heightCleared?: string;
-    poleUsed?: string;
-    deepestTakeoff?: string;
-    place?: string;
-    link?: string;
-    driveTime?: string;
-    registrationStatus?: string;
-    media?: MediaItem[];
-  };
+type MeetPayload = {
+  name: string;
+  date: string;
+  location: string;
+  description?: string;
+  heightCleared?: string;
+  poleUsed?: string;
+  deepestTakeoff?: string;
+  place?: string;
+  link?: string;
+  driveTime?: string;
+  registrationStatus?: string;
+};
 
   const { data: meet, isLoading, isError } = useQuery<Meet>({
     queryKey: [`/api/meets/${meetId}`],

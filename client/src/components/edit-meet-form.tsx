@@ -20,15 +20,6 @@ import { Meet, type MediaItem } from "@shared/schema";
 import MediaUpload from "@/components/media-upload";
 import { Separator } from "@/components/ui/separator";
 
-const mediaItemSchema = z.object({
-  id: z.string(),
-  type: z.enum(["photo", "video"]),
-  url: z.string(),
-  thumbnail: z.string().optional(),
-  caption: z.string().optional(),
-  uploadedAt: z.string(),
-});
-
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Meet name must be at least 2 characters.",
@@ -47,7 +38,6 @@ const formSchema = z.object({
   link: z.string().optional(),
   driveTime: z.string().optional(),
   registrationStatus: z.string().optional(),
-  media: z.array(mediaItemSchema).optional(),
 });
 
 interface EditMeetFormProps {
@@ -83,7 +73,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       link: meet.link || "",
       driveTime: meet.driveTime || "",
       registrationStatus: meet.registrationStatus || "not registered",
-      media: meet.media ?? [],
     },
   });
 
@@ -101,7 +90,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       link: meet.link || "",
       driveTime: meet.driveTime || "",
       registrationStatus: meet.registrationStatus || "not registered",
-      media: meet.media ?? [],
     });
   }, [meet, form]);
 
@@ -121,13 +109,11 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
       if (uploaded && uploaded.length > 0) {
         latestMedia = uploaded;
         setMediaItems(uploaded);
-        form.setValue("media", uploaded);
       }
     }
 
     onSubmit({
       ...values,
-      media: latestMedia,
     });
   };
 
@@ -359,7 +345,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               existingMedia={mediaItems}
               onMediaUpdate={(updated) => {
                 setMediaItems(updated);
-                form.setValue("media", updated);
               }}
               isEditing={true}
               onUploadHelperReady={(upload) => {

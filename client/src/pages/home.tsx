@@ -4,7 +4,7 @@ import { Plus, Clock } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Meet, type MediaItem } from "@shared/schema";
+import { Meet } from "@shared/schema";
 import MeetCard from "@/components/meet-card";
 import AddMeetForm from "@/components/add-meet-form";
 import EditMeetForm from "@/components/edit-meet-form";
@@ -28,7 +28,6 @@ type MeetPayload = {
   link?: string;
   driveTime?: string;
   registrationStatus?: string;
-  media?: MediaItem[];
 };
 
 export default function Home() {
