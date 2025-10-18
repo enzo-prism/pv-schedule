@@ -15,6 +15,20 @@ interface MediaUploadProps {
   onUploadHelperReady?: (uploadPendingFiles: () => Promise<MediaItem[] | undefined>) => void;
 }
 
+type PreviewStatus = "pending" | "uploading";
+
+interface PreviewItem {
+  id: string;
+  file: File;
+  url: string;
+  status: PreviewStatus;
+}
+
+const createPreviewId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
 export default function MediaUpload({
   meetId,
   existingMedia = [],
@@ -27,14 +41,37 @@ export default function MediaUpload({
   const { toast } = useToast();
   const [media, setMedia] = useState<MediaItem[]>(existingMedia);
   const [uploading, setUploading] = useState(false);
-  const [previewFiles, setPreviewFiles] = useState<{ file: File; url: string }[]>([]);
+  const [previewItems, setPreviewItemsState] = useState<PreviewItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pendingQueueRef = useRef<{ file: File; url: string }[]>([]);
+  const previewItemsRef = useRef<PreviewItem[]>([]);
   const inFlightUploadRef = useRef<Promise<MediaItem[] | undefined> | null>(null);
+
+  const updatePreviewItems = useCallback(
+    (updater: (prev: PreviewItem[]) => PreviewItem[]) => {
+      setPreviewItemsState(prev => {
+        const next = updater(prev);
+        previewItemsRef.current = next;
+        return next;
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     setMedia(existingMedia);
   }, [existingMedia]);
+
+  useEffect(() => {
+    previewItemsRef.current = previewItems;
+  }, [previewItems]);
+
+  useEffect(() => {
+    return () => {
+      previewItemsRef.current.forEach(item => {
+        URL.revokeObjectURL(item.url);
+      });
+    };
+  }, []);
 
   const uploadFiles = useCallback((): Promise<MediaItem[] | undefined> => {
     if (!meetId) {
@@ -45,17 +82,22 @@ export default function MediaUpload({
       return inFlightUploadRef.current;
     }
 
-    if (pendingQueueRef.current.length === 0) {
+    const pendingBatch = previewItemsRef.current.filter(item => item.status === "pending");
+
+    if (pendingBatch.length === 0) {
       return Promise.resolve(undefined);
     }
 
-    const queue = [...pendingQueueRef.current];
-    pendingQueueRef.current = [];
-    const snapshotUrls = new Set(queue.map(({ url }) => url));
+    const uploadingIds = new Set(pendingBatch.map(item => item.id));
+
+    updatePreviewItems(prev =>
+      prev.map(item => (uploadingIds.has(item.id) ? { ...item, status: "uploading" } : item))
+    );
+
     setUploading(true);
     const formData = new FormData();
 
-    queue.forEach(({ file }) => {
+    pendingBatch.forEach(({ file }) => {
       formData.append("media", file);
     });
 
@@ -73,11 +115,11 @@ export default function MediaUpload({
 
         const data = await response.json();
         const newMedia = data.meet?.media ?? data.media ?? [];
-        const uploadedCount = Array.isArray(data.media) ? data.media.length : queue.length;
+        const uploadedCount = Array.isArray(data.media) ? data.media.length : pendingBatch.length;
         setMedia(newMedia);
-        setPreviewFiles(prev => {
-          const remaining = prev.filter(item => !snapshotUrls.has(item.url));
-          snapshotUrls.forEach(url => URL.revokeObjectURL(url));
+        updatePreviewItems(prev => {
+          const remaining = prev.filter(item => !uploadingIds.has(item.id));
+          pendingBatch.forEach(item => URL.revokeObjectURL(item.url));
           return remaining;
         });
         if (fileInputRef.current) {
@@ -101,7 +143,9 @@ export default function MediaUpload({
         return newMedia;
       } catch (error) {
         console.error("Error uploading files:", error);
-        pendingQueueRef.current = [...queue, ...pendingQueueRef.current];
+        updatePreviewItems(prev =>
+          prev.map(item => (uploadingIds.has(item.id) ? { ...item, status: "pending" } : item))
+        );
         toast({
           title: "Upload failed",
           description: "We couldn't save those files. Please try again.",
@@ -110,7 +154,8 @@ export default function MediaUpload({
       } finally {
         setUploading(false);
         inFlightUploadRef.current = null;
-        if (autoUpload && pendingQueueRef.current.length > 0) {
+        const hasPending = previewItemsRef.current.some(item => item.status === "pending");
+        if (autoUpload && hasPending) {
           void uploadFiles();
         }
       }
@@ -118,7 +163,7 @@ export default function MediaUpload({
 
     inFlightUploadRef.current = uploadPromise;
     return uploadPromise;
-  }, [autoUpload, meetId, onMediaUpdate, queryClient, toast]);
+  }, [autoUpload, meetId, onMediaUpdate, queryClient, toast, updatePreviewItems]);
 
   useEffect(() => {
     if (onUploadHelperReady) {
@@ -130,16 +175,14 @@ export default function MediaUpload({
     const files = e.target.files;
     if (!files) return;
 
-    const newPreviews: { file: File; url: string }[] = [];
+    const selected = Array.from(files).map(file => ({
+      id: createPreviewId(),
+      file,
+      url: URL.createObjectURL(file),
+      status: "pending" as const,
+    }));
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const url = URL.createObjectURL(file);
-      newPreviews.push({ file, url });
-    }
-
-    pendingQueueRef.current = [...pendingQueueRef.current, ...newPreviews];
-    setPreviewFiles(prev => [...prev, ...newPreviews]);
+    updatePreviewItems(prev => [...prev, ...selected]);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -150,23 +193,25 @@ export default function MediaUpload({
     }
   };
 
-  const removePreview = (index: number) => {
-    setPreviewFiles(prev => {
-      const newPreviews = [...prev];
-      const [removed] = newPreviews.splice(index, 1);
-      if (removed) {
-        URL.revokeObjectURL(removed.url);
-        pendingQueueRef.current = pendingQueueRef.current.filter(item => item.url !== removed.url);
+  const removePreview = (id: string) => {
+    updatePreviewItems(prev => {
+      const target = prev.find(item => item.id === id);
+      if (!target || target.status === "uploading") {
+        return prev;
       }
-      return newPreviews;
+      URL.revokeObjectURL(target.url);
+      return prev.filter(item => item.id !== id);
     });
   };
+
+  const pendingCount = previewItems.filter(item => item.status === "pending").length;
+  const displayCount = pendingCount || previewItems.length;
 
   const deleteMedia = async (mediaId: string) => {
     if (!meetId) return;
 
     try {
-      const response = await apiRequest('DELETE', `/api/meets/${meetId}/media/${mediaId}`);
+      const response = await apiRequest("DELETE", `/api/meets/${meetId}/media/${mediaId}`);
       const data = await response.json();
       const updatedMedia: MediaItem[] = data.meet?.media ?? media.filter(item => item.id !== mediaId);
       setMedia(updatedMedia);
@@ -182,7 +227,7 @@ export default function MediaUpload({
         description: "The selected file has been deleted from this meet.",
       });
     } catch (error) {
-      console.error('Error deleting media:', error);
+      console.error("Error deleting media:", error);
       toast({
         title: "Failed to delete media",
         description: "We couldn't remove that file. Please try again.",
@@ -207,15 +252,17 @@ export default function MediaUpload({
               <Upload className="h-4 w-4 mr-2" />
               Add Photos/Videos
             </Button>
-            
-            {previewFiles.length > 0 && (
+
+            {previewItems.length > 0 && (
               <Button
                 type="button"
                 size="sm"
                 onClick={() => void uploadFiles()}
-                disabled={uploading || previewFiles.length === 0}
+                disabled={uploading || pendingCount === 0}
               >
-                {uploading ? 'Uploading...' : `Upload ${previewFiles.length} file${previewFiles.length > 1 ? 's' : ''}`}
+                {uploading
+                  ? "Uploading..."
+                  : `Upload ${displayCount} file${displayCount === 1 ? "" : "s"}`}
               </Button>
             )}
           </div>
@@ -232,11 +279,11 @@ export default function MediaUpload({
       )}
 
       {/* Preview of files to upload */}
-      {previewFiles.length > 0 && (
+      {previewItems.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
-          {previewFiles.map((preview, index) => (
-            <div key={index} className="relative aspect-square">
-              {preview.file.type.startsWith('video/') ? (
+          {previewItems.map(preview => (
+            <div key={preview.id} className="relative aspect-square">
+              {preview.file.type.startsWith("video/") ? (
                 <video
                   src={preview.url}
                   className="w-full h-full object-cover rounded-lg"
@@ -248,12 +295,17 @@ export default function MediaUpload({
                   className="w-full h-full object-cover rounded-lg"
                 />
               )}
+              {preview.status === "uploading" && (
+                <div className="absolute inset-0 rounded-lg bg-black/40 flex items-center justify-center text-xs font-medium text-white">
+                  Uploading...
+                </div>
+              )}
               <Button
                 variant="destructive"
                 size="icon"
                 className="absolute top-1 right-1 h-6 w-6"
-                onClick={() => removePreview(index)}
-                disabled={uploading}
+                onClick={() => removePreview(preview.id)}
+                disabled={preview.status === "uploading"}
               >
                 <X className="h-4 w-4" />
               </Button>
