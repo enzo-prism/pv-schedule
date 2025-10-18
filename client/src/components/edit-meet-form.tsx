@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -105,10 +105,29 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
     });
   }, [meet, form]);
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const pendingUploadRef = useRef<(() => Promise<MediaItem[] | undefined>) | null>(null);
+
+  useEffect(() => {
+    return () => {
+      pendingUploadRef.current = null;
+    };
+  }, []);
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    let latestMedia = mediaItems;
+
+    if (pendingUploadRef.current) {
+      const uploaded = await pendingUploadRef.current();
+      if (uploaded && uploaded.length > 0) {
+        latestMedia = uploaded;
+        setMediaItems(uploaded);
+        form.setValue("media", uploaded);
+      }
+    }
+
     onSubmit({
       ...values,
-      media: mediaItems,
+      media: latestMedia,
     });
   };
 
@@ -335,7 +354,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               <FormLabel className="text-sm font-medium">Photos & Videos</FormLabel>
               <p className="text-xs text-gray-500 mt-1">Add photos and videos from this meet</p>
             </div>
-            <MediaUpload 
+            <MediaUpload
               meetId={meet.id}
               existingMedia={mediaItems}
               onMediaUpdate={(updated) => {
@@ -343,6 +362,9 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 form.setValue("media", updated);
               }}
               isEditing={true}
+              onUploadHelperReady={(upload) => {
+                pendingUploadRef.current = upload;
+              }}
             />
           </div>
           
