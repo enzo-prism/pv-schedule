@@ -29,113 +29,96 @@ export default function MediaUpload({
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<{ file: File; url: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const previewFilesRef = useRef(previewFiles);
+  const pendingQueueRef = useRef<{ file: File; url: string }[]>([]);
   const inFlightUploadRef = useRef<Promise<MediaItem[] | undefined> | null>(null);
-  const autoUploadPendingRef = useRef(false);
-
-  useEffect(() => {
-    previewFilesRef.current = previewFiles;
-  }, [previewFiles]);
 
   useEffect(() => {
     setMedia(existingMedia);
   }, [existingMedia]);
 
-  const uploadFiles = useCallback(
-    (
-      filesToUpload?: { file: File; url: string }[]
-    ): Promise<MediaItem[] | undefined> => {
-      const queueSource = filesToUpload ?? previewFiles;
-      if (!meetId || queueSource.length === 0) {
-        return Promise.resolve(undefined);
-      }
+  const uploadFiles = useCallback((): Promise<MediaItem[] | undefined> => {
+    if (!meetId) {
+      return Promise.resolve(undefined);
+    }
 
-      if (inFlightUploadRef.current) {
-        return inFlightUploadRef.current;
-      }
+    if (inFlightUploadRef.current) {
+      return inFlightUploadRef.current;
+    }
 
-      const queue = [...queueSource];
-      const snapshotUrls = new Set(queue.map(({ url }) => url));
-      setUploading(true);
-      const formData = new FormData();
+    if (pendingQueueRef.current.length === 0) {
+      return Promise.resolve(undefined);
+    }
 
-      queue.forEach(({ file }) => {
-        formData.append("media", file);
-      });
+    const queue = [...pendingQueueRef.current];
+    pendingQueueRef.current = [];
+    const snapshotUrls = new Set(queue.map(({ url }) => url));
+    setUploading(true);
+    const formData = new FormData();
 
-      const uploadPromise = (async () => {
-        try {
-          const response = await fetch(`/api/meets/${meetId}/media`, {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-          });
+    queue.forEach(({ file }) => {
+      formData.append("media", file);
+    });
 
-          if (!response.ok) {
-            throw new Error("Upload failed");
-          }
+    const uploadPromise = (async () => {
+      try {
+        const response = await fetch(`/api/meets/${meetId}/media`, {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
 
-          const data = await response.json();
-          const newMedia = data.meet?.media ?? data.media ?? [];
-          const uploadedCount = Array.isArray(data.media) ? data.media.length : queue.length;
-          setMedia(newMedia);
-          let remainingAfterClear: { file: File; url: string }[] = [];
-          setPreviewFiles(prev => {
-            const remaining = prev.filter(item => !snapshotUrls.has(item.url));
-            remainingAfterClear = remaining;
-            snapshotUrls.forEach(url => URL.revokeObjectURL(url));
-            previewFilesRef.current = remaining;
-            return remaining;
-          });
-          if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-          }
-
-          if (onMediaUpdate) {
-            onMediaUpdate(newMedia);
-          }
-
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ["/api/meets"] }),
-            meetId
-              ? queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] })
-              : Promise.resolve(),
-          ]);
-
-          toast({
-            title: "Media uploaded",
-            description: `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} added to this meet.`,
-          });
-
-          if (autoUpload && remainingAfterClear.length > 0) {
-            autoUploadPendingRef.current = true;
-          }
-
-          return newMedia;
-        } catch (error) {
-          console.error("Error uploading files:", error);
-          toast({
-            title: "Upload failed",
-            description: "We couldn't save those files. Please try again.",
-            variant: "destructive",
-          });
-        } finally {
-          setUploading(false);
-          inFlightUploadRef.current = null;
-          if (autoUpload && autoUploadPendingRef.current && previewFilesRef.current.length > 0) {
-            autoUploadPendingRef.current = false;
-            void uploadFiles(previewFilesRef.current);
-          } else {
-            autoUploadPendingRef.current = false;
-          }
+        if (!response.ok) {
+          throw new Error("Upload failed");
         }
-      })();
 
-      inFlightUploadRef.current = uploadPromise;
-      return uploadPromise;
-    },
-    [autoUpload, meetId, onMediaUpdate, previewFiles, queryClient, toast]
-  );
+        const data = await response.json();
+        const newMedia = data.meet?.media ?? data.media ?? [];
+        const uploadedCount = Array.isArray(data.media) ? data.media.length : queue.length;
+        setMedia(newMedia);
+        setPreviewFiles(prev => {
+          const remaining = prev.filter(item => !snapshotUrls.has(item.url));
+          snapshotUrls.forEach(url => URL.revokeObjectURL(url));
+          return remaining;
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+
+        onMediaUpdate?.(newMedia);
+
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["/api/meets"] }),
+          meetId
+            ? queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] })
+            : Promise.resolve(),
+        ]);
+
+        toast({
+          title: "Media uploaded",
+          description: `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} added to this meet.`,
+        });
+
+        return newMedia;
+      } catch (error) {
+        console.error("Error uploading files:", error);
+        pendingQueueRef.current = [...queue, ...pendingQueueRef.current];
+        toast({
+          title: "Upload failed",
+          description: "We couldn't save those files. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setUploading(false);
+        inFlightUploadRef.current = null;
+        if (autoUpload && pendingQueueRef.current.length > 0) {
+          void uploadFiles();
+        }
+      }
+    })();
+
+    inFlightUploadRef.current = uploadPromise;
+    return uploadPromise;
+  }, [autoUpload, meetId, onMediaUpdate, queryClient, toast]);
 
   useEffect(() => {
     if (onUploadHelperReady) {
@@ -143,7 +126,7 @@ export default function MediaUpload({
     }
   }, [onUploadHelperReady, uploadFiles]);
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
@@ -155,26 +138,26 @@ export default function MediaUpload({
       newPreviews.push({ file, url });
     }
 
-    let updatedPreviews: { file: File; url: string }[] = [];
-    setPreviewFiles(prev => {
-      updatedPreviews = [...prev, ...newPreviews];
-      return updatedPreviews;
-    });
+    pendingQueueRef.current = [...pendingQueueRef.current, ...newPreviews];
+    setPreviewFiles(prev => [...prev, ...newPreviews]);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
 
-    if (autoUpload && updatedPreviews.length > 0) {
-      await uploadFiles(updatedPreviews);
+    if (autoUpload) {
+      void uploadFiles();
     }
   };
 
   const removePreview = (index: number) => {
     setPreviewFiles(prev => {
       const newPreviews = [...prev];
-      URL.revokeObjectURL(newPreviews[index].url);
-      newPreviews.splice(index, 1);
+      const [removed] = newPreviews.splice(index, 1);
+      if (removed) {
+        URL.revokeObjectURL(removed.url);
+        pendingQueueRef.current = pendingQueueRef.current.filter(item => item.url !== removed.url);
+      }
       return newPreviews;
     });
   };
