@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,9 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Meet, type MediaItem } from "@shared/schema";
-import MediaUpload from "@/components/media-upload";
-import { Separator } from "@/components/ui/separator";
+import { Meet } from "@shared/schema";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -57,8 +55,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
     return format(date, "yyyy-MM-dd");
   };
 
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>(meet.media ?? []);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,7 +73,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
   });
 
   useEffect(() => {
-    setMediaItems(meet.media ?? []);
     form.reset({
       name: meet.name,
       date: formatDateForInput(meet.date),
@@ -93,28 +88,8 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
     });
   }, [meet, form]);
 
-  const pendingUploadRef = useRef<(() => Promise<MediaItem[] | undefined>) | null>(null);
-
-  useEffect(() => {
-    return () => {
-      pendingUploadRef.current = null;
-    };
-  }, []);
-
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    let latestMedia = mediaItems;
-
-    if (pendingUploadRef.current) {
-      const uploaded = await pendingUploadRef.current();
-      if (uploaded && uploaded.length > 0) {
-        latestMedia = uploaded;
-        setMediaItems(uploaded);
-      }
-    }
-
-    onSubmit({
-      ...values,
-    });
+  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+    onSubmit(values);
   };
 
   return (
@@ -332,26 +307,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
-          {/* Media Upload Section */}
-          <div className="pt-2">
-            <Separator className="mb-4" />
-            <div className="mb-3">
-              <FormLabel className="text-sm font-medium">Photos & Videos</FormLabel>
-              <p className="text-xs text-gray-500 mt-1">Add photos and videos from this meet</p>
-            </div>
-            <MediaUpload
-              meetId={meet.id}
-              existingMedia={mediaItems}
-              onMediaUpdate={(updated) => {
-                setMediaItems(updated);
-              }}
-              isEditing={true}
-              onUploadHelperReady={(upload) => {
-                pendingUploadRef.current = upload;
-              }}
-            />
-          </div>
           
           <Button 
             type="submit" 
