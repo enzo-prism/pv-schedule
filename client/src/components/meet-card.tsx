@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
-import MediaGallery from "@/components/media-gallery";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -164,11 +163,6 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                 {meet.deepestTakeoff && <div>Takeoff: {meet.deepestTakeoff}</div>}
                 {meet.place && <div>Place: #{meet.place}</div>}
               </div>
-            )}
-            
-            {/* Media Preview */}
-            {meet.media && meet.media.length > 0 && (
-              <MediaGallery media={meet.media} showInCard={true} />
             )}
             
             {meet.description && (

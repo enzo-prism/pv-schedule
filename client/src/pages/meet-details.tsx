@@ -2,14 +2,13 @@ import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Meet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical, Camera } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import EditMeetForm from "@/components/edit-meet-form";
 import DeleteConfirmation from "@/components/delete-confirmation";
-import MediaGallery from "@/components/media-gallery";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -371,17 +370,6 @@ type MeetPayload = {
               <div>
                 <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DESCRIPTION</h2>
                 <p className="text-gray-700 whitespace-pre-line text-sm">{meet.description}</p>
-              </div>
-            )}
-            
-            {/* Media Gallery */}
-            {meet.media && meet.media.length > 0 && (
-              <div>
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2 flex items-center">
-                  <Camera className="h-4 w-4 mr-1" />
-                  PHOTOS & VIDEOS
-                </h2>
-                <MediaGallery media={meet.media} />
               </div>
             )}
           </div>
