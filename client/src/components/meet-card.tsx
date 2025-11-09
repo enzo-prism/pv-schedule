@@ -1,9 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit2, Trash2, MoreVertical } from "lucide-react";
+import { Edit2, Trash2, MoreVertical, Car } from "lucide-react";
 import { Meet } from "@shared/schema";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { getDriveTimeEstimate } from "@/lib/drive-times";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import {
   DropdownMenu,
@@ -59,6 +61,43 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
 
   // We still calculate isPast for internal filtering, but don't display it on home page
   const isPast = isPastDate(meet.date);
+  const normalizedStatus = (meet.registrationStatus ?? "").trim().toLowerCase();
+  const showRegistrationBadge = !isPast && normalizedStatus.length > 0;
+  const driveTimeEstimate = !isPast ? getDriveTimeEstimate(meet.location) : null;
+  const driveTimeDisplay =
+    !isPast && driveTimeEstimate
+      ? driveTimeEstimate
+      : !isPast && meet.driveTime
+        ? meet.driveTime
+        : null;
+
+  const registrationBadge = (() => {
+    if (!showRegistrationBadge) {
+      return null;
+    }
+
+    if (normalizedStatus === "registered") {
+      return (
+        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80">
+          Registered
+        </Badge>
+      );
+    }
+
+    if (normalizedStatus === "not registered") {
+      return (
+        <Badge variant="outline" className="text-gray-600 border-gray-200">
+          Not registered
+        </Badge>
+      );
+    }
+
+    return (
+      <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100/80">
+        {meet.registrationStatus}
+      </Badge>
+    );
+  })();
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -142,15 +181,26 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               </DropdownMenu>
             )}
           </div>
+
+          {showRegistrationBadge && (
+            <div className="mt-3">
+              {registrationBadge}
+            </div>
+          )}
             
-            {/* Show simplified status for upcoming meets */}
-            {!isPast && (meet.registrationStatus || meet.driveTime) && (
+            {/* Show simplified status and travel info for upcoming meets */}
+            {!isPast && (normalizedStatus || driveTimeDisplay) && (
               <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 space-y-1">
-                {meet.registrationStatus && meet.registrationStatus !== "not registered" && (
-                  <div>{meet.registrationStatus === "registered" ? "Registered" : "Contacted"}</div>
+                {normalizedStatus && normalizedStatus !== "not registered" && (
+                  <div>{normalizedStatus === "registered" ? "Registered" : meet.registrationStatus}</div>
                 )}
-                {meet.driveTime && (
-                  <div>{meet.driveTime} drive</div>
+                {driveTimeDisplay && (
+                  <div className="flex items-center gap-1 text-gray-700 font-medium">
+                    <Car className="h-3.5 w-3.5" aria-hidden="true" />
+                    {driveTimeDisplay === "Flight required"
+                      ? "Flight required from San Jose"
+                      : `Drive from San Jose: ${driveTimeDisplay}`}
+                  </div>
                 )}
               </div>
             )}

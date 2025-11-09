@@ -35,4 +35,15 @@ export const insertMeetSchema = createInsertSchema(meets).pick({
 });
 
 export type InsertMeet = z.infer<typeof insertMeetSchema>;
-export type Meet = typeof meets.$inferSelect;
+export type MeetRecord = typeof meets.$inferSelect;
+export type Meet = MeetRecord & { media: MediaItem[] };
+export type MediaItem = {
+  id: string;
+  type: "photo" | "video";
+  url: string;
+  thumbnail: string | null;
+  caption: string | null;
+  originalFilename: string | null;
+  position: number;
+  uploadedAt: string;
+};
