@@ -179,14 +179,6 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               {registrationBadge}
             </div>
           )}
-            
-            {/* Show simplified status for upcoming meets */}
-            {!isPast && normalizedStatus && normalizedStatus !== "not registered" && (
-              <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500">
-                {normalizedStatus === "registered" ? "Registered" : meet.registrationStatus}
-              </div>
-            )}
-            
             {/* All metrics for past meets */}
             {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
               <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 space-y-1">
