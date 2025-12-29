@@ -436,7 +436,7 @@ export default function Trends() {
         }
       `}</style>
 
-      <main className="max-w-4xl mx-auto px-6 pt-8 pb-24 space-y-6">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-24 space-y-6">
         <div className="mb-2">
           <UserProfile name="Enzo Sison" />
         </div>
@@ -448,9 +448,16 @@ export default function Trends() {
         </div>
 
         <Tabs value={range} onValueChange={setRange}>
-          <TabsList aria-label="Date range">
+          <TabsList
+            aria-label="Date range"
+            className="h-auto w-full flex-wrap justify-center gap-1 sm:h-10 sm:w-auto sm:flex-nowrap"
+          >
             {rangeOptions.map((option) => (
-              <TabsTrigger key={option.value} value={option.value}>
+              <TabsTrigger
+                key={option.value}
+                value={option.value}
+                className="px-2.5 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm"
+              >
                 {option.label}
               </TabsTrigger>
             ))}
@@ -730,7 +737,7 @@ export default function Trends() {
                               <div className="font-medium text-foreground">
                                 {data.name || "Meet"} · {label}
                               </div>
-                              <div className="text-muted-foreground">
+                              <div className="text-muted-foreground break-words">
                                 {data.pole.raw || "No pole details recorded"}
                               </div>
                               <div className="grid gap-1 pt-1">
