@@ -479,7 +479,6 @@ export default function Trends() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <CardTitle className="text-lg">Height Cleared</CardTitle>
-                    <CardDescription>Cleared height in meters.</CardDescription>
                   </div>
                   {heightPr && (
                     <Badge variant="secondary">PR {heightPr.meters.toFixed(2)}m</Badge>
@@ -573,7 +572,6 @@ export default function Trends() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <CardTitle className="text-lg">Deepest Takeoff</CardTitle>
-                    <CardDescription>Takeoff distance in feet.</CardDescription>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">{takeoffSummary}</p>
