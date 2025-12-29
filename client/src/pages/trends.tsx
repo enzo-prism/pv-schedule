@@ -407,7 +407,7 @@ export default function Trends() {
       : "No pole data yet";
 
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className="min-h-screen bg-white relative overflow-x-hidden">
       <div className="fixed top-0 left-0 right-0 h-0.5 z-50 overflow-hidden">
         <div
           className="h-full w-[200%] animate-gradient"
@@ -501,7 +501,7 @@ export default function Trends() {
                 ) : (
                   <ChartContainer
                     config={heightChartConfig}
-                    className="min-h-[240px] w-full"
+                    className="min-h-[240px] w-full overflow-hidden sm:overflow-visible"
                   >
                     <AreaChart data={heightSeries} margin={{ left: 12, right: 12 }}>
                       <CartesianGrid vertical={false} />
@@ -525,6 +525,7 @@ export default function Trends() {
                         cursor={false}
                         content={
                           <ChartTooltipContent
+                            className="max-w-[calc(100vw-2rem)] sm:max-w-none"
                             labelFormatter={(value) =>
                               formatDateLabel(Number(value), "MMM d, yyyy")
                             }
@@ -591,7 +592,7 @@ export default function Trends() {
                 ) : (
                   <ChartContainer
                     config={takeoffChartConfig}
-                    className="min-h-[240px] w-full"
+                    className="min-h-[240px] w-full overflow-hidden sm:overflow-visible"
                   >
                     <LineChart data={takeoffSeries} margin={{ left: 12, right: 12 }}>
                       <CartesianGrid vertical={false} />
@@ -615,6 +616,7 @@ export default function Trends() {
                         cursor={false}
                         content={
                           <ChartTooltipContent
+                            className="max-w-[calc(100vw-2rem)] sm:max-w-none"
                             labelFormatter={(value) =>
                               formatDateLabel(Number(value), "MMM d, yyyy")
                             }
@@ -684,7 +686,7 @@ export default function Trends() {
                 ) : (
                   <ChartContainer
                     config={poleChartConfig}
-                    className="min-h-[260px] w-full"
+                    className="min-h-[260px] w-full overflow-hidden sm:overflow-visible"
                   >
                     <LineChart data={poleSeries} margin={{ left: 12, right: 12 }}>
                       <CartesianGrid vertical={false} />
@@ -733,7 +735,7 @@ export default function Trends() {
                             data.pole.flex !== undefined ? `${data.pole.flex} flex` : "—";
 
                           return (
-                            <div className="grid min-w-[14rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
+                            <div className="grid w-full min-w-[14rem] max-w-[calc(100vw-2rem)] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl sm:max-w-none">
                               <div className="font-medium text-foreground">
                                 {data.name || "Meet"} · {label}
                               </div>
