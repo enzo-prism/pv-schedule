@@ -18,8 +18,6 @@ import {
   Line,
   LineChart,
   ReferenceDot,
-  Scatter,
-  ScatterChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -683,7 +681,7 @@ export default function Trends() {
                     config={poleChartConfig}
                     className="min-h-[260px] w-full"
                   >
-                    <ScatterChart margin={{ left: 12, right: 12 }}>
+                    <LineChart data={poleSeries} margin={{ left: 12, right: 12 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis
                         dataKey="dateValue"
@@ -755,12 +753,15 @@ export default function Trends() {
                           );
                         }}
                       />
-                      <Scatter
-                        data={polePoints}
-                        shape={renderPoleDot}
-                        fill="var(--color-pole)"
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke="var(--color-pole)"
+                        strokeWidth={2}
+                        dot={renderPoleDot}
+                        activeDot={{ r: 6 }}
                       />
-                    </ScatterChart>
+                    </LineChart>
                   </ChartContainer>
                 )}
               </CardContent>
