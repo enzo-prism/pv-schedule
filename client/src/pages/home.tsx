@@ -12,6 +12,7 @@ import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import CountdownTimer from "@/components/countdown-timer";
 import UserProfile from "@/components/user-profile";
+import PrimaryNav from "@/components/primary-nav";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past";
@@ -216,6 +217,10 @@ export default function Home() {
         {/* User profile */}
         <div className="mb-8">
           <UserProfile name="Enzo Sison" />
+        </div>
+
+        <div className="mb-6">
+          <PrimaryNav />
         </div>
 
         <FilterSection
