@@ -61,7 +61,11 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   // We still calculate isPast for internal filtering, but don't display it on home page
   const isPast = isPastDate(meet.date);
   const normalizedStatus = (meet.registrationStatus ?? "").trim().toLowerCase();
-  const showRegistrationBadge = !isPast && normalizedStatus.length > 0;
+  const showRegistrationBadge =
+    !isPast &&
+    normalizedStatus.length > 0 &&
+    normalizedStatus !== "registered" &&
+    normalizedStatus !== "not registered";
 
   const registrationBadge = (() => {
     if (!showRegistrationBadge) {
