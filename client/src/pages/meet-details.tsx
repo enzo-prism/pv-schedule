@@ -178,6 +178,7 @@ type MeetPayload = {
 
   const isPast = isPastDate(meet.date);
   const statusClass = isPast ? "bg-gray-200 text-gray-700" : "bg-green-100 text-green-800";
+  const showRegistrationStatus = !isPast && meet.registrationStatus;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -260,7 +261,7 @@ type MeetPayload = {
             </div>
             
             {/* Registration Status */}
-            {meet.registrationStatus && (
+            {showRegistrationStatus && (
               <div>
                 <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">REGISTRATION STATUS</h2>
                 <div className="flex items-center">
