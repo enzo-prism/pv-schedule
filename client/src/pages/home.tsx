@@ -221,7 +221,7 @@ export default function Home() {
       `}</style>
       
       {/* Main content */}
-      <main className="max-w-2xl mx-auto px-6 pt-8 pb-24">
+      <main className="max-w-2xl mx-auto px-6 pt-8 pb-16">
         {/* User profile */}
         <div className="mb-8">
           <UserProfile name="Enzo Sison" />
@@ -255,6 +255,20 @@ export default function Home() {
             <p className="text-gray-500 text-sm">
               No {currentFilter} meets found
             </p>
+          </div>
+        )}
+
+        {currentFilter === "upcoming" && (
+          <div className="mt-8 flex justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAddMeetOpen(true)}
+              className="gap-2 border-gray-200 text-gray-600 hover:bg-gray-50"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add meet
+            </Button>
           </div>
         )}
       </main>
@@ -301,15 +315,6 @@ export default function Home() {
         description="Are you sure you want to delete this meet? This action cannot be undone."
       />
       
-      {/* Floating Add Meet Button */}
-      {currentFilter === "upcoming" && (
-        <button
-          onClick={() => setIsAddMeetOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center justify-center shadow-lg z-30"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      )}
     </div>
   );
 }
