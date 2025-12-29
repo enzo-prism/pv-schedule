@@ -19,6 +19,11 @@ describe("parseHeightToMeters", () => {
   it("returns null for junk input", () => {
     expect(parseHeightToMeters("not a height")).toBeNull();
   });
+
+  it("returns 0 for no height entries", () => {
+    expect(parseHeightToMeters("NH")).toBe(0);
+    expect(parseHeightToMeters("No height")).toBe(0);
+  });
 });
 
 describe("parseTakeoffToFeet", () => {

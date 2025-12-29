@@ -12,10 +12,14 @@ import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import CountdownTimer from "@/components/countdown-timer";
 import UserProfile from "@/components/user-profile";
-import PrimaryNav from "@/components/primary-nav";
 import { Button } from "@/components/ui/button";
 
 type FilterType = "upcoming" | "past";
+
+const getInitialFilter = (): FilterType => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("filter") === "past" ? "past" : "upcoming";
+};
 
 type MeetPayload = {
   name: string;
@@ -33,7 +37,7 @@ type MeetPayload = {
 
 export default function Home() {
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
-  const [currentFilter, setCurrentFilter] = useState<FilterType>("upcoming");
+  const [currentFilter, setCurrentFilter] = useState<FilterType>(getInitialFilter);
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [meetToDelete, setMeetToDelete] = useState<number | null>(null);
@@ -182,6 +186,10 @@ export default function Home() {
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);
+    const params = new URLSearchParams(window.location.search);
+    params.set("filter", filter);
+    const search = params.toString();
+    window.history.replaceState(null, "", search ? `/?${search}` : "/");
   };
 
   return (
@@ -217,10 +225,6 @@ export default function Home() {
         {/* User profile */}
         <div className="mb-8">
           <UserProfile name="Enzo Sison" />
-        </div>
-
-        <div className="mb-6">
-          <PrimaryNav />
         </div>
 
         <FilterSection

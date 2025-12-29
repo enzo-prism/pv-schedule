@@ -36,7 +36,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import PrimaryNav from "@/components/primary-nav";
+import FilterSection from "@/components/filter-section";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -305,6 +305,10 @@ export default function Trends() {
     setLocation(`/meet/${id}`);
   };
 
+  const handleFilterChange = (filter: "upcoming" | "past") => {
+    setLocation(`/?filter=${filter}`);
+  };
+
   const renderHeightDot = ({ cx, cy, payload }: DotProps) => {
     if (
       cx === undefined ||
@@ -430,7 +434,7 @@ export default function Trends() {
           <UserProfile name="Enzo Sison" />
         </div>
 
-        <PrimaryNav />
+        <FilterSection currentFilter="trends" onFilterChange={handleFilterChange} />
 
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold text-gray-900">Trends</h1>

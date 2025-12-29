@@ -56,6 +56,9 @@ export function parseHeightToMeters(input: string | null | undefined): number | 
   }
 
   const normalized = normalizeQuotes(raw);
+  if (/\b(nh|no height)\b/i.test(normalized)) {
+    return 0;
+  }
   const meterMatch = normalized.match(/(\d+(?:\.\d+)?)\s*m\b/i);
   if (meterMatch) {
     const meters = toFiniteNumber(meterMatch[1]);
