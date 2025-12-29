@@ -134,13 +134,17 @@ function formatTakeoffValue(feetDecimal: number): string {
   return formatFeetInches(feet, inches);
 }
 
+function roundToHalfFoot(value: number): number {
+  return Math.round(value * 2) / 2;
+}
+
 function formatPoleMetricValue(metric: PoleMetric, value: number): string {
   if (!Number.isFinite(value)) {
     return "";
   }
 
   if (metric === "lengthFt") {
-    return formatTakeoffValue(value);
+    return formatTakeoffValue(roundToHalfFoot(value));
   }
 
   if (metric === "ratingLbs") {
@@ -277,12 +281,17 @@ export default function Trends() {
   const poleSeries = useMemo<PolePoint[]>(() => {
     return rangedRows.map((row) => {
       const pole = parsePoleUsed(row.poleUsedRaw);
-      const value =
-        poleMetric === "lengthFt"
-          ? pole.lengthFt ?? null
-          : poleMetric === "ratingLbs"
-          ? pole.ratingLbs ?? null
-          : pole.flex ?? null;
+      const value = (() => {
+        if (poleMetric === "lengthFt") {
+          return pole.lengthFt !== undefined ? roundToHalfFoot(pole.lengthFt) : null;
+        }
+
+        if (poleMetric === "ratingLbs") {
+          return pole.ratingLbs ?? null;
+        }
+
+        return pole.flex ?? null;
+      })();
 
       return {
         ...row,
@@ -714,7 +723,7 @@ export default function Trends() {
                           const label = format(data.date, "MMM d, yyyy");
                           const length =
                             data.pole.lengthFt !== undefined
-                              ? formatTakeoffValue(data.pole.lengthFt)
+                              ? formatTakeoffValue(roundToHalfFoot(data.pole.lengthFt))
                               : "—";
                           const rating =
                             data.pole.ratingLbs !== undefined
