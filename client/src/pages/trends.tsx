@@ -465,7 +465,7 @@ export default function Trends() {
         </Tabs>
 
         {isLoading ? (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <TrendCardSkeleton />
             <TrendCardSkeleton />
             <TrendCardSkeleton />
@@ -480,8 +480,8 @@ export default function Trends() {
             </CardHeader>
           </Card>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Card className="min-w-0">
               <CardHeader className="pb-4 space-y-2">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -575,7 +575,7 @@ export default function Trends() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="min-w-0">
               <CardHeader className="pb-4 space-y-2">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -653,7 +653,7 @@ export default function Trends() {
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-2">
+            <Card className="min-w-0 lg:col-span-2">
               <CardHeader className="pb-4 space-y-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
