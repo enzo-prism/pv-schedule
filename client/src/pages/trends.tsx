@@ -501,7 +501,7 @@ export default function Trends() {
                 ) : (
                   <ChartContainer
                     config={heightChartConfig}
-                    className="min-h-[240px] w-full overflow-hidden sm:overflow-visible"
+                    className="min-h-[240px] w-full aspect-auto sm:aspect-video overflow-hidden sm:overflow-visible"
                   >
                     <AreaChart data={heightSeries} margin={{ left: 12, right: 12 }}>
                       <CartesianGrid vertical={false} />
@@ -592,7 +592,7 @@ export default function Trends() {
                 ) : (
                   <ChartContainer
                     config={takeoffChartConfig}
-                    className="min-h-[240px] w-full overflow-hidden sm:overflow-visible"
+                    className="min-h-[240px] w-full aspect-auto sm:aspect-video overflow-hidden sm:overflow-visible"
                   >
                     <LineChart data={takeoffSeries} margin={{ left: 12, right: 12 }}>
                       <CartesianGrid vertical={false} />
@@ -686,7 +686,7 @@ export default function Trends() {
                 ) : (
                   <ChartContainer
                     config={poleChartConfig}
-                    className="min-h-[260px] w-full overflow-hidden sm:overflow-visible"
+                    className="min-h-[260px] w-full aspect-auto sm:aspect-video overflow-hidden sm:overflow-visible"
                   >
                     <LineChart data={poleSeries} margin={{ left: 12, right: 12 }}>
                       <CartesianGrid vertical={false} />
