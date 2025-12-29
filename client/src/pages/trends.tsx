@@ -447,9 +447,6 @@ export default function Trends() {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold text-gray-900">Trends</h1>
-          <p className="text-sm text-gray-500">
-            Track your pole vault progress over time with meet-by-meet metrics.
-          </p>
         </div>
 
         <Tabs value={range} onValueChange={setRange}>
@@ -656,7 +653,6 @@ export default function Trends() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <CardTitle className="text-lg">Pole Used</CardTitle>
-                    <CardDescription>Track changes in your pole setup.</CardDescription>
                   </div>
                   <Select
                     value={poleMetric}
@@ -702,6 +698,7 @@ export default function Trends() {
                         dataKey="value"
                         type="number"
                         domain={["dataMin", "dataMax"]}
+                        reversed={poleMetric === "flex"}
                         tickLine={false}
                         axisLine={false}
                         tickMargin={8}
