@@ -1,4 +1,5 @@
 import express, { type Express } from "express";
+import type { Server } from "http";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { MAX_MEDIA_BODY_BYTES } from "@shared/media";
@@ -6,6 +7,7 @@ import { removeLocalUpload } from "../media";
 
 describe("media flow (api)", () => {
   let app: Express;
+  let server: Server;
   const originalEnv = {
     USE_IN_MEMORY_STORAGE: process.env.USE_IN_MEMORY_STORAGE,
     USE_SAMPLE_DATA: process.env.USE_SAMPLE_DATA,
@@ -27,9 +29,21 @@ describe("media flow (api)", () => {
     app.use(express.json({ limit: MAX_MEDIA_BODY_BYTES }));
     app.use(express.urlencoded({ extended: false, limit: MAX_MEDIA_BODY_BYTES }));
     await registerRoutes(app);
+    server = app.listen(0, "127.0.0.1");
+    await new Promise<void>((resolve, reject) => {
+      server.once("listening", resolve);
+      server.once("error", reject);
+    });
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await new Promise<void>((resolve) => {
+      if (!server) {
+        resolve();
+        return;
+      }
+      server.close(() => resolve());
+    });
     for (const [key, value] of Object.entries(originalEnv)) {
       if (value === undefined) {
         delete process.env[key];
@@ -40,7 +54,7 @@ describe("media flow (api)", () => {
   });
 
   it("adds multiple uploads and a link to a meet", async () => {
-    const meetRes = await request(app).post("/api/meets").send({
+    const meetRes = await request(server).post("/api/meets").send({
       name: "Media Flow Meet",
       date: "2024-05-01",
       location: "Test Track",
@@ -52,7 +66,7 @@ describe("media flow (api)", () => {
     const imageData = `data:image/png;base64,${Buffer.from("fake").toString("base64")}`;
     const videoData = `data:video/mp4;base64,${Buffer.from("fakevideo").toString("base64")}`;
 
-    const photoRes = await request(app)
+    const photoRes = await request(server)
       .post(`/api/meets/${meetId}/media`)
       .send({
         mode: "upload",
@@ -64,7 +78,7 @@ describe("media flow (api)", () => {
 
     expect(photoRes.status).toBe(201);
 
-    const videoRes = await request(app)
+    const videoRes = await request(server)
       .post(`/api/meets/${meetId}/media`)
       .send({
         mode: "upload",
@@ -76,7 +90,7 @@ describe("media flow (api)", () => {
 
     expect(videoRes.status).toBe(201);
 
-    const linkRes = await request(app)
+    const linkRes = await request(server)
       .post(`/api/meets/${meetId}/media`)
       .send({
         mode: "url",
@@ -87,7 +101,7 @@ describe("media flow (api)", () => {
 
     expect(linkRes.status).toBe(201);
 
-    const mediaRes = await request(app).get(`/api/meets/${meetId}/media`);
+    const mediaRes = await request(server).get(`/api/meets/${meetId}/media`);
     expect(mediaRes.status).toBe(200);
     expect(mediaRes.body).toHaveLength(3);
     expect(mediaRes.body.map((item: { type: string }) => item.type)).toEqual(

@@ -41,7 +41,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfile from "@/components/user-profile";
 
-type TrendRow = MeetTrendRow & {
+type TrendRow = Omit<MeetTrendRow, "id" | "name" | "location"> & {
+  id: number;
+  name: string;
+  location: string;
   date: Date;
   dateValue: number;
 };
@@ -235,14 +238,18 @@ export default function Trends() {
     (point): point is HeightPoint & { meters: number } => point.meters !== null,
   );
 
-  const heightPr = heightPoints.reduce<HeightPoint | null>((best, point) => {
-    if (!best || point.meters > (best.meters ?? 0)) {
-      return point;
-    }
-    return best;
-  }, null);
+  const heightPr = heightPoints.reduce<(HeightPoint & { meters: number }) | null>(
+    (best, point) => {
+      if (!best || point.meters > best.meters) {
+        return point;
+      }
+      return best;
+    },
+    null,
+  );
 
-  const heightLatest = heightPoints.length > 0 ? heightPoints[heightPoints.length - 1] : null;
+  const heightLatest =
+    heightPoints.length > 0 ? heightPoints[heightPoints.length - 1] : null;
 
   const takeoffSeries = useMemo<TakeoffPoint[]>(() => {
     return rangedRows.map((row) => ({
@@ -256,12 +263,15 @@ export default function Trends() {
       point.takeoffFeet !== null,
   );
 
-  const takeoffBest = takeoffPoints.reduce<TakeoffPoint | null>((best, point) => {
-    if (!best || point.takeoffFeet > (best.takeoffFeet ?? 0)) {
-      return point;
-    }
-    return best;
-  }, null);
+  const takeoffBest = takeoffPoints.reduce<(TakeoffPoint & { takeoffFeet: number }) | null>(
+    (best, point) => {
+      if (!best || point.takeoffFeet > best.takeoffFeet) {
+        return point;
+      }
+      return best;
+    },
+    null,
+  );
 
   const takeoffLatest =
     takeoffPoints.length > 0 ? takeoffPoints[takeoffPoints.length - 1] : null;
@@ -314,7 +324,7 @@ export default function Trends() {
       !("meters" in payload) ||
       payload.meters === null
     ) {
-      return null;
+      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
     }
 
     return (
@@ -339,7 +349,7 @@ export default function Trends() {
       !("takeoffFeet" in payload) ||
       payload.takeoffFeet === null
     ) {
-      return null;
+      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
     }
 
     return (
@@ -358,11 +368,11 @@ export default function Trends() {
 
   const renderPoleDot = ({ cx, cy, payload }: DotProps) => {
     if (cx === undefined || cy === undefined || !payload || !("value" in payload)) {
-      return null;
+      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
     }
 
     if (payload.value === null) {
-      return null;
+      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
     }
 
     return (

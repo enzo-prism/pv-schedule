@@ -123,6 +123,16 @@ export function parsePoleUsed(
   let ratingLbs: number | undefined;
   let flex: number | undefined;
 
+  const collectNumberMatches = () => {
+    const matches: RegExpExecArray[] = [];
+    const regex = /(\d+(?:\.\d+)?)/g;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(normalized)) !== null) {
+      matches.push(match);
+    }
+    return matches;
+  };
+
   const lengthWithInches = normalized.match(
     /(\d+(?:\.\d+)?)\s*'\s*(\d+(?:\.\d+)?)\s*(?:\"|in\b)/i,
   );
@@ -166,7 +176,7 @@ export function parsePoleUsed(
   }
 
   if (ratingLbs === undefined) {
-    const numberMatches = [...normalized.matchAll(/(\d+(?:\.\d+)?)/g)];
+    const numberMatches = collectNumberMatches();
     for (const match of numberMatches) {
       const index = match.index ?? -1;
       if (index < 0) {
@@ -212,7 +222,7 @@ export function parsePoleUsed(
   }
 
   if (flex === undefined) {
-    const numberMatches = [...normalized.matchAll(/(\d+(?:\.\d+)?)/g)];
+    const numberMatches = collectNumberMatches();
     for (let i = numberMatches.length - 1; i >= 0; i -= 1) {
       const match = numberMatches[i];
       const index = match.index ?? -1;
