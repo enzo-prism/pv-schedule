@@ -21,6 +21,8 @@ type RawMedia =
       caption?: string | null;
       originalFilename?: string | null;
       position?: number;
+      focusX?: number;
+      focusY?: number;
       uploadedAt?: string | Date | null;
     };
 
@@ -56,6 +58,8 @@ function toMediaItems(media: unknown): MediaItem[] {
         caption: item.caption ?? null,
         originalFilename: item.originalFilename ?? null,
         position: typeof item.position === "number" ? item.position : index,
+        focusX: typeof item.focusX === "number" ? item.focusX : 50,
+        focusY: typeof item.focusY === "number" ? item.focusY : 50,
         uploadedAt: uploadedAtValue.toISOString(),
       };
     })
@@ -144,6 +148,8 @@ export class PgStorage implements IStorage {
                 'caption', mm.caption,
                 'originalFilename', mm.original_filename,
                 'position', mm.position,
+                'focusX', mm.focus_x,
+                'focusY', mm.focus_y,
                 'uploadedAt', mm.uploaded_at
               )
               ORDER BY mm.position, mm.id
@@ -178,6 +184,8 @@ export class PgStorage implements IStorage {
                 'caption', mm.caption,
                 'originalFilename', mm.original_filename,
                 'position', mm.position,
+                'focusX', mm.focus_x,
+                'focusY', mm.focus_y,
                 'uploadedAt', mm.uploaded_at
               )
               ORDER BY mm.position, mm.id
@@ -333,6 +341,8 @@ export class PgStorage implements IStorage {
         caption,
         original_filename,
         position,
+        focus_x,
+        focus_y,
         uploaded_at
       FROM meet_media
       WHERE meet_id = $1
@@ -349,6 +359,8 @@ export class PgStorage implements IStorage {
         caption: row.caption,
         originalFilename: row.original_filename,
         position: row.position,
+        focusX: row.focus_x,
+        focusY: row.focus_y,
         uploadedAt: row.uploaded_at,
       })),
     );
@@ -377,9 +389,11 @@ export class PgStorage implements IStorage {
           caption,
           original_filename,
           position,
+          focus_x,
+          focus_y,
           uploaded_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
           meetId,
           item.type,
@@ -388,6 +402,8 @@ export class PgStorage implements IStorage {
           item.caption ?? null,
           item.originalFilename ?? null,
           position,
+          item.focusX ?? 50,
+          item.focusY ?? 50,
           item.uploadedAt ?? new Date(),
         ],
       );
@@ -430,6 +446,8 @@ export class PgStorage implements IStorage {
         caption: existing.rows[0].caption,
         originalFilename: existing.rows[0].original_filename,
         position: existing.rows[0].position,
+        focusX: existing.rows[0].focus_x,
+        focusY: existing.rows[0].focus_y,
         uploadedAt: existing.rows[0].uploaded_at,
       },
     ])[0];
@@ -470,6 +488,16 @@ export class PgStorage implements IStorage {
     if (data.position !== undefined) {
       fields.push(`position = $${fields.length + 1}`);
       values.push(data.position);
+    }
+
+    if (data.focusX !== undefined) {
+      fields.push(`focus_x = $${fields.length + 1}`);
+      values.push(data.focusX);
+    }
+
+    if (data.focusY !== undefined) {
+      fields.push(`focus_y = $${fields.length + 1}`);
+      values.push(data.focusY);
     }
 
     if (fields.length === 0) {

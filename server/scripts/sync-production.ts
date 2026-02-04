@@ -85,9 +85,11 @@ async function seedLocalDatabase(meets: Meet[]) {
             caption,
             original_filename,
             position,
+            focus_x,
+            focus_y,
             uploaded_at
           )
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
           [
             insertedId,
             media.type,
@@ -96,6 +98,8 @@ async function seedLocalDatabase(meets: Meet[]) {
             media.caption ?? null,
             media.originalFilename ?? null,
             media.position ?? index,
+            media.focusX ?? 50,
+            media.focusY ?? 50,
             media.uploadedAt ? new Date(media.uploadedAt) : new Date(),
           ],
         );

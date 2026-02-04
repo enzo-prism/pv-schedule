@@ -94,6 +94,9 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   // Calculate days until the meet (for upcoming meets)
   const daysUntil = !isPast ? getDaysUntil(meet.date) : 0;
   const firstMedia = meet.media && meet.media.length > 0 ? meet.media[0] : undefined;
+  const focusX = typeof firstMedia?.focusX === "number" ? firstMedia.focusX : 50;
+  const focusY = typeof firstMedia?.focusY === "number" ? firstMedia.focusY : 50;
+  const objectPosition = `${focusX}% ${focusY}%`;
 
   return (
     <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-90 transition-opacity">
@@ -114,6 +117,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                 src={firstMedia.url}
                 alt={firstMedia.caption || `${meet.name} preview`}
                 className="w-full h-full object-cover"
+                style={{ objectPosition }}
                 loading="lazy"
                 decoding="async"
               />

@@ -118,6 +118,8 @@ export class MemStorage implements IStorage {
       caption: item.caption ?? null,
       originalFilename: item.originalFilename ?? null,
       position: startPosition + index,
+      focusX: item.focusX ?? 50,
+      focusY: item.focusY ?? 50,
       uploadedAt: (item.uploadedAt ?? new Date()).toISOString(),
     }));
 
@@ -164,6 +166,14 @@ export class MemStorage implements IStorage {
 
     if (data.position !== undefined) {
       updated.position = data.position;
+    }
+
+    if (data.focusX !== undefined) {
+      updated.focusX = data.focusX;
+    }
+
+    if (data.focusY !== undefined) {
+      updated.focusY = data.focusY;
     }
 
     media[itemIndex] = updated;

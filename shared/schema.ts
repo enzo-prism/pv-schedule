@@ -30,6 +30,8 @@ export const meetMedia = pgTable("meet_media", {
   caption: text("caption"),
   originalFilename: text("original_filename"),
   position: integer("position").notNull().default(0),
+  focusX: integer("focus_x").notNull().default(50),
+  focusY: integer("focus_y").notNull().default(50),
   uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
 });
 
@@ -60,5 +62,7 @@ export type MediaItem = {
   caption: string | null;
   originalFilename: string | null;
   position: number;
+  focusX: number;
+  focusY: number;
   uploadedAt: string;
 };

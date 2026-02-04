@@ -146,6 +146,8 @@ export function createDb(connectionString?: string): DbClient {
           caption TEXT,
           original_filename TEXT,
           position INTEGER NOT NULL DEFAULT 0,
+          focus_x INTEGER NOT NULL DEFAULT 50,
+          focus_y INTEGER NOT NULL DEFAULT 50,
           uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
         )
       `);
@@ -153,6 +155,21 @@ export function createDb(connectionString?: string): DbClient {
       await query(
         "CREATE INDEX IF NOT EXISTS meet_media_meet_id_idx ON meet_media(meet_id)",
       );
+
+      await query(
+        "ALTER TABLE meet_media ADD COLUMN IF NOT EXISTS focus_x INTEGER DEFAULT 50",
+      );
+      await query(
+        "ALTER TABLE meet_media ADD COLUMN IF NOT EXISTS focus_y INTEGER DEFAULT 50",
+      );
+      await query(
+        "ALTER TABLE meet_media ALTER COLUMN focus_x SET DEFAULT 50",
+      );
+      await query(
+        "ALTER TABLE meet_media ALTER COLUMN focus_y SET DEFAULT 50",
+      );
+      await query("UPDATE meet_media SET focus_x = 50 WHERE focus_x IS NULL");
+      await query("UPDATE meet_media SET focus_y = 50 WHERE focus_y IS NULL");
 
       await migrateLegacyMedia();
       await query("ALTER TABLE meets DROP COLUMN IF EXISTS media");

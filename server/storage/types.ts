@@ -6,12 +6,16 @@ export interface NewMediaInput {
   thumbnail?: string | null;
   caption?: string | null;
   originalFilename?: string | null;
+  focusX?: number;
+  focusY?: number;
   uploadedAt?: Date;
 }
 
 export interface UpdateMediaInput {
   caption?: string | null;
   position?: number;
+  focusX?: number;
+  focusY?: number;
 }
 
 export interface DeleteMediaResult {

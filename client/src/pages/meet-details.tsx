@@ -35,6 +35,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -54,6 +55,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import {
   Drawer,
   DrawerClose,
@@ -101,6 +103,10 @@ export default function MeetDetails() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+  const [framingDialogOpen, setFramingDialogOpen] = useState(false);
+  const [framingDraftX, setFramingDraftX] = useState(50);
+  const [framingDraftY, setFramingDraftY] = useState(50);
+  const [framingMediaId, setFramingMediaId] = useState<string | null>(null);
   const lastWheelRef = useRef(0);
   const libraryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -292,6 +298,13 @@ type MeetPayload = {
     setLightboxOpen(true);
   };
 
+  const openFramingDialog = (item: Meet["media"][number]) => {
+    setFramingMediaId(item.id);
+    setFramingDraftX(typeof item.focusX === "number" ? item.focusX : 50);
+    setFramingDraftY(typeof item.focusY === "number" ? item.focusY : 50);
+    setFramingDialogOpen(true);
+  };
+
   const editMeetMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: MeetPayload }) => {
       const res = await apiRequest("PUT", `/api/meets/${id}`, data);
@@ -367,6 +380,45 @@ type MeetPayload = {
     },
   });
 
+  const updateMediaMutation = useMutation({
+    mutationFn: async ({
+      mediaId,
+      focusX,
+      focusY,
+    }: {
+      mediaId: string;
+      focusX: number;
+      focusY: number;
+    }) => {
+      if (!meetId) {
+        throw new Error("Meet ID is missing.");
+      }
+      await apiRequest("PATCH", `/api/meets/${meetId}/media/${mediaId}`, {
+        focusX,
+        focusY,
+      });
+      return mediaId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
+      setFramingDialogOpen(false);
+      setFramingMediaId(null);
+      vibrate();
+      toast({
+        title: "Framing saved",
+        description: "The featured image framing has been updated.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Framing update failed",
+        description: error.message || "Unable to update framing.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEditMeet = (meetData: MeetPayload) => {
     if (meetId) {
       editMeetMutation.mutate({
@@ -380,6 +432,17 @@ type MeetPayload = {
     if (meetId !== null) {
       deleteMeetMutation.mutate(meetId);
     }
+  };
+
+  const handleFramingSave = () => {
+    if (!framingMediaId) {
+      return;
+    }
+    updateMediaMutation.mutate({
+      mediaId: framingMediaId,
+      focusX: framingDraftX,
+      focusY: framingDraftY,
+    });
   };
 
   const handleMediaSubmit = async () => {
@@ -658,6 +721,9 @@ type MeetPayload = {
   const hasMetrics = Boolean(
     meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place,
   );
+  const framingMedia = framingMediaId
+    ? meet.media?.find((item) => item.id === framingMediaId)
+    : null;
   const hasLogistics = Boolean(meet.link || meet.driveTime);
   const hasNotes = Boolean(meet.description && meet.description.trim().length > 0);
   const mediaActionItem =
@@ -954,6 +1020,7 @@ type MeetPayload = {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {meet.media.map((item, index) => {
                     const isPhoto = item.type === "photo";
+                    const isFeaturedPhoto = index === 0 && isPhoto;
                     return (
                       <div
                         key={item.id}
@@ -1006,30 +1073,50 @@ type MeetPayload = {
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                openLightbox(index);
-                              }}
-                              className="h-9 px-3 text-gray-600 hover:text-gray-800"
-                            >
-                              View
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                deleteMediaMutation.mutate(item.id);
-                              }}
-                              disabled={deleteMediaMutation.isPending}
-                              className="h-9 px-3 text-red-500 hover:text-red-600"
-                            >
-                              Delete
-                            </Button>
+                          <div className="flex flex-col items-end gap-2">
+                            {isFeaturedPhoto && (
+                              <Badge className="bg-slate-100 text-slate-700">
+                                Featured image
+                              </Badge>
+                            )}
+                            <div className="flex items-center gap-2">
+                              {isFeaturedPhoto && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openFramingDialog(item);
+                                  }}
+                                  className="h-9 px-3 text-gray-600 hover:text-gray-800"
+                                >
+                                  Adjust framing
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  openLightbox(index);
+                                }}
+                                className="h-9 px-3 text-gray-600 hover:text-gray-800"
+                              >
+                                View
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  deleteMediaMutation.mutate(item.id);
+                                }}
+                                disabled={deleteMediaMutation.isPending}
+                                className="h-9 px-3 text-red-500 hover:text-red-600"
+                              >
+                                Delete
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1082,6 +1169,115 @@ type MeetPayload = {
               onSubmit={handleEditMeet} 
               isLoading={editMeetMutation.isPending} 
             />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Featured Image Framing Dialog */}
+      {framingDialogOpen && (
+        <Dialog
+          open={framingDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setFramingDialogOpen(false);
+              setFramingMediaId(null);
+              setFramingDraftX(50);
+              setFramingDraftY(50);
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Adjust featured image</DialogTitle>
+              <DialogDescription>
+                Fine-tune how the featured image crops on the meet card.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="aspect-video w-full overflow-hidden rounded-lg bg-gray-100">
+                {framingMedia ? (
+                  <img
+                    src={framingMedia.url}
+                    alt={framingMedia.caption || `${meet.name} featured`}
+                    className="h-full w-full object-cover"
+                    style={{
+                      objectPosition: `${framingDraftX}% ${framingDraftY}%`,
+                    }}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                    No featured image selected.
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="framing-x" className="text-sm font-medium text-gray-700">
+                    Horizontal
+                  </Label>
+                  <Slider
+                    id="framing-x"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={[framingDraftX]}
+                    onValueChange={(value) => setFramingDraftX(value[0] ?? 50)}
+                    aria-label="Horizontal framing"
+                    disabled={!framingMedia}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="framing-y" className="text-sm font-medium text-gray-700">
+                    Vertical
+                  </Label>
+                  <Slider
+                    id="framing-y"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={[framingDraftY]}
+                    onValueChange={(value) => setFramingDraftY(value[0] ?? 50)}
+                    aria-label="Vertical framing"
+                    disabled={!framingMedia}
+                  />
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500">
+                Applies to the meet card preview.
+              </p>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  variant="ghost"
+                  className="sm:flex-1"
+                  onClick={() => {
+                    setFramingDraftX(50);
+                    setFramingDraftY(50);
+                  }}
+                  disabled={!framingMedia}
+                >
+                  Reset
+                </Button>
+                <DialogClose asChild>
+                  <Button
+                    variant="outline"
+                    className="sm:flex-1"
+                    disabled={updateMediaMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  className="sm:flex-1"
+                  onClick={handleFramingSave}
+                  disabled={!framingMedia || updateMediaMutation.isPending}
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       )}
