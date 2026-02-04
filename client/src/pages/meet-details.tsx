@@ -822,6 +822,7 @@ type MeetPayload = {
                           <video
                             src={item.url}
                             controls
+                            preload="metadata"
                             className="max-h-[70vh] w-full object-contain"
                           />
                         ) : (
