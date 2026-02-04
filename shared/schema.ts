@@ -1,4 +1,4 @@
-import { pgTable, text, serial, date, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, date, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -19,6 +19,20 @@ export const meets = pgTable("meets", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const meetMedia = pgTable("meet_media", {
+  id: serial("id").primaryKey(),
+  meetId: integer("meet_id")
+    .notNull()
+    .references(() => meets.id, { onDelete: "cascade" }),
+  type: text("type").notNull(),
+  url: text("url").notNull(),
+  thumbnail: text("thumbnail"),
+  caption: text("caption"),
+  originalFilename: text("original_filename"),
+  position: integer("position").notNull().default(0),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
 export const insertMeetSchema = createInsertSchema(meets).pick({
   name: true,
   date: true,
@@ -36,6 +50,7 @@ export const insertMeetSchema = createInsertSchema(meets).pick({
 
 export type InsertMeet = z.infer<typeof insertMeetSchema>;
 export type MeetRecord = typeof meets.$inferSelect;
+export type MeetMediaRecord = typeof meetMedia.$inferSelect;
 export type Meet = MeetRecord & { media: MediaItem[] };
 export type MediaItem = {
   id: string;

@@ -15,6 +15,15 @@ function normalizeQuotes(value: string): string {
   return value.replace(/[’‘]/g, "'").replace(/[“”]/g, "\"");
 }
 
+export function normalizeMetricInput(input: string | null | undefined): string | null {
+  const raw = normalizeInput(input);
+  if (!raw) {
+    return null;
+  }
+
+  return normalizeQuotes(raw).replace(/\s+/g, " ").trim();
+}
+
 function toFiniteNumber(value: string | undefined): number | null {
   if (value === undefined) {
     return null;
@@ -219,6 +228,118 @@ export function parsePoleUsed(
   }
 
   return result;
+}
+
+export type MetricValidationResult = {
+  normalized: string | null;
+  error?: string;
+};
+
+export function validateHeightCleared(
+  input: string | null | undefined,
+): MetricValidationResult & { meters: number | null } {
+  const normalized = normalizeMetricInput(input);
+  if (!normalized) {
+    return { normalized: null, meters: null };
+  }
+
+  if (/\b(nh|no height)\b/i.test(normalized)) {
+    return { normalized: "NH", meters: 0 };
+  }
+
+  const meters = parseHeightToMeters(normalized);
+  if (meters === null) {
+    return {
+      normalized,
+      meters: null,
+      error: "Height cleared must be in meters (e.g., 4.80m) or feet/inches (e.g., 15' 9\").",
+    };
+  }
+
+  return { normalized, meters };
+}
+
+export function validateTakeoff(
+  input: string | null | undefined,
+): MetricValidationResult & { takeoffFeet: number | null } {
+  const normalized = normalizeMetricInput(input);
+  if (!normalized) {
+    return { normalized: null, takeoffFeet: null };
+  }
+
+  const takeoffFeet = parseTakeoffToFeet(normalized);
+  if (takeoffFeet === null) {
+    return {
+      normalized,
+      takeoffFeet: null,
+      error: "Deepest takeoff must be in feet/inches (e.g., 12' 6\").",
+    };
+  }
+
+  return { normalized, takeoffFeet };
+}
+
+export function validatePoleUsed(
+  input: string | null | undefined,
+): MetricValidationResult & { pole: ReturnType<typeof parsePoleUsed> } {
+  const normalized = normalizeMetricInput(input);
+  if (!normalized) {
+    return { normalized: null, pole: { raw: "" } };
+  }
+
+  const pole = parsePoleUsed(normalized);
+  const hasMetric =
+    pole.lengthFt !== undefined || pole.ratingLbs !== undefined || pole.flex !== undefined;
+
+  if (!hasMetric) {
+    return {
+      normalized,
+      pole,
+      error: "Pole used should include a length, rating, or flex (e.g., 14' 165 or 13' 8\" 160 flex 15.5).",
+    };
+  }
+
+  return { normalized, pole };
+}
+
+export type NormalizedMeetMetrics = {
+  heightCleared?: string | null;
+  deepestTakeoff?: string | null;
+  poleUsed?: string | null;
+};
+
+export function normalizeMeetMetrics(input: NormalizedMeetMetrics): {
+  normalized: NormalizedMeetMetrics;
+  errors: string[];
+} {
+  const errors: string[] = [];
+  const normalized: NormalizedMeetMetrics = {};
+
+  if (input.heightCleared !== undefined) {
+    const height = validateHeightCleared(input.heightCleared);
+    if (height.error) {
+      errors.push(height.error);
+    }
+    normalized.heightCleared = height.normalized;
+  }
+
+  if (input.deepestTakeoff !== undefined) {
+    const takeoff = validateTakeoff(input.deepestTakeoff);
+    if (takeoff.error) {
+      errors.push(takeoff.error);
+    }
+    normalized.deepestTakeoff = takeoff.normalized;
+  }
+
+  if (input.poleUsed !== undefined) {
+    const pole = validatePoleUsed(input.poleUsed);
+    if (pole.error) {
+      errors.push(pole.error);
+    }
+    normalized.poleUsed = pole.normalized;
+  }
+
+  return { normalized, errors };
 }
 
 export function metersToFeetInches(meters: number): FeetInches {

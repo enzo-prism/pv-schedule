@@ -5,20 +5,48 @@ import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import { format } from "date-fns";
-import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useEffect, useRef, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import EditMeetForm from "@/components/edit-meet-form";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const MAX_MEDIA_BYTES = 10 * 1024 * 1024;
+type MediaMode = "upload" | "url";
 
 export default function MeetDetails() {
   // Extract meet ID from URL
@@ -28,6 +56,17 @@ export default function MeetDetails() {
   
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
+  const [mediaMode, setMediaMode] = useState<MediaMode>("upload");
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaCaption, setMediaCaption] = useState("");
+  const [mediaType, setMediaType] = useState<"photo" | "video">("photo");
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+  const lastWheelRef = useRef(0);
 
 type MeetPayload = {
   name: string;
@@ -47,6 +86,28 @@ type MeetPayload = {
     queryKey: [`/api/meets/${meetId}`],
     enabled: meetId !== null,
   });
+
+  const resetMediaForm = () => {
+    setMediaFile(null);
+    setMediaUrl("");
+    setMediaCaption("");
+    setMediaType("photo");
+    setMediaError(null);
+    setMediaMode("upload");
+  };
+
+  const readFileAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error("Failed to read file."));
+      reader.readAsDataURL(file);
+    });
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   const editMeetMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: MeetPayload }) => {
@@ -95,6 +156,59 @@ type MeetPayload = {
     },
   });
 
+  const uploadMediaMutation = useMutation({
+    mutationFn: async (payload: Record<string, unknown>) => {
+      if (!meetId) {
+        throw new Error("Meet ID is missing.");
+      }
+      const res = await apiRequest("POST", `/api/meets/${meetId}/media`, payload);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
+      setMediaDialogOpen(false);
+      resetMediaForm();
+      toast({
+        title: "Media added",
+        description: "Your media has been uploaded.",
+      });
+    },
+    onError: (error) => {
+      setMediaError(error.message || "Unable to upload media.");
+      toast({
+        title: "Upload failed",
+        description: error.message || "Unable to upload media.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMediaMutation = useMutation({
+    mutationFn: async (mediaId: string) => {
+      if (!meetId) {
+        throw new Error("Meet ID is missing.");
+      }
+      await apiRequest("DELETE", `/api/meets/${meetId}/media/${mediaId}`);
+      return mediaId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
+      toast({
+        title: "Media removed",
+        description: "The media item has been deleted.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Delete failed",
+        description: error.message || "Unable to delete media.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEditMeet = (meetData: MeetPayload) => {
     if (meetId) {
       editMeetMutation.mutate({
@@ -110,47 +224,137 @@ type MeetPayload = {
     }
   };
 
-  const formatDate = (dateString: string | Date) => {
-    // Parse date string with date-fns to avoid timezone issues
-    // If the input is "YYYY-MM-DD" format, ensure we preserve the date exactly
-    const date = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`) 
-      : new Date(dateString);
-    
-    return format(date, "EEEE, MMMM d, yyyy");
+  const handleMediaSubmit = async () => {
+    setMediaError(null);
+    if (!meetId) {
+      setMediaError("Meet ID is missing.");
+      return;
+    }
+
+    if (mediaMode === "upload") {
+      if (!mediaFile) {
+        setMediaError("Please select a file to upload.");
+        return;
+      }
+
+      if (
+        !mediaFile.type.startsWith("image/") &&
+        !mediaFile.type.startsWith("video/")
+      ) {
+        setMediaError("Only image or video files are supported.");
+        return;
+      }
+
+      if (mediaFile.size > MAX_MEDIA_BYTES) {
+        setMediaError("File is too large. Max size is 10MB.");
+        return;
+      }
+
+      try {
+        const dataUrl = await readFileAsDataUrl(mediaFile);
+        uploadMediaMutation.mutate({
+          mode: "upload",
+          filename: mediaFile.name,
+          contentType: mediaFile.type,
+          data: dataUrl,
+          caption: mediaCaption || undefined,
+        });
+      } catch (error) {
+        setMediaError("Unable to read the selected file.");
+      }
+
+      return;
+    }
+
+    if (!mediaUrl.trim()) {
+      setMediaError("Please provide a media URL.");
+      return;
+    }
+
+    uploadMediaMutation.mutate({
+      mode: "url",
+      url: mediaUrl.trim(),
+      type: mediaType,
+      caption: mediaCaption || undefined,
+    });
   };
 
-  const isPastDate = (dateString: string | Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Parse date string to avoid timezone issues
-    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-      
-    return meetDate < today;
+  useEffect(() => {
+    if (!carouselApi || !lightboxOpen) {
+      return;
+    }
+    carouselApi.scrollTo(lightboxIndex);
+  }, [carouselApi, lightboxIndex, lightboxOpen]);
+
+  useEffect(() => {
+    if (!carouselApi) {
+      return;
+    }
+
+    const handleSelect = () => {
+      const selected = carouselApi.selectedScrollSnap();
+      setLightboxIndex(selected);
+    };
+
+    carouselApi.on("select", handleSelect);
+    handleSelect();
+
+    return () => {
+      carouselApi.off("select", handleSelect);
+    };
+  }, [carouselApi]);
+
+  const handleLightboxWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    if (!carouselApi) {
+      return;
+    }
+
+    const absX = Math.abs(event.deltaX);
+    const absY = Math.abs(event.deltaY);
+    const primaryDelta = absX > absY ? event.deltaX : event.deltaY;
+
+    if (Math.abs(primaryDelta) < 20) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastWheelRef.current < 250) {
+      return;
+    }
+
+    lastWheelRef.current = now;
+    if (primaryDelta > 0) {
+      carouselApi.scrollNext();
+    } else {
+      carouselApi.scrollPrev();
+    }
+
+    event.preventDefault();
   };
 
   // Calculate days left or days passed
   const getDayDifference = (dateString: string | Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-    
-    const diffTime = Math.abs(meetDate.getTime() - today.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (isPastDate(dateString)) {
-      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-    } else if (diffDays === 0) {
-      return 'Today';
-    } else {
-      return `${diffDays} day${diffDays !== 1 ? 's' : ''} left`;
+    const diffDays = diffInDays(dateString);
+    if (diffDays === null) {
+      return "";
     }
+
+    if (isPastDate(dateString)) {
+      return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+    }
+    if (diffDays === 0) {
+      return "Today";
+    }
+    return `${diffDays} day${diffDays !== 1 ? "s" : ""} left`;
+  };
+
+  const formatDate = (dateString: string | Date) => {
+    const parsed = parseDateInput(dateString);
+    if (!parsed) {
+      return "Invalid date";
+    }
+
+    return format(parsed, "EEEE, MMMM d, yyyy");
   };
 
   if (isLoading) {
@@ -373,6 +577,109 @@ type MeetPayload = {
                 <p className="text-gray-700 whitespace-pre-line text-sm">{meet.description}</p>
               </div>
             )}
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xs uppercase font-medium text-gray-500">MEDIA</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMediaDialogOpen(true)}
+                  className="h-8"
+                >
+                  Add media
+                </Button>
+              </div>
+
+              {meet.media && meet.media.length > 0 ? (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {meet.media.map((item, index) => {
+                    const isPhoto = item.type === "photo";
+                    return (
+                    <div
+                      key={item.id}
+                      className="overflow-hidden rounded-lg border border-gray-100 bg-gray-50"
+                      role={isPhoto ? "button" : undefined}
+                      tabIndex={isPhoto ? 0 : undefined}
+                      onClick={
+                        isPhoto
+                          ? () => openLightbox(index)
+                          : undefined
+                      }
+                      onKeyDown={
+                        isPhoto
+                          ? (event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                openLightbox(index);
+                              }
+                            }
+                          : undefined
+                      }
+                    >
+                      {item.type === "video" ? (
+                        <video
+                          src={item.url}
+                          className="h-48 w-full object-cover"
+                          controls
+                          preload="metadata"
+                        />
+                      ) : (
+                        <img
+                          src={item.url}
+                          alt={item.caption || `${meet.name} media`}
+                          className="h-48 w-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="flex items-start justify-between gap-2 p-3">
+                        <div className="min-w-0">
+                          {item.caption ? (
+                            <p className="text-xs text-gray-600 line-clamp-2">
+                              {item.caption}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-400">No caption</p>
+                          )}
+                          {item.originalFilename && (
+                            <p className="text-[11px] text-gray-400 mt-1 truncate">
+                              {item.originalFilename}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openLightbox(index);
+                            }}
+                            className="text-gray-600 hover:text-gray-800"
+                          >
+                            View
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              deleteMediaMutation.mutate(item.id);
+                            }}
+                            disabled={deleteMediaMutation.isPending}
+                            className="text-red-500 hover:text-red-600"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )})}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No media yet.</p>
+              )}
+            </div>
           </div>
         </div>
       </main>
@@ -393,6 +700,161 @@ type MeetPayload = {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Media Upload Dialog */}
+      {mediaDialogOpen && (
+        <Dialog
+          open={mediaDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setMediaDialogOpen(false);
+              resetMediaForm();
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Add Media</DialogTitle>
+              <DialogDescription>
+                Upload a photo or video, or add a link to hosted media.
+              </DialogDescription>
+            </DialogHeader>
+
+            <Tabs value={mediaMode} onValueChange={(value) => setMediaMode(value as MediaMode)}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload">Upload</TabsTrigger>
+                <TabsTrigger value="url">Link</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="upload" className="space-y-3 pt-3">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">File</label>
+                  <Input
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      setMediaFile(file);
+                    }}
+                  />
+                  {mediaFile && (
+                    <p className="text-xs text-gray-500">
+                      {mediaFile.name} · {(mediaFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-400">Max file size: 10MB.</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="url" className="space-y-3 pt-3">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Media URL</label>
+                  <Input
+                    placeholder="https://example.com/media.jpg"
+                    value={mediaUrl}
+                    onChange={(event) => setMediaUrl(event.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Type</label>
+                  <Select value={mediaType} onValueChange={(value) => setMediaType(value as "photo" | "video")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select media type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="photo">Photo</SelectItem>
+                      <SelectItem value="video">Video</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Caption (optional)</label>
+              <Textarea
+                value={mediaCaption}
+                onChange={(event) => setMediaCaption(event.target.value)}
+                rows={3}
+                placeholder="Add a short note about this media"
+              />
+            </div>
+
+            {mediaError && <p className="text-xs text-red-500">{mediaError}</p>}
+
+            <Button
+              onClick={handleMediaSubmit}
+              disabled={uploadMediaMutation.isPending}
+            >
+              {uploadMediaMutation.isPending ? "Uploading..." : "Add media"}
+            </Button>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Media Lightbox */}
+      {lightboxOpen && meet?.media?.length ? (
+        <Dialog
+          open={lightboxOpen}
+          onOpenChange={(open) => setLightboxOpen(open)}
+        >
+          <DialogContent className="sm:max-w-4xl bg-gray-950 border-gray-800">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-gray-200 text-sm">
+                <span>
+                  Media {lightboxIndex + 1} of {meet.media.length}
+                </span>
+                <span className="text-gray-400">
+                  {meet.media[lightboxIndex]?.caption || "No caption"}
+                </span>
+              </div>
+              <div onWheel={handleLightboxWheel}>
+                <Carousel
+                  setApi={setCarouselApi}
+                  className="w-full touch-pan-y"
+                  opts={{ loop: false }}
+                >
+                <CarouselContent>
+                  {meet.media.map((item, index) => (
+                    <CarouselItem key={item.id}>
+                      <div className="flex h-[70vh] items-center justify-center">
+                        {item.type === "video" ? (
+                          <video
+                            src={item.url}
+                            controls
+                            className="max-h-[70vh] w-full object-contain"
+                          />
+                        ) : (
+                          <img
+                            src={item.url}
+                            alt={item.caption || `${meet.name} media`}
+                            className="max-h-[70vh] w-full object-contain"
+                          />
+                        )}
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2 text-gray-100 border-gray-700 hover:bg-gray-800" />
+                <CarouselNext className="right-2 text-gray-100 border-gray-700 hover:bg-gray-800" />
+                </Carousel>
+              </div>
+              <div className="flex items-center justify-between text-xs text-gray-400">
+                <span>{meet.media[lightboxIndex]?.originalFilename || ""}</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setLightboxOpen(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      ) : null}
       
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmation

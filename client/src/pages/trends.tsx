@@ -11,6 +11,7 @@ import {
   parsePoleUsed,
   parseTakeoffToFeet,
 } from "@shared/metrics";
+import { parseDateInput, startOfDay } from "@shared/dates";
 import {
   Area,
   AreaChart,
@@ -93,19 +94,8 @@ const rangeOptions = [
   { label: "All time", value: "all" },
 ];
 
-function parseMeetDate(dateString: string | Date): Date | null {
-  const parsed =
-    typeof dateString === "string" && dateString.match(/^\d{4}-\d{2}-\d{2}$/)
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
 function normalizeDate(date: Date): Date {
-  const normalized = new Date(date);
-  normalized.setHours(0, 0, 0, 0);
-  return normalized;
+  return startOfDay(date);
 }
 
 function formatFeetInches(feet: number, inches: number): string {
@@ -190,7 +180,7 @@ export default function Trends() {
 
     return meets
       .map((meet) => {
-        const meetDate = parseMeetDate(meet.date);
+        const meetDate = parseDateInput(meet.date);
         if (!meetDate) {
           return null;
         }

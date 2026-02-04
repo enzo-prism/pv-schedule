@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Plus, Clock } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Meet } from "@shared/schema";
+import { isPastDate, parseDateInput } from "@shared/dates";
 import MeetCard from "@/components/meet-card";
 import AddMeetForm from "@/components/add-meet-form";
 import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
-import CountdownTimer from "@/components/countdown-timer";
 import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
 
@@ -142,28 +142,14 @@ export default function Home() {
     }
   };
 
-  const isPastDate = (dateString: string | Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-      
-    meetDate.setHours(0, 0, 0, 0);
-    return meetDate < today;
-  };
-
-  // Helper function for consistent date parsing
-  const parseDate = (dateString: string | Date) => {
-    return typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
+  const getDateTime = (dateString: string | Date) => {
+    const parsed = parseDateInput(dateString);
+    return parsed ? parsed.getTime() : 0;
   };
 
   // Find all upcoming meets
   const upcomingMeets = meets.filter(meet => !isPastDate(meet.date))
-    .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
+    .sort((a, b) => getDateTime(a.date) - getDateTime(b.date));
   
   // Get the ID of the next upcoming meet (first in the sorted list)
   const nextUpcomingMeetId = upcomingMeets.length > 0 ? upcomingMeets[0].id : null;
@@ -178,10 +164,10 @@ export default function Home() {
   }).sort((a, b) => {
     // For past meets, sort by most recent to oldest (descending order)
     if (currentFilter === "past") {
-      return parseDate(b.date).getTime() - parseDate(a.date).getTime();
+      return getDateTime(b.date) - getDateTime(a.date);
     }
     // For upcoming meets, sort by closest date first (ascending order)
-    return parseDate(a.date).getTime() - parseDate(b.date).getTime();
+    return getDateTime(a.date) - getDateTime(b.date);
   });
 
   const handleFilterChange = (filter: FilterType) => {

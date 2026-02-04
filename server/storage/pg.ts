@@ -1,12 +1,12 @@
 import { type Meet, type InsertMeet, type MediaItem } from "@shared/schema";
 import { demoMeets } from "@shared/fixtures/meets";
+import { toYmdDateString } from "@shared/dates";
 import type { DbClient } from "../db";
 import {
   type DeleteMediaResult,
   type IStorage,
   type NewMediaInput,
   type UpdateMediaInput,
-  adjustDateForTimezone,
 } from "./types";
 
 // Helpers to normalize the jsonb payload returned from Postgres
@@ -68,10 +68,7 @@ interface PgStorageOptions {
 }
 
 function mapRowToMeet(row: any): Meet {
-  const dateStr =
-    row?.date instanceof Date
-      ? row.date.toISOString().split("T")[0]
-      : String(row?.date ?? "").split("T")[0];
+  const dateStr = toYmdDateString(row?.date) ?? String(row?.date ?? "").split("T")[0];
 
   return {
     id: row.id,
@@ -226,7 +223,7 @@ export class PgStorage implements IStorage {
 
       const values = [
         insertMeet.name,
-        adjustDateForTimezone(insertMeet.date),
+        toYmdDateString(insertMeet.date) ?? insertMeet.date,
         insertMeet.location,
         insertMeet.description || null,
         insertMeet.heightCleared || null,
@@ -287,7 +284,7 @@ export class PgStorage implements IStorage {
 
       const values = [
         updateMeet.name ?? existingMeet.name,
-        adjustDateForTimezone(updateMeet.date ?? existingMeet.date),
+        toYmdDateString(updateMeet.date ?? existingMeet.date) ?? existingMeet.date,
         updateMeet.location ?? existingMeet.location,
         updateMeet.description ?? existingMeet.description ?? null,
         updateMeet.heightCleared ?? existingMeet.heightCleared ?? null,
@@ -399,10 +396,18 @@ export class PgStorage implements IStorage {
     return this.getMediaForMeet(meetId);
   }
 
-  async deleteMediaItem(meetId: number, mediaId: number): Promise<DeleteMediaResult> {
+  async deleteMediaItem(
+    meetId: number,
+    mediaId: string | number,
+  ): Promise<DeleteMediaResult> {
+    const id = Number(mediaId);
+    if (!Number.isFinite(id)) {
+      return { media: await this.getMediaForMeet(meetId) };
+    }
+
     const existing = await this.db.query(
       `SELECT * FROM meet_media WHERE id = $1 AND meet_id = $2`,
-      [mediaId, meetId],
+      [id, meetId],
     );
 
     if (existing.rows.length === 0) {
@@ -413,7 +418,7 @@ export class PgStorage implements IStorage {
 
     await this.db.query(
       `DELETE FROM meet_media WHERE id = $1 AND meet_id = $2`,
-      [mediaId, meetId],
+      [id, meetId],
     );
 
     const removed = toMediaItems([
@@ -437,12 +442,17 @@ export class PgStorage implements IStorage {
 
   async updateMediaItem(
     meetId: number,
-    mediaId: number,
+    mediaId: string | number,
     data: UpdateMediaInput,
   ): Promise<MediaItem[] | undefined> {
+    const id = Number(mediaId);
+    if (!Number.isFinite(id)) {
+      return undefined;
+    }
+
     const existing = await this.db.query(
       `SELECT id FROM meet_media WHERE id = $1 AND meet_id = $2`,
-      [mediaId, meetId],
+      [id, meetId],
     );
 
     if (existing.rows.length === 0) {
@@ -466,7 +476,7 @@ export class PgStorage implements IStorage {
       return this.getMediaForMeet(meetId);
     }
 
-    values.push(mediaId, meetId);
+    values.push(id, meetId);
 
     await this.db.query(
       `UPDATE meet_media SET ${fields.join(', ')} WHERE id = $${fields.length + 1} AND meet_id = $${fields.length + 2}`,

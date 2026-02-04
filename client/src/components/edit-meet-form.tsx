@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
-import { format } from "date-fns";
 import { Meet } from "@shared/schema";
+import { toYmdDateString } from "@shared/dates";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -47,12 +47,7 @@ interface EditMeetFormProps {
 export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetFormProps) {
   // Format the date as YYYY-MM-DD for the input field
   const formatDateForInput = (dateString: string | Date) => {
-    // Parse date string consistently to avoid timezone issues
-    const date = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-      
-    return format(date, "yyyy-MM-dd");
+    return toYmdDateString(dateString) ?? "";
   };
 
   const form = useForm<z.infer<typeof formSchema>>({

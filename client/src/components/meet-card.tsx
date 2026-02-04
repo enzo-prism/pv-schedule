@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
+import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,41 +21,18 @@ interface MeetCardProps {
 }
 
 export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcoming = false }: MeetCardProps) {
-  const isPastDate = (dateString: string | Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Parse date string with the same approach as formatDate to avoid timezone issues
-    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-      
-    return meetDate < today;
-  };
-  
   // This function calculates how many days until the meet
   const getDaysUntil = (dateString: string | Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-    
-    const diffTime = Math.abs(meetDate.getTime() - today.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    return diffDays;
+    return diffInDays(dateString) ?? 0;
   };
 
   const formatDate = (dateString: string | Date) => {
-    // Parse date string with date-fns to avoid timezone issues
-    // If the input is "YYYY-MM-DD" format, ensure we preserve the date exactly
-    const date = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`) 
-      : new Date(dateString);
-    
-    return format(date, "EEEE, MMMM d, yyyy");
+    const parsed = parseDateInput(dateString);
+    if (!parsed) {
+      return "Invalid date";
+    }
+
+    return format(parsed, "EEEE, MMMM d, yyyy");
   };
 
   // We still calculate isPast for internal filtering, but don't display it on home page
