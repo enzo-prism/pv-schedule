@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import { useLocation } from "wouter";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -41,6 +42,7 @@ export default function Home() {
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [meetToDelete, setMeetToDelete] = useState<number | null>(null);
+  const [location] = useLocation();
   const { toast } = useToast();
 
   const { data: meets = [], isLoading } = useQuery<Meet[]>({ 
@@ -52,9 +54,15 @@ export default function Home() {
       const res = await apiRequest("POST", "/api/meets", meetData);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
       setIsAddMeetOpen(false);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("pv-add-meet-draft");
+        if (variables?.location) {
+          window.localStorage.setItem("pv-last-location", variables.location);
+        }
+      }
       toast({
         title: "Meet added",
         description: "The meet has been successfully added to the schedule.",
@@ -191,8 +199,18 @@ export default function Home() {
     window.history.replaceState(null, "", search ? `/?${search}` : "/");
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("add") === "1") {
+      setIsAddMeetOpen(true);
+      params.delete("add");
+      const search = params.toString();
+      window.history.replaceState(null, "", search ? `/?${search}` : "/");
+    }
+  }, [location]);
+
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className="min-h-screen bg-white relative pb-app-nav">
       {/* Subtle rainbow gradient bar */}
       <div className="fixed top-0 left-0 right-0 h-0.5 z-50 overflow-hidden">
         <div 
@@ -258,7 +276,7 @@ export default function Home() {
         )}
 
         {currentFilter === "upcoming" && (
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 hidden justify-center sm:flex">
             <Button
               variant="outline"
               size="sm"

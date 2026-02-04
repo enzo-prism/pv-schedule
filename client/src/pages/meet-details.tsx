@@ -2,7 +2,20 @@ import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Meet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, ArrowLeft, Clock, Edit2, Trash2, MoreVertical } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  ArrowLeft,
+  Clock,
+  Edit2,
+  Trash2,
+  MoreVertical,
+  Camera,
+  ImagePlus,
+  ArrowUp,
+  ArrowDown,
+  X,
+} from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import { format } from "date-fns";
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Carousel,
@@ -39,14 +53,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const MAX_MEDIA_BYTES = 10 * 1024 * 1024;
 type MediaMode = "upload" | "url";
+type MediaQueueStatus = "pending" | "uploading" | "uploaded" | "error" | "skipped";
+type MediaQueueItem = {
+  id: string;
+  file: File;
+  previewUrl: string;
+  type: "photo" | "video";
+  status: MediaQueueStatus;
+  error?: string;
+};
 
 export default function MeetDetails() {
   // Extract meet ID from URL
@@ -58,15 +84,23 @@ export default function MeetDetails() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
   const [mediaMode, setMediaMode] = useState<MediaMode>("upload");
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaQueue, setMediaQueue] = useState<MediaQueueItem[]>([]);
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaCaption, setMediaCaption] = useState("");
   const [mediaType, setMediaType] = useState<"photo" | "video">("photo");
   const [mediaError, setMediaError] = useState<string | null>(null);
+  const [mediaWarning, setMediaWarning] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [mediaActionIndex, setMediaActionIndex] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const lastWheelRef = useRef(0);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const touchStartXRef = useRef<Record<string, number>>({});
+  const mediaLongPressRef = useRef<number | null>(null);
 
 type MeetPayload = {
   name: string;
@@ -87,12 +121,20 @@ type MeetPayload = {
     enabled: meetId !== null,
   });
 
+  const clearMediaQueue = () => {
+    mediaQueue.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+    setMediaQueue([]);
+  };
+
   const resetMediaForm = () => {
-    setMediaFile(null);
+    clearMediaQueue();
     setMediaUrl("");
     setMediaCaption("");
     setMediaType("photo");
     setMediaError(null);
+    setMediaWarning(null);
+    setUploadProgress(null);
+    setIsUploading(false);
     setMediaMode("upload");
   };
 
@@ -103,6 +145,72 @@ type MeetPayload = {
       reader.onerror = () => reject(new Error("Failed to read file."));
       reader.readAsDataURL(file);
     });
+
+  const appendMediaFiles = (files: File[]) => {
+    if (files.length === 0) {
+      return;
+    }
+    setMediaQueue((prev) => [
+      ...prev,
+      ...files.map((file) => ({
+        id: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2, 8)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        type: file.type.startsWith("video/") ? "video" : "photo",
+        status: "pending" as MediaQueueStatus,
+      })),
+    ]);
+  };
+
+  const updateQueueItem = (id: string, updates: Partial<MediaQueueItem>) => {
+    setMediaQueue((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item)),
+    );
+  };
+
+  const moveQueueItem = (id: string, direction: "up" | "down") => {
+    setMediaQueue((prev) => {
+      const index = prev.findIndex((item) => item.id === id);
+      if (index < 0) {
+        return prev;
+      }
+      const nextIndex = direction === "up" ? index - 1 : index + 1;
+      if (nextIndex < 0 || nextIndex >= prev.length) {
+        return prev;
+      }
+      const next = [...prev];
+      const [moved] = next.splice(index, 1);
+      next.splice(nextIndex, 0, moved);
+      return next;
+    });
+  };
+
+  const removeQueueItem = (id: string) => {
+    setMediaQueue((prev) => {
+      const item = prev.find((entry) => entry.id === id);
+      if (item) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+      return prev.filter((entry) => entry.id !== id);
+    });
+  };
+
+  const startMediaLongPress = (index: number) => {
+    if (mediaLongPressRef.current) {
+      window.clearTimeout(mediaLongPressRef.current);
+    }
+    mediaLongPressRef.current = window.setTimeout(() => {
+      setMediaActionIndex(index);
+      vibrate(6);
+    }, 600);
+  };
+
+  const cancelMediaLongPress = () => {
+    if (mediaLongPressRef.current) {
+      window.clearTimeout(mediaLongPressRef.current);
+      mediaLongPressRef.current = null;
+    }
+  };
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -118,6 +226,7 @@ type MeetPayload = {
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
       queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
       setEditMeet(null);
+      vibrate();
       toast({
         title: "Meet updated",
         description: "The meet has been successfully updated.",
@@ -140,6 +249,7 @@ type MeetPayload = {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
       setDeleteConfirmOpen(false);
+      vibrate();
       toast({
         title: "Meet deleted",
         description: "The meet has been successfully removed from the schedule.",
@@ -156,34 +266,6 @@ type MeetPayload = {
     },
   });
 
-  const uploadMediaMutation = useMutation({
-    mutationFn: async (payload: Record<string, unknown>) => {
-      if (!meetId) {
-        throw new Error("Meet ID is missing.");
-      }
-      const res = await apiRequest("POST", `/api/meets/${meetId}/media`, payload);
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
-      queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
-      setMediaDialogOpen(false);
-      resetMediaForm();
-      toast({
-        title: "Media added",
-        description: "Your media has been uploaded.",
-      });
-    },
-    onError: (error) => {
-      setMediaError(error.message || "Unable to upload media.");
-      toast({
-        title: "Upload failed",
-        description: error.message || "Unable to upload media.",
-        variant: "destructive",
-      });
-    },
-  });
-
   const deleteMediaMutation = useMutation({
     mutationFn: async (mediaId: string) => {
       if (!meetId) {
@@ -195,6 +277,7 @@ type MeetPayload = {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
       queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
+      vibrate();
       toast({
         title: "Media removed",
         description: "The media item has been deleted.",
@@ -225,42 +308,114 @@ type MeetPayload = {
   };
 
   const handleMediaSubmit = async () => {
+    if (isUploading) {
+      return;
+    }
     setMediaError(null);
+    setMediaWarning(null);
     if (!meetId) {
       setMediaError("Meet ID is missing.");
       return;
     }
 
     if (mediaMode === "upload") {
-      if (!mediaFile) {
-        setMediaError("Please select a file to upload.");
+      const queueSnapshot = mediaQueue.filter((item) => item.status !== "uploaded");
+      if (queueSnapshot.length === 0) {
+        setMediaError("Please select one or more files to upload.");
         return;
       }
 
-      if (
-        !mediaFile.type.startsWith("image/") &&
-        !mediaFile.type.startsWith("video/")
-      ) {
-        setMediaError("Only image or video files are supported.");
+      let skippedType = 0;
+      let skippedSize = 0;
+      const validItems: MediaQueueItem[] = [];
+
+      const nextQueue = queueSnapshot.map((item) => {
+        if (!item.file.type.startsWith("image/") && !item.file.type.startsWith("video/")) {
+          skippedType += 1;
+          return { ...item, status: "skipped", error: "Unsupported file type." };
+        }
+        if (item.file.size > MAX_MEDIA_BYTES) {
+          skippedSize += 1;
+          return { ...item, status: "skipped", error: "File too large." };
+        }
+        validItems.push(item);
+        return { ...item, status: "pending", error: undefined };
+      });
+
+      setMediaQueue((prev) =>
+        prev.map((item) => nextQueue.find((next) => next.id === item.id) ?? item),
+      );
+
+      if (skippedType || skippedSize) {
+        const parts = [];
+        if (skippedType) {
+          parts.push(`${skippedType} unsupported`);
+        }
+        if (skippedSize) {
+          parts.push(`${skippedSize} over 10MB`);
+        }
+        setMediaWarning(`Skipped ${parts.join(" and ")}.`);
+      }
+
+      if (validItems.length === 0) {
+        setMediaError("No valid files to upload.");
         return;
       }
 
-      if (mediaFile.size > MAX_MEDIA_BYTES) {
-        setMediaError("File is too large. Max size is 10MB.");
-        return;
+      setIsUploading(true);
+      setUploadProgress({ current: 0, total: validItems.length });
+      let successCount = 0;
+      let failureCount = 0;
+
+      for (let index = 0; index < validItems.length; index++) {
+        const item = validItems[index];
+        updateQueueItem(item.id, { status: "uploading", error: undefined });
+        try {
+          const dataUrl = await readFileAsDataUrl(item.file);
+          await apiRequest("POST", `/api/meets/${meetId}/media`, {
+            mode: "upload",
+            filename: item.file.name,
+            contentType: item.file.type,
+            data: dataUrl,
+            caption: mediaCaption || undefined,
+          });
+          successCount += 1;
+          updateQueueItem(item.id, { status: "uploaded" });
+        } catch (error) {
+          failureCount += 1;
+          updateQueueItem(item.id, {
+            status: "error",
+            error: error instanceof Error ? error.message : "Upload failed.",
+          });
+        } finally {
+          setUploadProgress({ current: index + 1, total: validItems.length });
+        }
       }
 
-      try {
-        const dataUrl = await readFileAsDataUrl(mediaFile);
-        uploadMediaMutation.mutate({
-          mode: "upload",
-          filename: mediaFile.name,
-          contentType: mediaFile.type,
-          data: dataUrl,
-          caption: mediaCaption || undefined,
+      setIsUploading(false);
+      if (successCount > 0) {
+        queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
+        queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
+      }
+
+      if (failureCount === 0) {
+        setMediaDialogOpen(false);
+        resetMediaForm();
+        vibrate();
+        toast({
+          title: "Media added",
+          description:
+            successCount === 1
+              ? "Your media has been uploaded."
+              : `Uploaded ${successCount} items to this meet.`,
         });
-      } catch (error) {
-        setMediaError("Unable to read the selected file.");
+      } else {
+        setMediaError(`${failureCount} file${failureCount === 1 ? "" : "s"} failed to upload.`);
+        toast({
+          title: "Upload incomplete",
+          description: `${successCount} uploaded, ${failureCount} failed.`,
+          variant: "destructive",
+        });
       }
 
       return;
@@ -271,12 +426,33 @@ type MeetPayload = {
       return;
     }
 
-    uploadMediaMutation.mutate({
-      mode: "url",
-      url: mediaUrl.trim(),
-      type: mediaType,
-      caption: mediaCaption || undefined,
-    });
+    setIsUploading(true);
+    try {
+      await apiRequest("POST", `/api/meets/${meetId}/media`, {
+        mode: "url",
+        url: mediaUrl.trim(),
+        type: mediaType,
+        caption: mediaCaption || undefined,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
+      setMediaDialogOpen(false);
+      resetMediaForm();
+      vibrate();
+      toast({
+        title: "Media added",
+        description: "Your media link has been saved.",
+      });
+    } catch (error) {
+      setMediaError(error instanceof Error ? error.message : "Unable to upload media.");
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Unable to upload media.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   useEffect(() => {
@@ -332,6 +508,27 @@ type MeetPayload = {
     event.preventDefault();
   };
 
+  const formatQueueStatus = (status: MediaQueueStatus) => {
+    switch (status) {
+      case "uploading":
+        return "Uploading";
+      case "uploaded":
+        return "Uploaded";
+      case "error":
+        return "Failed";
+      case "skipped":
+        return "Skipped";
+      default:
+        return "Ready";
+    }
+  };
+
+  const vibrate = (duration = 8) => {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      navigator.vibrate(duration);
+    }
+  };
+
   // Calculate days left or days passed
   const getDayDifference = (dateString: string | Date) => {
     const diffDays = diffInDays(dateString);
@@ -383,204 +580,277 @@ type MeetPayload = {
   const isPast = isPastDate(meet.date);
   const statusClass = isPast ? "bg-gray-200 text-gray-700" : "bg-green-100 text-green-800";
   const showRegistrationStatus = !isPast && meet.registrationStatus;
+  const hasMetrics = Boolean(
+    meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place,
+  );
+  const hasLogistics = Boolean(meet.link || meet.driveTime);
+  const hasNotes = Boolean(meet.description && meet.description.trim().length > 0);
+  const mediaActionItem =
+    mediaActionIndex !== null ? meet.media?.[mediaActionIndex] : null;
+  const canSaveMedia =
+    mediaMode === "upload"
+      ? mediaQueue.length > 0
+      : mediaUrl.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header with back button */}
-      <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center">
+    <div className="min-h-screen bg-gray-50 pb-app-nav">
+      <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <Link href="/">
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
               <ArrowLeft className="h-5 w-5 text-gray-500" />
               <span className="sr-only">Back</span>
             </Button>
           </Link>
-          <span className="text-sm text-gray-500 ml-2">Back</span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-gray-900">{meet.name}</p>
+            <p className="text-xs text-gray-500">{formatDate(meet.date)}</p>
+          </div>
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 rounded-full p-0"
+                aria-label="Meet actions"
+              >
+                <MoreVertical className="h-4 w-4 text-gray-500" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Meet Actions</DrawerTitle>
+                <DrawerDescription>Quick actions for this meet.</DrawerDescription>
+              </DrawerHeader>
+              <div className="grid gap-2 px-4 pb-4">
+                <DrawerClose asChild>
+                  <Button onClick={() => setMediaDialogOpen(true)}>Add media</Button>
+                </DrawerClose>
+                <DrawerClose asChild>
+                  <Button variant="outline" onClick={() => setEditMeet(meet)}>
+                    <Edit2 className="mr-2 h-4 w-4" />
+                    Edit meet
+                  </Button>
+                </DrawerClose>
+                <DrawerClose asChild>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete meet
+                  </Button>
+                </DrawerClose>
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
-      </div>
+      </header>
 
-      {/* Main content */}
-      <main className="max-w-3xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          {/* Meet header */}
-          <div className="p-5 border-b border-gray-100 flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800 mb-1">{meet.name}</h1>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className={`${statusClass} font-normal text-xs px-2 py-0.5`}>
-                  {isPast ? 'Past' : 'Upcoming'}
+      <main className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-4 pb-32">
+        <Accordion
+          type="multiple"
+          defaultValue={["overview", "media"]}
+          className="space-y-3"
+        >
+          <AccordionItem
+            value="overview"
+            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+          >
+            <AccordionTrigger className="px-4 text-sm font-semibold">
+              Overview
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className={`${statusClass} font-normal text-xs px-2 py-0.5`}
+                >
+                  {isPast ? "Past" : "Upcoming"}
                 </Badge>
                 <div className="flex items-center text-gray-500">
                   <Clock className="h-3.5 w-3.5 mr-1" />
                   <span className="text-xs">{getDayDifference(meet.date)}</span>
                 </div>
-              </div>
-            </div>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 w-8 rounded-full p-0"
-                  aria-label="More options"
-                >
-                  <MoreVertical className="h-4 w-4 text-gray-500" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setEditMeet(meet)} className="cursor-pointer">
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  <span>Edit</span>
-                </DropdownMenuItem>
-                {(
-                  <DropdownMenuItem 
-                    onClick={() => setDeleteConfirmOpen(true)} 
-                    className="cursor-pointer text-red-500 focus:text-red-500"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    <span>Delete</span>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          
-          {/* Meet details */}
-          <div className="p-5 space-y-5">
-            <div>
-              <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DATE & TIME</h2>
-              <div className="flex items-center text-gray-800">
-                <Calendar className="h-4 w-4 mr-2 text-gray-600" />
-                <span className="text-base">{formatDate(meet.date)}</span>
-              </div>
-            </div>
-            
-            <div>
-              <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">LOCATION</h2>
-              <div className="flex items-center text-gray-800">
-                <MapPin className="h-4 w-4 mr-2 text-gray-600" />
-                <span className="text-base">{meet.location}</span>
-              </div>
-            </div>
-            
-            {/* Registration Status */}
-            {showRegistrationStatus && (
-              <div>
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">REGISTRATION STATUS</h2>
-                <div className="flex items-center">
-                  <Badge 
+                {showRegistrationStatus && (
+                  <Badge
                     variant="secondary"
-                    className={`text-sm font-medium ${
-                      meet.registrationStatus === "registered" 
-                        ? "bg-green-100 text-green-800 border-green-200" 
+                    className={`text-xs font-medium ${
+                      meet.registrationStatus === "registered"
+                        ? "bg-green-100 text-green-800 border-green-200"
                         : meet.registrationStatus === "contacted director"
                         ? "bg-blue-100 text-blue-800 border-blue-200"
                         : "bg-orange-100 text-orange-800 border-orange-200"
                     }`}
                   >
-                    {meet.registrationStatus === "registered" 
-                      ? "Registered" 
+                    {meet.registrationStatus === "registered"
+                      ? "Registered"
                       : meet.registrationStatus === "contacted director"
                       ? "Contacted Director"
                       : "Not Registered"}
                   </Badge>
+                )}
+              </div>
+              <div className="space-y-3 text-sm text-gray-700">
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-gray-600" />
+                  <span>{formatDate(meet.date)}</span>
+                </div>
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-gray-600" />
+                  <span>{meet.location}</span>
                 </div>
               </div>
-            )}
-            
-            {/* Pole vault performance metrics section - only displayed if any of the fields have data */}
-            {(meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
-              <div>
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">POLE VAULT METRICS</h2>
-                
-                {meet.heightCleared && (
-                  <div className="flex items-center text-gray-800 mb-3">
-                    <HeightIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
-                    <div>
-                      <span className="text-xs text-gray-500 block">Height Cleared</span>
-                      <span className="text-base">{meet.heightCleared}</span>
-                    </div>
-                  </div>
-                )}
-                
-                {meet.poleUsed && (
-                  <div className="flex items-center text-gray-800 mb-3">
-                    <PoleIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
-                    <div>
-                      <span className="text-xs text-gray-500 block">Pole Used</span>
-                      <span className="text-base">{meet.poleUsed}</span>
-                    </div>
-                  </div>
-                )}
-                
-                {meet.deepestTakeoff && (
-                  <div className="flex items-center text-gray-800 mb-3">
-                    <TakeoffIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
-                    <div>
-                      <span className="text-xs text-gray-500 block">Deepest Takeoff</span>
-                      <span className="text-base">{meet.deepestTakeoff}</span>
-                    </div>
-                  </div>
-                )}
+            </AccordionContent>
+          </AccordionItem>
 
-                {meet.place && (
-                  <div className="flex items-center text-gray-800">
-                    <PlaceIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
-                    <div>
-                      <span className="text-xs text-gray-500 block">Place/Ranking</span>
-                      <span className="text-base">{meet.place}</span>
+          <AccordionItem
+            value="metrics"
+            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+          >
+            <AccordionTrigger className="px-4 text-sm font-semibold">
+              Vault Metrics
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 space-y-3 text-sm">
+              {hasMetrics ? (
+                <>
+                  {meet.heightCleared && (
+                    <div className="flex items-center text-gray-800">
+                      <HeightIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                      <div>
+                        <span className="text-xs text-gray-500 block">
+                          Height Cleared
+                        </span>
+                        <span className="text-base">{meet.heightCleared}</span>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {/* Meet Link */}
-            {meet.link && (
-              <div>
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">MEET LINK</h2>
-                <div className="flex items-center text-gray-800">
-                  <svg className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                  </svg>
-                  <a 
-                    href={meet.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline text-base break-all"
-                  >
-                    {meet.link}
-                  </a>
-                </div>
-              </div>
-            )}
-            
-            {/* Drive Time */}
-            {meet.driveTime && (
-              <div>
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DRIVE TIME</h2>
-                <div className="flex items-center text-gray-800">
-                  <svg className="h-4 w-4 mr-2 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12,6 12,12 16,14"></polyline>
-                  </svg>
-                  <span className="text-base">{meet.driveTime}</span>
-                </div>
-              </div>
-            )}
-            
-            {meet.description && (
-              <div>
-                <h2 className="text-xs uppercase font-medium text-gray-500 mb-2">DESCRIPTION</h2>
-                <p className="text-gray-700 whitespace-pre-line text-sm">{meet.description}</p>
-              </div>
-            )}
+                  )}
+                  {meet.poleUsed && (
+                    <div className="flex items-center text-gray-800">
+                      <PoleIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                      <div>
+                        <span className="text-xs text-gray-500 block">
+                          Pole Used
+                        </span>
+                        <span className="text-base">{meet.poleUsed}</span>
+                      </div>
+                    </div>
+                  )}
+                  {meet.deepestTakeoff && (
+                    <div className="flex items-center text-gray-800">
+                      <TakeoffIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                      <div>
+                        <span className="text-xs text-gray-500 block">
+                          Deepest Takeoff
+                        </span>
+                        <span className="text-base">{meet.deepestTakeoff}</span>
+                      </div>
+                    </div>
+                  )}
+                  {meet.place && (
+                    <div className="flex items-center text-gray-800">
+                      <PlaceIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                      <div>
+                        <span className="text-xs text-gray-500 block">
+                          Place/Ranking
+                        </span>
+                        <span className="text-base">{meet.place}</span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-500">No vault metrics yet.</p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xs uppercase font-medium text-gray-500">MEDIA</h2>
+          <AccordionItem
+            value="logistics"
+            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+          >
+            <AccordionTrigger className="px-4 text-sm font-semibold">
+              Logistics
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 space-y-3 text-sm">
+              {hasLogistics ? (
+                <>
+                  {meet.link && (
+                    <div className="flex items-center text-gray-800">
+                      <svg
+                        className="h-4 w-4 mr-2 text-gray-600"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                      </svg>
+                      <a
+                        href={meet.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline break-all"
+                      >
+                        {meet.link}
+                      </a>
+                    </div>
+                  )}
+                  {meet.driveTime && (
+                    <div className="flex items-center text-gray-800">
+                      <svg
+                        className="h-4 w-4 mr-2 text-gray-600"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12,6 12,12 16,14" />
+                      </svg>
+                      <span>{meet.driveTime}</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-500">No logistics details yet.</p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem
+            value="notes"
+            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+          >
+            <AccordionTrigger className="px-4 text-sm font-semibold">
+              Notes
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 text-sm text-gray-700">
+              {hasNotes ? (
+                <p className="whitespace-pre-line">{meet.description}</p>
+              ) : (
+                <p className="text-gray-500">No notes yet.</p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem
+            value="media"
+            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+          >
+            <AccordionTrigger className="px-4 text-sm font-semibold">
+              Media
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs uppercase font-medium text-gray-500">
+                  Attached media
+                </p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -596,93 +866,119 @@ type MeetPayload = {
                   {meet.media.map((item, index) => {
                     const isPhoto = item.type === "photo";
                     return (
-                    <div
-                      key={item.id}
-                      className="overflow-hidden rounded-lg border border-gray-100 bg-gray-50"
-                      role={isPhoto ? "button" : undefined}
-                      tabIndex={isPhoto ? 0 : undefined}
-                      onClick={
-                        isPhoto
-                          ? () => openLightbox(index)
-                          : undefined
-                      }
-                      onKeyDown={
-                        isPhoto
-                          ? (event) => {
-                              if (event.key === "Enter" || event.key === " ") {
-                                event.preventDefault();
-                                openLightbox(index);
+                      <div
+                        key={item.id}
+                        className="overflow-hidden rounded-lg border border-gray-100 bg-gray-50"
+                        role={isPhoto ? "button" : undefined}
+                        tabIndex={isPhoto ? 0 : undefined}
+                        onClick={isPhoto ? () => openLightbox(index) : undefined}
+                        onTouchStart={() => startMediaLongPress(index)}
+                        onTouchEnd={cancelMediaLongPress}
+                        onTouchMove={cancelMediaLongPress}
+                        onTouchCancel={cancelMediaLongPress}
+                        onKeyDown={
+                          isPhoto
+                            ? (event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                  event.preventDefault();
+                                  openLightbox(index);
+                                }
                               }
-                            }
-                          : undefined
-                      }
-                    >
-                      {item.type === "video" ? (
-                        <video
-                          src={item.url}
-                          className="h-48 w-full object-cover"
-                          controls
-                          preload="metadata"
-                        />
-                      ) : (
-                        <img
-                          src={item.url}
-                          alt={item.caption || `${meet.name} media`}
-                          className="h-48 w-full object-cover"
-                          loading="lazy"
-                        />
-                      )}
-                      <div className="flex items-start justify-between gap-2 p-3">
-                        <div className="min-w-0">
-                          {item.caption ? (
-                            <p className="text-xs text-gray-600 line-clamp-2">
-                              {item.caption}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-gray-400">No caption</p>
-                          )}
-                          {item.originalFilename && (
-                            <p className="text-[11px] text-gray-400 mt-1 truncate">
-                              {item.originalFilename}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              openLightbox(index);
-                            }}
-                            className="text-gray-600 hover:text-gray-800"
-                          >
-                            View
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              deleteMediaMutation.mutate(item.id);
-                            }}
-                            disabled={deleteMediaMutation.isPending}
-                            className="text-red-500 hover:text-red-600"
-                          >
-                            Delete
-                          </Button>
+                            : undefined
+                        }
+                      >
+                        {item.type === "video" ? (
+                          <video
+                            src={item.url}
+                            className="h-48 w-full object-cover"
+                            controls
+                            preload="metadata"
+                          />
+                        ) : (
+                          <img
+                            src={item.url}
+                            alt={item.caption || `${meet.name} media`}
+                            className="h-48 w-full object-cover"
+                            loading="lazy"
+                          />
+                        )}
+                        <div className="flex items-start justify-between gap-2 p-3">
+                          <div className="min-w-0">
+                            {item.caption ? (
+                              <p className="text-xs text-gray-600 line-clamp-2">
+                                {item.caption}
+                              </p>
+                            ) : (
+                              <p className="text-xs text-gray-400">No caption</p>
+                            )}
+                            {item.originalFilename && (
+                              <p className="text-[11px] text-gray-400 mt-1 truncate">
+                                {item.originalFilename}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                openLightbox(index);
+                              }}
+                              className="h-9 px-3 text-gray-600 hover:text-gray-800"
+                            >
+                              View
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                deleteMediaMutation.mutate(item.id);
+                              }}
+                              disabled={deleteMediaMutation.isPending}
+                              className="h-9 px-3 text-red-500 hover:text-red-600"
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )})}
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-gray-500">No media yet.</p>
               )}
-            </div>
-          </div>
-        </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </main>
+
+      <div className="fixed inset-x-0 z-30 px-4 bottom-app-nav">
+        <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-2xl border border-gray-200 bg-white/95 p-2 shadow-lg">
+          <Button
+            className="flex-1"
+            onClick={() => setMediaDialogOpen(true)}
+          >
+            Add media
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => setEditMeet(meet)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={() => setDeleteConfirmOpen(true)}
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
 
       {/* Edit Meet Dialog */}
       {editMeet && (
@@ -720,7 +1016,19 @@ type MeetPayload = {
               </DialogDescription>
             </DialogHeader>
 
-            <Tabs value={mediaMode} onValueChange={(value) => setMediaMode(value as MediaMode)}>
+            <Tabs
+              value={mediaMode}
+              onValueChange={(value) => {
+                setMediaMode(value as MediaMode);
+                setMediaError(null);
+                setMediaWarning(null);
+                if (value === "upload") {
+                  setMediaUrl("");
+                } else {
+                  clearMediaQueue();
+                }
+              }}
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="upload">Upload</TabsTrigger>
                 <TabsTrigger value="url">Link</TabsTrigger>
@@ -728,22 +1036,138 @@ type MeetPayload = {
 
               <TabsContent value="upload" className="space-y-3 pt-3">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">File</label>
-                  <Input
+                  <label className="text-sm font-medium text-gray-700">Choose Media</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-11 justify-center gap-2"
+                      onClick={() => libraryInputRef.current?.click()}
+                    >
+                      <ImagePlus className="h-4 w-4" />
+                      Choose Media
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-11 justify-center gap-2"
+                      onClick={() => cameraInputRef.current?.click()}
+                    >
+                      <Camera className="h-4 w-4" />
+                      Camera
+                    </Button>
+                  </div>
+                  <input
+                    ref={libraryInputRef}
                     type="file"
                     accept="image/*,video/*"
+                    multiple
+                    className="hidden"
                     onChange={(event) => {
-                      const file = event.target.files?.[0] ?? null;
-                      setMediaFile(file);
+                      const files = Array.from(event.target.files ?? []);
+                      appendMediaFiles(files);
+                      event.currentTarget.value = "";
                     }}
                   />
-                  {mediaFile && (
-                    <p className="text-xs text-gray-500">
-                      {mediaFile.name} · {(mediaFile.size / (1024 * 1024)).toFixed(2)} MB
-                    </p>
-                  )}
-                  <p className="text-xs text-gray-400">Max file size: 10MB.</p>
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*,video/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(event) => {
+                      const files = Array.from(event.target.files ?? []);
+                      appendMediaFiles(files);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                  <p className="text-xs text-gray-400">
+                    Select multiple photos or videos. Max file size: 10MB each. Swipe left on a file to remove.
+                  </p>
                 </div>
+
+                {mediaQueue.length > 0 ? (
+                  <div className="space-y-2">
+                    {mediaQueue.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2 shadow-sm"
+                        onTouchStart={(event) => {
+                          touchStartXRef.current[item.id] =
+                            event.touches[0]?.clientX ?? 0;
+                        }}
+                        onTouchEnd={(event) => {
+                          const startX = touchStartXRef.current[item.id] ?? 0;
+                          const endX = event.changedTouches[0]?.clientX ?? 0;
+                          if (startX - endX > 80) {
+                            removeQueueItem(item.id);
+                          }
+                        }}
+                      >
+                        <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+                          {item.type === "video" ? (
+                            <video
+                              src={item.previewUrl}
+                              className="h-full w-full object-cover"
+                              muted
+                              playsInline
+                            />
+                          ) : (
+                            <img
+                              src={item.previewUrl}
+                              alt={item.file.name}
+                              className="h-full w-full object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <p className="truncate text-sm text-gray-700">
+                            {item.file.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(item.file.size / (1024 * 1024)).toFixed(2)} MB ·{" "}
+                            {formatQueueStatus(item.status)}
+                          </p>
+                          {item.error && (
+                            <p className="text-[11px] text-red-500 truncate">
+                              {item.error}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            disabled={index === 0}
+                            onClick={() => moveQueueItem(item.id, "up")}
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            disabled={index === mediaQueue.length - 1}
+                            onClick={() => moveQueueItem(item.id, "down")}
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeQueueItem(item.id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500">No files selected yet.</p>
+                )}
               </TabsContent>
 
               <TabsContent value="url" className="space-y-3 pt-3">
@@ -778,19 +1202,76 @@ type MeetPayload = {
                 rows={3}
                 placeholder="Add a short note about this media"
               />
+              {mediaMode === "upload" && mediaQueue.length > 1 && (
+                <p className="text-xs text-gray-400">Caption will apply to all selected files.</p>
+              )}
             </div>
 
+            {uploadProgress && isUploading && (
+              <p className="text-xs text-gray-500">
+                Uploading {uploadProgress.current} of {uploadProgress.total}...
+              </p>
+            )}
+            {mediaWarning && <p className="text-xs text-amber-600">{mediaWarning}</p>}
             {mediaError && <p className="text-xs text-red-500">{mediaError}</p>}
 
             <Button
               onClick={handleMediaSubmit}
-              disabled={uploadMediaMutation.isPending}
+              disabled={isUploading || !canSaveMedia}
             >
-              {uploadMediaMutation.isPending ? "Uploading..." : "Add media"}
+              {isUploading ? "Uploading..." : "Save to meet"}
             </Button>
           </DialogContent>
         </Dialog>
       )}
+
+      <Drawer
+        open={mediaActionIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setMediaActionIndex(null);
+          }
+        }}
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Media Actions</DrawerTitle>
+            <DrawerDescription>
+              {mediaActionItem?.originalFilename || mediaActionItem?.caption || "Quick actions"}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="grid gap-2 px-4 pb-4">
+            <DrawerClose asChild>
+              <Button
+                onClick={() => {
+                  if (mediaActionIndex !== null) {
+                    openLightbox(mediaActionIndex);
+                  }
+                  setMediaActionIndex(null);
+                }}
+              >
+                View
+              </Button>
+            </DrawerClose>
+            {mediaActionItem && (
+              <DrawerClose asChild>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    deleteMediaMutation.mutate(mediaActionItem.id);
+                    setMediaActionIndex(null);
+                  }}
+                >
+                  Delete
+                </Button>
+              </DrawerClose>
+            )}
+            <DrawerClose asChild>
+              <Button variant="outline">Close</Button>
+            </DrawerClose>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       {/* Media Lightbox */}
       {lightboxOpen && meet?.media?.length ? (

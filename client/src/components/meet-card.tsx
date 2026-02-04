@@ -7,11 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 interface MeetCardProps {
   meet: Meet;
@@ -72,17 +75,17 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
     );
   })();
 
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleEditClick = (e?: React.SyntheticEvent) => {
+    e?.stopPropagation();
+    e?.preventDefault();
     if (onEditClick) {
       onEditClick(meet);
     }
   };
   
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleDeleteClick = (e?: React.SyntheticEvent) => {
+    e?.stopPropagation();
+    e?.preventDefault();
     if (onDeleteClick) {
       onDeleteClick(meet.id);
     }
@@ -134,26 +137,39 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             </div>
             
             {onEditClick && onDeleteClick && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Drawer>
+                <DrawerTrigger
+                  asChild
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                >
+                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
                     <MoreVertical className="h-4 w-4 text-gray-500" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleEditClick}>
-                    <Edit2 className="mr-2 h-4 w-4" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDeleteClick} className="text-red-600">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>Meet Actions</DrawerTitle>
+                    <DrawerDescription>Quick actions for this meet.</DrawerDescription>
+                  </DrawerHeader>
+                  <div className="grid gap-2 px-4 pb-4">
+                    <DrawerClose asChild>
+                      <Button variant="outline" onClick={handleEditClick}>
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        Edit
+                      </Button>
+                    </DrawerClose>
+                    <DrawerClose asChild>
+                      <Button variant="destructive" onClick={handleDeleteClick}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </Button>
+                    </DrawerClose>
+                  </div>
+                </DrawerContent>
+              </Drawer>
             )}
           </div>
 

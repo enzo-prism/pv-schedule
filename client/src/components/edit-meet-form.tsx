@@ -108,6 +108,8 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., State Championships" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    autoCapitalize="words"
+                    autoComplete="off"
                     {...field} 
                   />
                 </FormControl>
@@ -144,6 +146,8 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., Central Stadium, Springfield" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    autoCapitalize="words"
+                    autoComplete="off"
                     {...field} 
                   />
                 </FormControl>
@@ -181,6 +185,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., 2.10m" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="decimal"
                     {...field} 
                   />
                 </FormControl>
@@ -199,6 +204,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., Carbon Fiber 4.5m" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    autoCapitalize="words"
                     {...field} 
                   />
                 </FormControl>
@@ -217,6 +223,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., 3.8m" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="decimal"
                     {...field} 
                   />
                 </FormControl>
@@ -235,6 +242,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., 1st, 2nd, 3rd" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="numeric"
                     {...field} 
                   />
                 </FormControl>
@@ -254,6 +262,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                     placeholder="e.g., https://athletic.net/meet/12345" 
                     type="url"
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="url"
                     {...field} 
                   />
                 </FormControl>
@@ -270,8 +279,9 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormLabel className="text-sm font-medium">Drive Time to Meet (Optional)</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="e.g., 2 hours, 45 minutes" 
+                    placeholder="e.g., 2:45" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="numeric"
                     {...field} 
                   />
                 </FormControl>
