@@ -587,6 +587,10 @@ type MeetPayload = {
   const hasNotes = Boolean(meet.description && meet.description.trim().length > 0);
   const mediaActionItem =
     mediaActionIndex !== null ? meet.media?.[mediaActionIndex] : null;
+  const canSaveMedia =
+    mediaMode === "upload"
+      ? mediaQueue.length > 0
+      : mediaUrl.trim().length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-app-nav">
@@ -1032,7 +1036,7 @@ type MeetPayload = {
 
               <TabsContent value="upload" className="space-y-3 pt-3">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Add files</label>
+                  <label className="text-sm font-medium text-gray-700">Choose Media</label>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       type="button"
@@ -1041,7 +1045,7 @@ type MeetPayload = {
                       onClick={() => libraryInputRef.current?.click()}
                     >
                       <ImagePlus className="h-4 w-4" />
-                      Library
+                      Choose Media
                     </Button>
                     <Button
                       type="button"
@@ -1078,7 +1082,7 @@ type MeetPayload = {
                     }}
                   />
                   <p className="text-xs text-gray-400">
-                    Max file size: 10MB each. Swipe left on a file to remove.
+                    Select multiple photos or videos. Max file size: 10MB each. Swipe left on a file to remove.
                   </p>
                 </div>
 
@@ -1213,9 +1217,9 @@ type MeetPayload = {
 
             <Button
               onClick={handleMediaSubmit}
-              disabled={isUploading}
+              disabled={isUploading || !canSaveMedia}
             >
-              {isUploading ? "Uploading..." : "Add media"}
+              {isUploading ? "Uploading..." : "Save to meet"}
             </Button>
           </DialogContent>
         </Dialog>
