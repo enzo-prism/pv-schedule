@@ -397,7 +397,7 @@ export default function Trends() {
       : "No pole data yet";
 
   return (
-    <div className="min-h-screen bg-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-white relative overflow-x-hidden pb-app-nav">
       <div className="fixed top-0 left-0 right-0 h-0.5 z-50 overflow-hidden">
         <div
           className="h-full w-[200%] animate-gradient"

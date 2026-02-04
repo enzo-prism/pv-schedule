@@ -8,6 +8,7 @@
   --background: #FFFFFF;
   --accent: #DFE6E9;
   --text: #2D3436;
+  --app-bottom-nav-height: 72px;
 }
 
 body {
@@ -16,6 +17,25 @@ body {
   background-color: var(--background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  overscroll-behavior-x: none;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
 }
 
 @layer base {
@@ -81,6 +101,20 @@ body {
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .pb-app-nav {
+    padding-bottom: calc(var(--app-bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  .bottom-app-nav {
+    bottom: calc(var(--app-bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 

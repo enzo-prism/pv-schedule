@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -44,13 +44,18 @@ interface AddMeetFormProps {
 
 export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
   const today = toYmdDateString(new Date()) ?? "";
+  const draftKey = "pv-add-meet-draft";
+  const lastLocation =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem("pv-last-location") ?? ""
+      : "";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       date: today,
-      location: "",
+      location: lastLocation,
       description: "",
       heightCleared: "",
       poleUsed: "",
@@ -61,6 +66,32 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
       registrationStatus: "not registered",
     },
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const rawDraft = window.localStorage.getItem(draftKey);
+    if (!rawDraft) {
+      return;
+    }
+    try {
+      const draft = JSON.parse(rawDraft) as Partial<z.infer<typeof formSchema>>;
+      form.reset({ ...form.getValues(), ...draft, date: draft.date ?? today });
+    } catch {
+      window.localStorage.removeItem(draftKey);
+    }
+  }, [form, today]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const subscription = form.watch((value) => {
+      window.localStorage.setItem(draftKey, JSON.stringify(value));
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values);
@@ -87,6 +118,8 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     placeholder="e.g., State Championships" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    autoCapitalize="words"
+                    autoComplete="off"
                     {...field} 
                   />
                 </FormControl>
@@ -124,6 +157,8 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     placeholder="e.g., Central Stadium, Springfield" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    autoCapitalize="words"
+                    autoComplete="off"
                     {...field} 
                   />
                 </FormControl>
@@ -161,6 +196,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     placeholder="e.g., 2.10m" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="decimal"
                     {...field} 
                   />
                 </FormControl>
@@ -179,6 +215,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     placeholder="e.g., Carbon Fiber 4.5m" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    autoCapitalize="words"
                     {...field} 
                   />
                 </FormControl>
@@ -197,6 +234,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     placeholder="e.g., 3.8m" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="decimal"
                     {...field} 
                   />
                 </FormControl>
@@ -215,6 +253,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     placeholder="e.g., 1st, 2nd, 3rd" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="numeric"
                     {...field} 
                   />
                 </FormControl>
@@ -234,6 +273,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                     placeholder="e.g., https://athletic.net/meet/12345" 
                     type="url"
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="url"
                     {...field} 
                   />
                 </FormControl>
@@ -250,8 +290,9 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormLabel className="text-sm font-medium">Drive Time to Meet (Optional)</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="e.g., 2 hours, 45 minutes" 
+                    placeholder="e.g., 2:45" 
                     className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    inputMode="numeric"
                     {...field} 
                   />
                 </FormControl>
