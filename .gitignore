@@ -6,3 +6,5 @@ public/uploads
 vite.config.ts.*
 *.tar.gz
 .dev/
+playwright-report
+test-results

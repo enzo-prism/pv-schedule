@@ -1008,7 +1008,7 @@ type MeetPayload = {
             }
           }}
         >
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="sm:max-w-lg overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add Media</DialogTitle>
               <DialogDescription>

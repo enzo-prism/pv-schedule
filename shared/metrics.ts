@@ -165,6 +165,37 @@ export function parsePoleUsed(
     }
   }
 
+  if (ratingLbs === undefined) {
+    const numberMatches = [...normalized.matchAll(/(\d+(?:\.\d+)?)/g)];
+    for (const match of numberMatches) {
+      const index = match.index ?? -1;
+      if (index < 0) {
+        continue;
+      }
+
+      const isUsed = usedRanges.some(([start, end]) => index >= start && index < end);
+      if (isUsed) {
+        continue;
+      }
+
+      const value = match[1];
+      if (value.includes(".")) {
+        continue;
+      }
+
+      const numeric = toFiniteNumber(value);
+      if (numeric === null) {
+        continue;
+      }
+
+      if (numeric >= 80 && numeric <= 250) {
+        ratingLbs = numeric;
+        usedRanges.push([index, index + value.length]);
+        break;
+      }
+    }
+  }
+
   const flexLabeled =
     normalized.match(/flex\s*(\d+(?:\.\d+)?)/i) ??
     normalized.match(/(\d+(?:\.\d+)?)\s*flex\b/i);
