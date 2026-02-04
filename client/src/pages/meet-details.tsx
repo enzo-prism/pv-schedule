@@ -18,9 +18,10 @@ import {
 } from "lucide-react";
 import { HeightIcon, PoleIcon, TakeoffIcon, PlaceIcon } from "@/components/pole-vault-icons";
 import { format } from "date-fns";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -35,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -72,6 +74,8 @@ type MediaQueueItem = {
   type: "photo" | "video";
   status: MediaQueueStatus;
   error?: string;
+  caption?: string;
+  errorType?: "validation" | "upload";
 };
 
 export default function MeetDetails() {
@@ -92,6 +96,7 @@ export default function MeetDetails() {
   const [mediaWarning, setMediaWarning] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
   const [mediaActionIndex, setMediaActionIndex] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -135,6 +140,7 @@ type MeetPayload = {
     setMediaWarning(null);
     setUploadProgress(null);
     setIsUploading(false);
+    setIsDragActive(false);
     setMediaMode("upload");
   };
 
@@ -146,20 +152,62 @@ type MeetPayload = {
       reader.readAsDataURL(file);
     });
 
+  const validateMediaFile = (file: File) => {
+    const isVideo = file.type.startsWith("video/");
+    const isImage = file.type.startsWith("image/");
+    const type: "photo" | "video" = isVideo ? "video" : "photo";
+
+    if (!isImage && !isVideo) {
+      return {
+        status: "error" as MediaQueueStatus,
+        error: "Unsupported file type.",
+        type,
+        errorType: "validation" as const,
+      };
+    }
+
+    if (file.size > MAX_MEDIA_BYTES) {
+      return {
+        status: "error" as MediaQueueStatus,
+        error: "File too large.",
+        type,
+        errorType: "validation" as const,
+      };
+    }
+
+    return { status: "pending" as MediaQueueStatus, error: undefined, type };
+  };
+
   const appendMediaFiles = (files: File[]) => {
     if (files.length === 0) {
       return;
     }
-    setMediaQueue((prev) => [
-      ...prev,
-      ...files.map((file) => ({
+    setMediaError(null);
+
+    const nextItems = files.map((file) => {
+      const validation = validateMediaFile(file);
+      return {
         id: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2, 8)}`,
         file,
         previewUrl: URL.createObjectURL(file),
-        type: file.type.startsWith("video/") ? "video" : "photo",
-        status: "pending" as MediaQueueStatus,
-      })),
-    ]);
+        type: validation.type,
+        status: validation.status,
+        error: validation.error,
+        errorType: validation.errorType,
+        caption: "",
+      };
+    });
+
+    const invalidCount = nextItems.filter((item) => item.status === "error").length;
+    if (invalidCount > 0) {
+      setMediaWarning(
+        `${invalidCount} file${invalidCount === 1 ? "" : "s"} needs attention before uploading.`,
+      );
+    } else {
+      setMediaWarning(null);
+    }
+
+    setMediaQueue((prev) => [...prev, ...nextItems]);
   };
 
   const updateQueueItem = (id: string, updates: Partial<MediaQueueItem>) => {
@@ -191,8 +239,35 @@ type MeetPayload = {
       if (item) {
         URL.revokeObjectURL(item.previewUrl);
       }
-      return prev.filter((entry) => entry.id !== id);
+      const next = prev.filter((entry) => entry.id !== id);
+      const invalidCount = next.filter((entry) => entry.status === "error").length;
+      if (invalidCount === 0) {
+        setMediaWarning(null);
+      }
+      return next;
     });
+  };
+
+  const updateQueueCaption = (id: string, caption: string) => {
+    updateQueueItem(id, { caption });
+  };
+
+  const handleDropFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      return;
+    }
+    appendMediaFiles(Array.from(files));
+  };
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
+    handleDropFiles(event.dataTransfer.files);
   };
 
   const startMediaLongPress = (index: number) => {
@@ -319,57 +394,24 @@ type MeetPayload = {
     }
 
     if (mediaMode === "upload") {
-      const queueSnapshot = mediaQueue.filter((item) => item.status !== "uploaded");
-      if (queueSnapshot.length === 0) {
-        setMediaError("Please select one or more files to upload.");
-        return;
-      }
-
-      let skippedType = 0;
-      let skippedSize = 0;
-      const validItems: MediaQueueItem[] = [];
-
-      const nextQueue = queueSnapshot.map((item) => {
-        if (!item.file.type.startsWith("image/") && !item.file.type.startsWith("video/")) {
-          skippedType += 1;
-          return { ...item, status: "skipped", error: "Unsupported file type." };
-        }
-        if (item.file.size > MAX_MEDIA_BYTES) {
-          skippedSize += 1;
-          return { ...item, status: "skipped", error: "File too large." };
-        }
-        validItems.push(item);
-        return { ...item, status: "pending", error: undefined };
-      });
-
-      setMediaQueue((prev) =>
-        prev.map((item) => nextQueue.find((next) => next.id === item.id) ?? item),
+      const queueSnapshot = mediaQueue.filter(
+        (item) =>
+          item.status === "pending" ||
+          (item.status === "error" && item.errorType === "upload"),
       );
-
-      if (skippedType || skippedSize) {
-        const parts = [];
-        if (skippedType) {
-          parts.push(`${skippedType} unsupported`);
-        }
-        if (skippedSize) {
-          parts.push(`${skippedSize} over 10MB`);
-        }
-        setMediaWarning(`Skipped ${parts.join(" and ")}.`);
-      }
-
-      if (validItems.length === 0) {
-        setMediaError("No valid files to upload.");
+      if (queueSnapshot.length === 0) {
+        setMediaError("Please select at least one valid file to upload.");
         return;
       }
 
       setIsUploading(true);
-      setUploadProgress({ current: 0, total: validItems.length });
+      setUploadProgress({ current: 0, total: queueSnapshot.length });
       let successCount = 0;
       let failureCount = 0;
 
-      for (let index = 0; index < validItems.length; index++) {
-        const item = validItems[index];
-        updateQueueItem(item.id, { status: "uploading", error: undefined });
+      for (let index = 0; index < queueSnapshot.length; index++) {
+        const item = queueSnapshot[index];
+        updateQueueItem(item.id, { status: "uploading", error: undefined, errorType: undefined });
         try {
           const dataUrl = await readFileAsDataUrl(item.file);
           await apiRequest("POST", `/api/meets/${meetId}/media`, {
@@ -377,18 +419,19 @@ type MeetPayload = {
             filename: item.file.name,
             contentType: item.file.type,
             data: dataUrl,
-            caption: mediaCaption || undefined,
+            caption: item.caption?.trim() || undefined,
           });
           successCount += 1;
-          updateQueueItem(item.id, { status: "uploaded" });
+          updateQueueItem(item.id, { status: "uploaded", error: undefined, errorType: undefined });
         } catch (error) {
           failureCount += 1;
           updateQueueItem(item.id, {
             status: "error",
             error: error instanceof Error ? error.message : "Upload failed.",
+            errorType: "upload",
           });
         } finally {
-          setUploadProgress({ current: index + 1, total: validItems.length });
+          setUploadProgress({ current: index + 1, total: queueSnapshot.length });
         }
       }
 
@@ -421,8 +464,13 @@ type MeetPayload = {
       return;
     }
 
-    if (!mediaUrl.trim()) {
+    const trimmedUrl = mediaUrl.trim();
+    if (!trimmedUrl) {
       setMediaError("Please provide a media URL.");
+      return;
+    }
+    if (!isValidRemoteUrl(trimmedUrl)) {
+      setMediaError("Please enter a valid http(s) URL.");
       return;
     }
 
@@ -430,9 +478,9 @@ type MeetPayload = {
     try {
       await apiRequest("POST", `/api/meets/${meetId}/media`, {
         mode: "url",
-        url: mediaUrl.trim(),
+        url: trimmedUrl,
         type: mediaType,
-        caption: mediaCaption || undefined,
+        caption: mediaCaption.trim() || undefined,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/meets"] });
       queryClient.invalidateQueries({ queryKey: [`/api/meets/${meetId}`] });
@@ -508,18 +556,45 @@ type MeetPayload = {
     event.preventDefault();
   };
 
-  const formatQueueStatus = (status: MediaQueueStatus) => {
-    switch (status) {
+  const formatQueueStatus = (item: MediaQueueItem) => {
+    switch (item.status) {
       case "uploading":
         return "Uploading";
       case "uploaded":
         return "Uploaded";
       case "error":
-        return "Failed";
+        return item.errorType === "upload" ? "Upload failed" : "Needs attention";
       case "skipped":
         return "Skipped";
       default:
         return "Ready";
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    const sizeInMb = bytes / (1024 * 1024);
+    return `${sizeInMb.toFixed(2)} MB`;
+  };
+
+  const getUploadCtaLabel = (mode: MediaMode, pendingCount: number, uploading: boolean) => {
+    if (uploading) {
+      return "Uploading...";
+    }
+    if (mode === "upload") {
+      if (pendingCount === 0) {
+        return "Upload items";
+      }
+      return pendingCount === 1 ? "Upload 1 item" : `Upload ${pendingCount} items`;
+    }
+    return "Save link";
+  };
+
+  const isValidRemoteUrl = (input: string) => {
+    try {
+      const url = new URL(input);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
     }
   };
 
@@ -587,10 +662,24 @@ type MeetPayload = {
   const hasNotes = Boolean(meet.description && meet.description.trim().length > 0);
   const mediaActionItem =
     mediaActionIndex !== null ? meet.media?.[mediaActionIndex] : null;
-  const canSaveMedia =
-    mediaMode === "upload"
-      ? mediaQueue.length > 0
-      : mediaUrl.trim().length > 0;
+  const trimmedMediaUrl = mediaUrl.trim();
+  const uploadableItems = mediaQueue.filter(
+    (item) =>
+      item.status === "pending" ||
+      (item.status === "error" && item.errorType === "upload"),
+  );
+  const pendingQueueCount = uploadableItems.length;
+  const hasQueueErrors = mediaQueue.some((item) => item.status === "error");
+  const hasValidationErrors = mediaQueue.some(
+    (item) => item.status === "error" && item.errorType === "validation",
+  );
+  const isValidLink = trimmedMediaUrl.length > 0 && isValidRemoteUrl(trimmedMediaUrl);
+  const canSaveMedia = mediaMode === "upload" ? pendingQueueCount > 0 : isValidLink;
+  const uploadCtaLabel = getUploadCtaLabel(mediaMode, pendingQueueCount, isUploading);
+  const uploadPercent = uploadProgress
+    ? Math.round((uploadProgress.current / uploadProgress.total) * 100)
+    : 0;
+  const showLinkPreview = mediaMode === "url" && isValidLink;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-app-nav">
@@ -1008,219 +1097,323 @@ type MeetPayload = {
             }
           }}
         >
-          <DialogContent className="sm:max-w-lg overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add Media</DialogTitle>
-              <DialogDescription>
-                Upload a photo or video, or add a link to hosted media.
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="sm:max-w-2xl p-0">
+            <div className="flex max-h-[90vh] flex-col">
+              <div className="flex-1 overflow-y-auto px-6 pb-4 pt-6">
+                <div className="space-y-5">
+                  <DialogHeader className="pr-8">
+                    <DialogTitle>Add Media</DialogTitle>
+                    <DialogDescription>
+                      Upload a photo or video, or add a link to hosted media.
+                    </DialogDescription>
+                  </DialogHeader>
 
-            <Tabs
-              value={mediaMode}
-              onValueChange={(value) => {
-                setMediaMode(value as MediaMode);
-                setMediaError(null);
-                setMediaWarning(null);
-                if (value === "upload") {
-                  setMediaUrl("");
-                } else {
-                  clearMediaQueue();
-                }
-              }}
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="upload">Upload</TabsTrigger>
-                <TabsTrigger value="url">Link</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="upload" className="space-y-3 pt-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Choose Media</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-11 justify-center gap-2"
-                      onClick={() => libraryInputRef.current?.click()}
-                    >
-                      <ImagePlus className="h-4 w-4" />
-                      Choose Media
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-11 justify-center gap-2"
-                      onClick={() => cameraInputRef.current?.click()}
-                    >
-                      <Camera className="h-4 w-4" />
-                      Camera
-                    </Button>
-                  </div>
-                  <input
-                    ref={libraryInputRef}
-                    type="file"
-                    accept="image/*,video/*"
-                    multiple
-                    className="hidden"
-                    onChange={(event) => {
-                      const files = Array.from(event.target.files ?? []);
-                      appendMediaFiles(files);
-                      event.currentTarget.value = "";
+                  <Tabs
+                    value={mediaMode}
+                    onValueChange={(value) => {
+                      setMediaMode(value as MediaMode);
+                      setMediaError(null);
+                      setMediaWarning(null);
+                      if (value === "upload") {
+                        setMediaUrl("");
+                      } else {
+                        clearMediaQueue();
+                      }
                     }}
-                  />
-                  <input
-                    ref={cameraInputRef}
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={(event) => {
-                      const files = Array.from(event.target.files ?? []);
-                      appendMediaFiles(files);
-                      event.currentTarget.value = "";
-                    }}
-                  />
-                  <p className="text-xs text-gray-400">
-                    Select multiple photos or videos. Max file size: 10MB each. Swipe left on a file to remove.
-                  </p>
-                </div>
+                  >
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="upload">Upload</TabsTrigger>
+                      <TabsTrigger value="url">Link</TabsTrigger>
+                    </TabsList>
 
-                {mediaQueue.length > 0 ? (
-                  <div className="space-y-2">
-                    {mediaQueue.map((item, index) => (
+                    <TabsContent value="upload" className="space-y-4 pt-4">
                       <div
-                        key={item.id}
-                        className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2 shadow-sm"
-                        onTouchStart={(event) => {
-                          touchStartXRef.current[item.id] =
-                            event.touches[0]?.clientX ?? 0;
-                        }}
-                        onTouchEnd={(event) => {
-                          const startX = touchStartXRef.current[item.id] ?? 0;
-                          const endX = event.changedTouches[0]?.clientX ?? 0;
-                          if (startX - endX > 80) {
-                            removeQueueItem(item.id);
+                        className={`rounded-xl border-2 border-dashed p-4 transition ${
+                          isDragActive
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 bg-gray-50"
+                        }`}
+                        onDragOver={handleDragOver}
+                        onDragEnter={() => setIsDragActive(true)}
+                        onDragLeave={(event) => {
+                          if (event.currentTarget === event.target) {
+                            setIsDragActive(false);
                           }
                         }}
+                        onDrop={handleDrop}
                       >
-                        <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
-                          {item.type === "video" ? (
-                            <video
-                              src={item.previewUrl}
-                              className="h-full w-full object-cover"
-                              muted
-                              playsInline
-                            />
-                          ) : (
-                            <img
-                              src={item.previewUrl}
-                              alt={item.file.name}
-                              className="h-full w-full object-cover"
-                            />
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1 space-y-0.5">
-                          <p className="truncate text-sm text-gray-700">
-                            {item.file.name}
+                        <div className="flex flex-col items-center gap-2 text-center">
+                          <p className="text-sm font-semibold text-gray-700">
+                            Drag and drop files here
                           </p>
                           <p className="text-xs text-gray-500">
-                            {(item.file.size / (1024 * 1024)).toFixed(2)} MB ·{" "}
-                            {formatQueueStatus(item.status)}
+                            or use the buttons below
                           </p>
-                          {item.error && (
-                            <p className="text-[11px] text-red-500 truncate">
-                              {item.error}
-                            </p>
-                          )}
                         </div>
-                        <div className="flex flex-col items-center gap-1">
+                        <div className="mt-3 grid grid-cols-2 gap-2">
                           <Button
                             type="button"
-                            variant="ghost"
-                            size="icon"
-                            disabled={index === 0}
-                            onClick={() => moveQueueItem(item.id, "up")}
+                            variant="outline"
+                            className="h-11 justify-center gap-2"
+                            onClick={() => libraryInputRef.current?.click()}
                           >
-                            <ArrowUp className="h-4 w-4" />
+                            <ImagePlus className="h-4 w-4" />
+                            Choose Media
                           </Button>
                           <Button
                             type="button"
-                            variant="ghost"
-                            size="icon"
-                            disabled={index === mediaQueue.length - 1}
-                            onClick={() => moveQueueItem(item.id, "down")}
+                            variant="outline"
+                            className="h-11 justify-center gap-2"
+                            onClick={() => cameraInputRef.current?.click()}
                           >
-                            <ArrowDown className="h-4 w-4" />
+                            <Camera className="h-4 w-4" />
+                            Camera
                           </Button>
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeQueueItem(item.id)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <input
+                          ref={libraryInputRef}
+                          type="file"
+                          accept="image/*,video/*"
+                          multiple
+                          className="hidden"
+                          onChange={(event) => {
+                            handleDropFiles(event.target.files);
+                            event.currentTarget.value = "";
+                          }}
+                        />
+                        <input
+                          ref={cameraInputRef}
+                          type="file"
+                          accept="image/*,video/*"
+                          capture="environment"
+                          className="hidden"
+                          onChange={(event) => {
+                            handleDropFiles(event.target.files);
+                            event.currentTarget.value = "";
+                          }}
+                        />
+                        <p className="mt-2 text-xs text-gray-500">
+                          Select multiple photos or videos. Max file size: 10MB each. Swipe left on a file to remove.
+                        </p>
                       </div>
-                    ))}
+
+                      {mediaQueue.length > 0 ? (
+                        <div className="space-y-3">
+                          {mediaQueue.map((item, index) => (
+                            <div
+                              key={item.id}
+                              className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
+                              onTouchStart={(event) => {
+                                touchStartXRef.current[item.id] =
+                                  event.touches[0]?.clientX ?? 0;
+                              }}
+                              onTouchEnd={(event) => {
+                                const startX = touchStartXRef.current[item.id] ?? 0;
+                                const endX = event.changedTouches[0]?.clientX ?? 0;
+                                if (startX - endX > 80) {
+                                  removeQueueItem(item.id);
+                                }
+                              }}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                  {item.type === "video" ? (
+                                    <video
+                                      src={item.previewUrl}
+                                      className="h-full w-full object-cover"
+                                      muted
+                                      playsInline
+                                    />
+                                  ) : (
+                                    <img
+                                      src={item.previewUrl}
+                                      alt={item.file.name}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1 space-y-2">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="truncate text-sm font-semibold text-gray-700">
+                                      {item.file.name}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                      <Badge
+                                        variant="outline"
+                                        className="text-[10px] uppercase tracking-wide text-gray-600"
+                                      >
+                                        {item.type === "photo" ? "Photo" : "Video"}
+                                      </Badge>
+                                      {item.status === "error" && (
+                                        <Badge
+                                          variant={item.errorType === "upload" ? "secondary" : "destructive"}
+                                          className="text-[10px] uppercase tracking-wide"
+                                        >
+                                          {item.errorType === "upload" ? "Upload failed" : "Fix needed"}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-gray-500">
+                                    {formatFileSize(item.file.size)} · {formatQueueStatus(item)}
+                                  </p>
+                                  <Input
+                                    value={item.caption ?? ""}
+                                    onChange={(event) => updateQueueCaption(item.id, event.target.value)}
+                                    placeholder="Add a caption"
+                                    className="h-9"
+                                    disabled={item.status === "uploading"}
+                                  />
+                                  {item.error && (
+                                    <p className="text-[11px] text-red-500">
+                                      {item.error}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={index === 0 || item.status === "uploading"}
+                                    onClick={() => moveQueueItem(item.id, "up")}
+                                  >
+                                    <ArrowUp className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={index === mediaQueue.length - 1 || item.status === "uploading"}
+                                    onClick={() => moveQueueItem(item.id, "down")}
+                                  >
+                                    <ArrowDown className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={item.status === "uploading"}
+                                  onClick={() => removeQueueItem(item.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-dashed border-gray-200 bg-white p-4 text-xs text-gray-500">
+                          No files selected yet.
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="url" className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Media URL</label>
+                        <Input
+                          placeholder="https://example.com/media.jpg"
+                          value={mediaUrl}
+                          onChange={(event) => setMediaUrl(event.target.value)}
+                        />
+                        {trimmedMediaUrl.length > 0 && !isValidLink && (
+                          <p className="text-xs text-red-500">
+                            Enter a valid http(s) URL.
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Type</label>
+                        <Select value={mediaType} onValueChange={(value) => setMediaType(value as "photo" | "video")}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="photo">Photo</SelectItem>
+                            <SelectItem value="video">Video</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Caption (optional)</label>
+                        <Textarea
+                          value={mediaCaption}
+                          onChange={(event) => setMediaCaption(event.target.value)}
+                          rows={3}
+                          placeholder="Add a short note about this media"
+                        />
+                      </div>
+                      {showLinkPreview && (
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                          <p className="text-xs font-semibold uppercase text-gray-500">Preview</p>
+                          <div className="mt-2 overflow-hidden rounded-lg bg-white">
+                            {mediaType === "video" ? (
+                              <video
+                                src={trimmedMediaUrl}
+                                controls
+                                preload="metadata"
+                                className="h-48 w-full object-cover"
+                              />
+                            ) : (
+                              <img
+                                src={trimmedMediaUrl}
+                                alt="Media preview"
+                                className="h-48 w-full object-cover"
+                                loading="lazy"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 bg-white/95 px-6 py-4">
+                <div className="space-y-3">
+                  {uploadProgress && isUploading && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>
+                          Uploading {uploadProgress.current} of {uploadProgress.total}
+                        </span>
+                        <span>{uploadPercent}%</span>
+                      </div>
+                      <Progress value={uploadPercent} className="h-2" />
+                    </div>
+                  )}
+                  {mediaWarning && <p className="text-xs text-amber-600">{mediaWarning}</p>}
+                  {mediaError && <p className="text-xs text-red-500">{mediaError}</p>}
+                  {mediaMode === "upload" && hasValidationErrors && !mediaError && !mediaWarning && (
+                    <p className="text-xs text-amber-600">
+                      Remove or fix files marked as needing attention.
+                    </p>
+                  )}
+                  {mediaMode === "upload" && hasQueueErrors && !hasValidationErrors && !mediaError && !mediaWarning && (
+                    <p className="text-xs text-amber-600">
+                      Some uploads failed. You can retry.
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <DialogClose asChild>
+                      <Button variant="outline" className="flex-1" disabled={isUploading}>
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button
+                      onClick={handleMediaSubmit}
+                      disabled={isUploading || !canSaveMedia}
+                      className="flex-1"
+                    >
+                      {uploadCtaLabel}
+                    </Button>
                   </div>
-                ) : (
-                  <p className="text-xs text-gray-500">No files selected yet.</p>
-                )}
-              </TabsContent>
-
-              <TabsContent value="url" className="space-y-3 pt-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Media URL</label>
-                  <Input
-                    placeholder="https://example.com/media.jpg"
-                    value={mediaUrl}
-                    onChange={(event) => setMediaUrl(event.target.value)}
-                  />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Type</label>
-                  <Select value={mediaType} onValueChange={(value) => setMediaType(value as "photo" | "video")}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select media type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="photo">Photo</SelectItem>
-                      <SelectItem value="video">Video</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Caption (optional)</label>
-              <Textarea
-                value={mediaCaption}
-                onChange={(event) => setMediaCaption(event.target.value)}
-                rows={3}
-                placeholder="Add a short note about this media"
-              />
-              {mediaMode === "upload" && mediaQueue.length > 1 && (
-                <p className="text-xs text-gray-400">Caption will apply to all selected files.</p>
-              )}
+              </div>
             </div>
-
-            {uploadProgress && isUploading && (
-              <p className="text-xs text-gray-500">
-                Uploading {uploadProgress.current} of {uploadProgress.total}...
-              </p>
-            )}
-            {mediaWarning && <p className="text-xs text-amber-600">{mediaWarning}</p>}
-            {mediaError && <p className="text-xs text-red-500">{mediaError}</p>}
-
-            <Button
-              onClick={handleMediaSubmit}
-              disabled={isUploading || !canSaveMedia}
-            >
-              {isUploading ? "Uploading..." : "Save to meet"}
-            </Button>
           </DialogContent>
         </Dialog>
       )}
