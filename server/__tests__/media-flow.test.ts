@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { MAX_MEDIA_BODY_BYTES } from "@shared/media";
 import { removeLocalUpload } from "../media";
 
 describe("media flow (api)", () => {
@@ -23,8 +24,8 @@ describe("media flow (api)", () => {
     vi.resetModules();
     const { registerRoutes } = await import("../routes");
     app = express();
-    app.use(express.json({ limit: "15mb" }));
-    app.use(express.urlencoded({ extended: false, limit: "15mb" }));
+    app.use(express.json({ limit: MAX_MEDIA_BODY_BYTES }));
+    app.use(express.urlencoded({ extended: false, limit: MAX_MEDIA_BODY_BYTES }));
     await registerRoutes(app);
   });
 

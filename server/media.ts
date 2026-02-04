@@ -1,8 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
+import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "@shared/media";
 
 const UPLOADS_ROOT = path.resolve(process.cwd(), "public", "uploads");
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 const EXTENSION_MAP: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -81,8 +81,8 @@ export async function saveBase64Upload(params: {
   const raw = stripDataUrlPrefix(params.data);
   const buffer = Buffer.from(raw, "base64");
 
-  if (buffer.byteLength > MAX_UPLOAD_BYTES) {
-    throw new Error("File is too large. Max upload size is 10MB.");
+  if (buffer.byteLength > MAX_MEDIA_BYTES) {
+    throw new Error(`File is too large. Max upload size is ${MAX_MEDIA_LABEL}.`);
   }
 
   const dir = await ensureMeetUploadDir(params.meetId);

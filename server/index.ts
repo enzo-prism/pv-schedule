@@ -1,11 +1,12 @@
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
+import { MAX_MEDIA_BODY_BYTES } from "@shared/media";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json({ limit: "15mb" }));
-app.use(express.urlencoded({ extended: false, limit: "15mb" }));
+app.use(express.json({ limit: MAX_MEDIA_BODY_BYTES }));
+app.use(express.urlencoded({ extended: false, limit: MAX_MEDIA_BODY_BYTES }));
 
 const uploadsPath = path.resolve(process.cwd(), "public", "uploads");
 app.use("/uploads", express.static(uploadsPath));

@@ -79,5 +79,5 @@ See `.env.example` for defaults and flags:
 - `npm run sync:prod`
 
 ## Notes
-- Media uploads are stored locally under `public/uploads` and served at `/uploads/*` (10MB limit). For production, consider object storage.
+- Media uploads are stored locally under `public/uploads` and served at `/uploads/*` (25MB limit). For production, consider object storage.
 - `isFilamMeet` is stored in the schema but not currently surfaced in the UI.

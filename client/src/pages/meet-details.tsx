@@ -63,8 +63,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "@shared/media";
 
-const MAX_MEDIA_BYTES = 10 * 1024 * 1024;
 type MediaMode = "upload" | "url";
 type MediaQueueStatus = "pending" | "uploading" | "uploaded" | "error" | "skipped";
 type MediaQueueItem = {
@@ -169,7 +169,7 @@ type MeetPayload = {
     if (file.size > MAX_MEDIA_BYTES) {
       return {
         status: "error" as MediaQueueStatus,
-        error: "File too large.",
+        error: `File too large. Max ${MAX_MEDIA_LABEL}.`,
         type,
         errorType: "validation" as const,
       };
@@ -1193,7 +1193,7 @@ type MeetPayload = {
                           }}
                         />
                         <p className="mt-2 text-xs text-gray-500">
-                          Select multiple photos or videos. Max file size: 10MB each. Swipe left on a file to remove.
+                          Select multiple photos or videos. Max file size: {MAX_MEDIA_LABEL} each. Swipe left on a file to remove.
                         </p>
                       </div>
 
