@@ -1,4 +1,5 @@
 import { type Meet } from "@shared/schema";
+import { toYmdDateString } from "@shared/dates";
 import { createDb } from "../db";
 
 async function fetchProductionMeets(): Promise<Meet[]> {
@@ -55,7 +56,7 @@ async function seedLocalDatabase(meets: Meet[]) {
         RETURNING id`,
         [
           meet.name,
-          meet.date,
+          toYmdDateString(meet.date) ?? meet.date,
           meet.location,
           meet.description ?? null,
           meet.heightCleared ?? null,

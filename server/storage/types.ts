@@ -1,16 +1,5 @@
 import { type InsertMeet, type Meet, type MediaItem } from "@shared/schema";
 
-// PostgreSQL 'date' type doesn't include timezone, but JavaScript Date does.
-// This helper keeps yyyy-mm-dd strings stable regardless of server timezone.
-export function adjustDateForTimezone(dateStr: string): string {
-  if (typeof dateStr === "string" && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return dateStr;
-  }
-
-  const date = new Date(dateStr);
-  return date.toISOString().split("T")[0];
-}
-
 export interface NewMediaInput {
   type: "photo" | "video";
   url: string;
@@ -38,10 +27,10 @@ export interface IStorage {
   deleteMeet(id: number): Promise<boolean>;
   addMediaItems(meetId: number, items: NewMediaInput[]): Promise<MediaItem[]>;
   getMediaForMeet(meetId: number): Promise<MediaItem[]>;
-  deleteMediaItem(meetId: number, mediaId: number): Promise<DeleteMediaResult>;
+  deleteMediaItem(meetId: number, mediaId: string | number): Promise<DeleteMediaResult>;
   updateMediaItem(
     meetId: number,
-    mediaId: number,
+    mediaId: string | number,
     data: UpdateMediaInput,
   ): Promise<MediaItem[] | undefined>;
 }

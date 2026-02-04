@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Plus, Clock } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Meet } from "@shared/schema";
+import { isPastDate, parseDateInput, startOfDay } from "@shared/dates";
 import MeetCard from "@/components/meet-card";
 import AddMeetForm from "@/components/add-meet-form";
 import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
-import CountdownTimer from "@/components/countdown-timer";
 import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
 
@@ -142,47 +142,46 @@ export default function Home() {
     }
   };
 
-  const isPastDate = (dateString: string | Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const meetDate = typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-      
-    meetDate.setHours(0, 0, 0, 0);
-    return meetDate < today;
-  };
+  const meetsWithMeta = useMemo(() => {
+    const today = startOfDay(new Date()).getTime();
 
-  // Helper function for consistent date parsing
-  const parseDate = (dateString: string | Date) => {
-    return typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/) 
-      ? new Date(`${dateString}T00:00:00`)
-      : new Date(dateString);
-  };
+    return meets.map((meet) => {
+      const parsed = parseDateInput(meet.date);
+      const dateValue = parsed ? startOfDay(parsed).getTime() : 0;
+      const isPast = parsed ? dateValue < today : false;
+      return { meet, dateValue, isPast };
+    });
+  }, [meets]);
 
-  // Find all upcoming meets
-  const upcomingMeets = meets.filter(meet => !isPastDate(meet.date))
-    .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
-  
-  // Get the ID of the next upcoming meet (first in the sorted list)
-  const nextUpcomingMeetId = upcomingMeets.length > 0 ? upcomingMeets[0].id : null;
-  
-  const filteredMeets = meets.filter((meet) => {
-    if (currentFilter === "upcoming") {
-      return !isPastDate(meet.date);
-    } else if (currentFilter === "past") {
-      return isPastDate(meet.date);
-    }
-    return true;
-  }).sort((a, b) => {
-    // For past meets, sort by most recent to oldest (descending order)
-    if (currentFilter === "past") {
-      return parseDate(b.date).getTime() - parseDate(a.date).getTime();
-    }
-    // For upcoming meets, sort by closest date first (ascending order)
-    return parseDate(a.date).getTime() - parseDate(b.date).getTime();
-  });
+  const upcomingMeets = useMemo(() => {
+    return meetsWithMeta
+      .filter((item) => !item.isPast)
+      .sort((a, b) => a.dateValue - b.dateValue);
+  }, [meetsWithMeta]);
+
+  const nextUpcomingMeetId =
+    upcomingMeets.length > 0 ? upcomingMeets[0].meet.id : null;
+
+  const filteredMeets = useMemo(() => {
+    const filtered = meetsWithMeta.filter((item) => {
+      if (currentFilter === "upcoming") {
+        return !item.isPast;
+      }
+      if (currentFilter === "past") {
+        return item.isPast;
+      }
+      return true;
+    });
+
+    const sorted = filtered.sort((a, b) => {
+      if (currentFilter === "past") {
+        return b.dateValue - a.dateValue;
+      }
+      return a.dateValue - b.dateValue;
+    });
+
+    return sorted.map((item) => item.meet);
+  }, [currentFilter, meetsWithMeta]);
 
   const handleFilterChange = (filter: FilterType) => {
     setCurrentFilter(filter);

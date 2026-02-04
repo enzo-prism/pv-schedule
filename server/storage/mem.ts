@@ -1,11 +1,11 @@
 import { type InsertMeet, type Meet, type MediaItem } from "@shared/schema";
 import { demoMeets } from "@shared/fixtures/meets";
+import { toYmdDateString } from "@shared/dates";
 import {
   type DeleteMediaResult,
   type IStorage,
   type NewMediaInput,
   type UpdateMediaInput,
-  adjustDateForTimezone,
 } from "./types";
 
 export class MemStorage implements IStorage {
@@ -45,7 +45,7 @@ export class MemStorage implements IStorage {
     const meet: Meet = {
       id,
       name: insertMeet.name,
-      date: adjustDateForTimezone(insertMeet.date),
+      date: toYmdDateString(insertMeet.date) ?? insertMeet.date,
       location: insertMeet.location,
       description: insertMeet.description || null,
       heightCleared: insertMeet.heightCleared || null,
@@ -79,7 +79,7 @@ export class MemStorage implements IStorage {
     const updated: Meet = {
       ...existingMeet,
       name: updateMeet.name ?? existingMeet.name,
-      date: adjustDateForTimezone(updateMeet.date ?? existingMeet.date),
+      date: toYmdDateString(updateMeet.date ?? existingMeet.date) ?? existingMeet.date,
       location: updateMeet.location ?? existingMeet.location,
       description: updateMeet.description ?? existingMeet.description ?? null,
       heightCleared: updateMeet.heightCleared ?? existingMeet.heightCleared ?? null,
@@ -126,7 +126,10 @@ export class MemStorage implements IStorage {
     return updatedMedia;
   }
 
-  async deleteMediaItem(meetId: number, mediaId: number): Promise<DeleteMediaResult> {
+  async deleteMediaItem(
+    meetId: number,
+    mediaId: string | number,
+  ): Promise<DeleteMediaResult> {
     const media = this.mediaByMeet.get(meetId) ?? [];
     const index = media.findIndex((item) => item.id === String(mediaId));
 
@@ -143,7 +146,7 @@ export class MemStorage implements IStorage {
 
   async updateMediaItem(
     meetId: number,
-    mediaId: number,
+    mediaId: string | number,
     data: UpdateMediaInput,
   ): Promise<MediaItem[] | undefined> {
     const media = this.mediaByMeet.get(meetId) ?? [];

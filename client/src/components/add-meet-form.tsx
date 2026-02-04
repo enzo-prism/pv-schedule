@@ -14,8 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format } from "date-fns";
 import { DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
+import { toYmdDateString } from "@shared/dates";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -43,7 +43,7 @@ interface AddMeetFormProps {
 }
 
 export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
-  const today = format(new Date(), "yyyy-MM-dd");
+  const today = toYmdDateString(new Date()) ?? "";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

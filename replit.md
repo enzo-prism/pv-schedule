@@ -35,7 +35,7 @@ Preferred communication style: Simple, everyday language.
 ### Component Architecture
 - **Shared Components**: Reusable UI components in `/components/ui/` following shadcn/ui patterns
 - **Feature Components**: Meet-specific components like MeetCard, AddMeetForm, EditMeetForm
-- **Layout Components**: UserProfile, FilterSection, CountdownTimer for enhanced UX
+- **Layout Components**: UserProfile and FilterSection for enhanced UX
 - **Form Components**: Type-safe forms using React Hook Form with Zod schema validation
 
 ### Data Flow Patterns
