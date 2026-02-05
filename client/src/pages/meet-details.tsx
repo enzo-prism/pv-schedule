@@ -34,6 +34,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import MinimalVideo from "@/components/minimal-video";
+import { getDisplayImageUrl } from "@/lib/media";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1072,7 +1073,7 @@ type MeetPayload = {
                           <MinimalVideo src={item.url} className="h-full w-full" />
                         ) : (
                           <img
-                            src={item.url}
+                            src={getDisplayImageUrl(item.url)}
                             alt={item.caption || `${meet.name} media`}
                             className="h-full w-full object-cover"
                             loading="lazy"
@@ -1171,7 +1172,7 @@ type MeetPayload = {
               <div className="aspect-video w-full overflow-hidden rounded-lg bg-card/5">
                 {framingMedia ? (
                   <img
-                    src={framingMedia.url}
+                    src={getDisplayImageUrl(framingMedia.url)}
                     alt={framingMedia.caption || `${meet.name} featured`}
                     className="h-full w-full object-cover"
                     style={{
@@ -1547,7 +1548,7 @@ type MeetPayload = {
                               />
                             ) : (
                               <img
-                                src={trimmedMediaUrl}
+                                src={getDisplayImageUrl(trimmedMediaUrl)}
                                 alt="Media preview"
                                 className="h-48 w-full object-cover"
                                 loading="lazy"
@@ -1694,7 +1695,7 @@ type MeetPayload = {
                           </div>
                         ) : (
                           <img
-                            src={item.url}
+                            src={getDisplayImageUrl(item.url)}
                             alt={item.caption || `${meet.name} media`}
                             className="max-h-[70vh] w-full object-contain"
                           />

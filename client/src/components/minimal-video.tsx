@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -83,7 +83,7 @@ export default function MinimalVideo({
     setIsMuted((current) => !current);
   };
 
-  const handleSeek = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleSeek = (event: MouseEvent<HTMLDivElement>) => {
     const video = videoRef.current;
     if (!video || !Number.isFinite(video.duration) || video.duration === 0) {
       return;

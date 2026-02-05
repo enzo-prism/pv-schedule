@@ -15,6 +15,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { getDisplayImageUrl } from "@/lib/media";
 
 interface MeetCardProps {
   meet: Meet;
@@ -94,6 +95,10 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   // Calculate days until the meet (for upcoming meets)
   const daysUntil = !isPast ? getDaysUntil(meet.date) : 0;
   const firstMedia = meet.media && meet.media.length > 0 ? meet.media[0] : undefined;
+  const previewUrl =
+    firstMedia && firstMedia.type === "photo"
+      ? getDisplayImageUrl(firstMedia.url)
+      : firstMedia?.url;
   const focusX = typeof firstMedia?.focusX === "number" ? firstMedia.focusX : 50;
   const focusY = typeof firstMedia?.focusY === "number" ? firstMedia.focusY : 50;
   const objectPosition = `${focusX}% ${focusY}%`;
@@ -120,7 +125,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               />
             ) : (
               <img
-                src={firstMedia.url}
+                src={previewUrl}
                 alt={firstMedia.caption || `${meet.name} preview`}
                 className="w-full h-full object-cover"
                 style={{ objectPosition }}
