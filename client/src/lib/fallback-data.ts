@@ -22,6 +22,27 @@ seedMeetMedia.forEach((item, index) => {
   mediaByMeetId.set(item.meetId, bucket);
 });
 
+const getSortedMediaForMeet = (meetId: number) => {
+  const items = mediaByMeetId.get(meetId);
+  if (!items || items.length === 0) {
+    return [];
+  }
+
+  return [...items].sort((a, b) => {
+    const positionA = typeof a.position === "number" ? a.position : 0;
+    const positionB = typeof b.position === "number" ? b.position : 0;
+    if (positionA !== positionB) {
+      return positionA - positionB;
+    }
+    const idA = Number(a.id);
+    const idB = Number(b.id);
+    if (Number.isFinite(idA) && Number.isFinite(idB)) {
+      return idA - idB;
+    }
+    return String(a.id).localeCompare(String(b.id));
+  });
+};
+
 export const fallbackMeets: Meet[] = seedMeets.map((meet) => ({
   id: meet.id,
   name: meet.name,
@@ -37,7 +58,7 @@ export const fallbackMeets: Meet[] = seedMeets.map((meet) => ({
   registrationStatus: meet.registrationStatus ?? "not registered",
   isFilamMeet: meet.isFilamMeet ?? false,
   createdAt: meet.createdAt ? new Date(meet.createdAt) : new Date(),
-  media: mediaByMeetId.get(meet.id) ?? [],
+  media: getSortedMediaForMeet(meet.id),
 }));
 
 const fallbackMeetById = new Map<number, Meet>(
