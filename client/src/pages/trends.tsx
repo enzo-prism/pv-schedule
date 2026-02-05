@@ -407,36 +407,8 @@ export default function Trends() {
       : "No pole data yet";
 
   return (
-    <div className="min-h-screen bg-white relative overflow-x-hidden pb-app-nav">
-      <div className="fixed top-0 left-0 right-0 h-0.5 z-50 overflow-hidden">
-        <div
-          className="h-full w-[200%] animate-gradient"
-          style={{
-            background:
-              "linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #00d2d3, #54a0ff, #667eea, #764ba2, #ff6b6b)",
-            boxShadow:
-              "0 1px 15px rgba(102, 126, 234, 0.25), 0 1px 8px rgba(255, 107, 107, 0.15)",
-            animation: "slide 8s linear infinite",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #00d2d3, #54a0ff, #667eea, #764ba2)",
-            filter: "blur(8px)",
-            opacity: 0.4,
-          }}
-        />
-      </div>
-      <style>{`
-        @keyframes slide {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-24 space-y-6">
+    <div className="min-h-screen bg-background relative overflow-x-hidden pb-app-nav">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-8 pb-24 space-y-6">
         <div className="mb-2">
           <UserProfile name="Enzo Sison" />
         </div>
@@ -444,7 +416,7 @@ export default function Trends() {
         <FilterSection currentFilter="trends" onFilterChange={handleFilterChange} />
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold text-gray-900">Trends</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Trends</h1>
         </div>
 
         <Tabs value={range} onValueChange={setRange}>
@@ -735,7 +707,7 @@ export default function Trends() {
                             data.pole.flex !== undefined ? `${data.pole.flex} flex` : "—";
 
                           return (
-                            <div className="grid w-full min-w-[14rem] max-w-[calc(100vw-2rem)] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl sm:max-w-none">
+                            <div className="grid w-full min-w-[14rem] max-w-[calc(100vw-2rem)] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-none sm:max-w-none">
                               <div className="font-medium text-foreground">
                                 {data.name || "Meet"} · {label}
                               </div>

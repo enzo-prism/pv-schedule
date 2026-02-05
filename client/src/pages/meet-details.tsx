@@ -712,8 +712,8 @@ type MeetPayload = {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white/30"></div>
       </div>
     );
   }
@@ -721,8 +721,8 @@ type MeetPayload = {
   if (isError || !meet) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
-        <h1 className="text-2xl font-bold text-gray-800">Meet not found</h1>
-        <p className="text-gray-600 text-center">The meet you're looking for doesn't exist or has been removed.</p>
+        <h1 className="text-2xl font-bold text-foreground">Meet not found</h1>
+        <p className="text-muted-foreground text-center">The meet you're looking for doesn't exist or has been removed.</p>
         <Link href="/">
           <Button className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -734,7 +734,9 @@ type MeetPayload = {
   }
 
   const isPast = isPastDate(meet.date);
-  const statusClass = isPast ? "bg-gray-200 text-gray-700" : "bg-green-100 text-green-800";
+  const statusClass = isPast
+    ? "bg-white/10 text-muted-foreground"
+    : "bg-emerald-500/15 text-emerald-200";
   const showRegistrationStatus = !isPast && meet.registrationStatus;
   const hasMetrics = Boolean(
     meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place,
@@ -766,18 +768,18 @@ type MeetPayload = {
   const showLinkPreview = mediaMode === "url" && isValidLink;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-app-nav">
-      <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
+    <div className="min-h-screen bg-background pb-app-nav">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <Link href="/">
             <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-              <ArrowLeft className="h-5 w-5 text-gray-500" />
+              <ArrowLeft className="h-5 w-5 text-muted-foreground" />
               <span className="sr-only">Back</span>
             </Button>
           </Link>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-gray-900">{meet.name}</p>
-            <p className="text-xs text-gray-500">{formatDate(meet.date)}</p>
+            <p className="truncate text-sm font-semibold text-foreground">{meet.name}</p>
+            <p className="text-xs text-muted-foreground">{formatDate(meet.date)}</p>
           </div>
           {!isReadOnly && (
             <Drawer>
@@ -788,7 +790,7 @@ type MeetPayload = {
                   className="h-9 w-9 rounded-full p-0"
                   aria-label="Meet actions"
                 >
-                  <MoreVertical className="h-4 w-4 text-gray-500" />
+                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DrawerTrigger>
               <DrawerContent>
@@ -830,7 +832,7 @@ type MeetPayload = {
         >
           <AccordionItem
             value="overview"
-            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+            className="rounded-xl border border-white/10 bg-card shadow-none"
           >
             <AccordionTrigger className="px-4 text-sm font-semibold">
               Overview
@@ -843,7 +845,7 @@ type MeetPayload = {
                 >
                   {isPast ? "Past" : "Upcoming"}
                 </Badge>
-                <div className="flex items-center text-gray-500">
+                <div className="flex items-center text-muted-foreground">
                   <Clock className="h-3.5 w-3.5 mr-1" />
                   <span className="text-xs">{getDayDifference(meet.date)}</span>
                 </div>
@@ -852,10 +854,10 @@ type MeetPayload = {
                     variant="secondary"
                     className={`text-xs font-medium ${
                       meet.registrationStatus === "registered"
-                        ? "bg-green-100 text-green-800 border-green-200"
+                        ? "bg-emerald-500/15 text-emerald-200 border-emerald-500/30"
                         : meet.registrationStatus === "contacted director"
-                        ? "bg-blue-100 text-blue-800 border-blue-200"
-                        : "bg-orange-100 text-orange-800 border-orange-200"
+                        ? "bg-sky-500/15 text-sky-200 border-sky-500/30"
+                        : "bg-amber-500/15 text-amber-200 border-amber-500/30"
                     }`}
                   >
                     {meet.registrationStatus === "registered"
@@ -866,13 +868,13 @@ type MeetPayload = {
                   </Badge>
                 )}
               </div>
-              <div className="space-y-3 text-sm text-gray-700">
+              <div className="space-y-3 text-sm text-foreground">
                 <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2 text-gray-600" />
+                  <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
                   <span>{formatDate(meet.date)}</span>
                 </div>
                 <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-2 text-gray-600" />
+                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
                   <span>{meet.location}</span>
                 </div>
               </div>
@@ -881,7 +883,7 @@ type MeetPayload = {
 
           <AccordionItem
             value="metrics"
-            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+            className="rounded-xl border border-white/10 bg-card shadow-none"
           >
             <AccordionTrigger className="px-4 text-sm font-semibold">
               Vault Metrics
@@ -890,10 +892,10 @@ type MeetPayload = {
               {hasMetrics ? (
                 <>
                   {meet.heightCleared && (
-                    <div className="flex items-center text-gray-800">
-                      <HeightIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                    <div className="flex items-center text-foreground">
+                      <HeightIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
                       <div>
-                        <span className="text-xs text-gray-500 block">
+                        <span className="text-xs text-muted-foreground block">
                           Height Cleared
                         </span>
                         <span className="text-base">{meet.heightCleared}</span>
@@ -901,10 +903,10 @@ type MeetPayload = {
                     </div>
                   )}
                   {meet.poleUsed && (
-                    <div className="flex items-center text-gray-800">
-                      <PoleIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                    <div className="flex items-center text-foreground">
+                      <PoleIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
                       <div>
-                        <span className="text-xs text-gray-500 block">
+                        <span className="text-xs text-muted-foreground block">
                           Pole Used
                         </span>
                         <span className="text-base">{meet.poleUsed}</span>
@@ -912,10 +914,10 @@ type MeetPayload = {
                     </div>
                   )}
                   {meet.deepestTakeoff && (
-                    <div className="flex items-center text-gray-800">
-                      <TakeoffIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                    <div className="flex items-center text-foreground">
+                      <TakeoffIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
                       <div>
-                        <span className="text-xs text-gray-500 block">
+                        <span className="text-xs text-muted-foreground block">
                           Deepest Takeoff
                         </span>
                         <span className="text-base">{meet.deepestTakeoff}</span>
@@ -923,10 +925,10 @@ type MeetPayload = {
                     </div>
                   )}
                   {meet.place && (
-                    <div className="flex items-center text-gray-800">
-                      <PlaceIcon className="h-5 w-5 mr-2 text-gray-600 flex-shrink-0" />
+                    <div className="flex items-center text-foreground">
+                      <PlaceIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
                       <div>
-                        <span className="text-xs text-gray-500 block">
+                        <span className="text-xs text-muted-foreground block">
                           Place/Ranking
                         </span>
                         <span className="text-base">{meet.place}</span>
@@ -935,14 +937,14 @@ type MeetPayload = {
                   )}
                 </>
               ) : (
-                <p className="text-gray-500">No vault metrics yet.</p>
+                <p className="text-muted-foreground">No vault metrics yet.</p>
               )}
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem
             value="logistics"
-            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+            className="rounded-xl border border-white/10 bg-card shadow-none"
           >
             <AccordionTrigger className="px-4 text-sm font-semibold">
               Logistics
@@ -951,9 +953,9 @@ type MeetPayload = {
               {hasLogistics ? (
                 <>
                   {meet.link && (
-                    <div className="flex items-center text-gray-800">
+                    <div className="flex items-center text-foreground">
                       <svg
-                        className="h-4 w-4 mr-2 text-gray-600"
+                        className="h-4 w-4 mr-2 text-muted-foreground"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -968,16 +970,16 @@ type MeetPayload = {
                         href={meet.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline break-all"
+                        className="text-sky-300 hover:text-sky-200 underline break-all"
                       >
                         {meet.link}
                       </a>
                     </div>
                   )}
                   {meet.driveTime && (
-                    <div className="flex items-center text-gray-800">
+                    <div className="flex items-center text-foreground">
                       <svg
-                        className="h-4 w-4 mr-2 text-gray-600"
+                        className="h-4 w-4 mr-2 text-muted-foreground"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -993,37 +995,37 @@ type MeetPayload = {
                   )}
                 </>
               ) : (
-                <p className="text-gray-500">No logistics details yet.</p>
+                <p className="text-muted-foreground">No logistics details yet.</p>
               )}
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem
             value="notes"
-            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+            className="rounded-xl border border-white/10 bg-card shadow-none"
           >
             <AccordionTrigger className="px-4 text-sm font-semibold">
               Notes
             </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4 text-sm text-gray-700">
+            <AccordionContent className="px-4 pb-4 text-sm text-foreground">
               {hasNotes ? (
                 <p className="whitespace-pre-line">{meet.description}</p>
               ) : (
-                <p className="text-gray-500">No notes yet.</p>
+                <p className="text-muted-foreground">No notes yet.</p>
               )}
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem
             value="media"
-            className="rounded-xl border border-gray-100 bg-white shadow-sm"
+            className="rounded-xl border border-white/10 bg-card shadow-none"
           >
             <AccordionTrigger className="px-4 text-sm font-semibold">
               Media
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs uppercase font-medium text-gray-500">
+                <p className="text-xs uppercase font-medium text-muted-foreground">
                   Attached media
                 </p>
                 {!isReadOnly && (
@@ -1046,7 +1048,7 @@ type MeetPayload = {
                     return (
                       <div
                         key={item.id}
-                        className="overflow-hidden rounded-lg border border-gray-100 bg-gray-50"
+                        className="overflow-hidden rounded-lg border border-white/10 bg-card/60"
                         role={isPhoto ? "button" : undefined}
                         tabIndex={isPhoto ? 0 : undefined}
                         onClick={isPhoto ? () => openLightbox(index) : undefined}
@@ -1083,21 +1085,21 @@ type MeetPayload = {
                         <div className="flex items-start justify-between gap-2 p-3">
                           <div className="min-w-0">
                             {item.caption ? (
-                              <p className="text-xs text-gray-600 line-clamp-2">
+                              <p className="text-xs text-muted-foreground line-clamp-2">
                                 {item.caption}
                               </p>
                             ) : (
-                              <p className="text-xs text-gray-400">No caption</p>
+                              <p className="text-xs text-muted-foreground">No caption</p>
                             )}
                             {item.originalFilename && (
-                              <p className="text-[11px] text-gray-400 mt-1 truncate">
+                              <p className="text-[11px] text-muted-foreground mt-1 truncate">
                                 {item.originalFilename}
                               </p>
                             )}
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             {isFeaturedPhoto && (
-                              <Badge className="bg-slate-100 text-slate-700">
+                              <Badge className="bg-white/10 text-white/80">
                                 Featured image
                               </Badge>
                             )}
@@ -1110,7 +1112,7 @@ type MeetPayload = {
                                     event.stopPropagation();
                                     openFramingDialog(item);
                                   }}
-                                  className="h-9 px-3 text-gray-600 hover:text-gray-800"
+                                  className="h-9 px-3 text-muted-foreground hover:text-foreground"
                                 >
                                   Adjust framing
                                 </Button>
@@ -1122,24 +1124,24 @@ type MeetPayload = {
                                   event.stopPropagation();
                                   openLightbox(index);
                                 }}
-                                className="h-9 px-3 text-gray-600 hover:text-gray-800"
+                                className="h-9 px-3 text-muted-foreground hover:text-foreground"
                               >
                                 View
                               </Button>
-                              {!isReadOnly && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    deleteMediaMutation.mutate(item.id);
-                                  }}
-                                  disabled={deleteMediaMutation.isPending}
-                                  className="h-9 px-3 text-red-500 hover:text-red-600"
-                                >
-                                  Delete
-                                </Button>
-                              )}
+                                  {!isReadOnly && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        deleteMediaMutation.mutate(item.id);
+                                      }}
+                                      disabled={deleteMediaMutation.isPending}
+                                      className="h-9 px-3 text-rose-300 hover:text-rose-200"
+                                    >
+                                      Delete
+                                    </Button>
+                                  )}
                             </div>
                           </div>
                         </div>
@@ -1148,7 +1150,7 @@ type MeetPayload = {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">No media yet.</p>
+                <p className="text-sm text-muted-foreground">No media yet.</p>
               )}
             </AccordionContent>
           </AccordionItem>
@@ -1157,7 +1159,7 @@ type MeetPayload = {
 
       {!isReadOnly && (
         <div className="fixed inset-x-0 z-30 px-4 bottom-app-nav">
-          <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-2xl border border-gray-200 bg-white/95 p-2 shadow-lg">
+          <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-2xl border border-white/10 bg-card/95 p-2 shadow-none">
             <Button
               className="flex-1"
               onClick={() => setMediaDialogOpen(true)}
@@ -1220,7 +1222,7 @@ type MeetPayload = {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="aspect-video w-full overflow-hidden rounded-lg bg-gray-100">
+              <div className="aspect-video w-full overflow-hidden rounded-lg bg-card/5">
                 {framingMedia ? (
                   <img
                     src={framingMedia.url}
@@ -1231,7 +1233,7 @@ type MeetPayload = {
                     }}
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                     No featured image selected.
                   </div>
                 )}
@@ -1239,7 +1241,7 @@ type MeetPayload = {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="framing-x" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="framing-x" className="text-sm font-medium text-foreground">
                     Horizontal
                   </Label>
                   <Slider
@@ -1254,7 +1256,7 @@ type MeetPayload = {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="framing-y" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="framing-y" className="text-sm font-medium text-foreground">
                     Vertical
                   </Label>
                   <Slider
@@ -1270,7 +1272,7 @@ type MeetPayload = {
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Applies to the meet card preview.
               </p>
 
@@ -1360,7 +1362,7 @@ type MeetPayload = {
                       </TabsTrigger>
                     </TabsList>
                     {!uploadsEnabled && (
-                      <p className="text-xs text-amber-600">
+                      <p className="text-xs text-amber-300">
                         File uploads are disabled on this deployment. Add a hosted URL instead.
                       </p>
                     )}
@@ -1370,8 +1372,8 @@ type MeetPayload = {
                         <div
                           className={`rounded-xl border-2 border-dashed p-4 transition ${
                             isDragActive
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 bg-gray-50"
+                              ? "border-sky-400/70 bg-sky-500/10"
+                              : "border-white/10 bg-background"
                           }`}
                           onDragOver={handleDragOver}
                           onDragEnter={() => setIsDragActive(true)}
@@ -1383,10 +1385,10 @@ type MeetPayload = {
                           onDrop={handleDrop}
                         >
                           <div className="flex flex-col items-center gap-2 text-center">
-                            <p className="text-sm font-semibold text-gray-700">
+                            <p className="text-sm font-semibold text-foreground">
                               Drag and drop files here
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               or use the buttons below
                             </p>
                           </div>
@@ -1432,7 +1434,7 @@ type MeetPayload = {
                               event.currentTarget.value = "";
                             }}
                           />
-                          <p className="mt-2 text-xs text-gray-500">
+                          <p className="mt-2 text-xs text-muted-foreground">
                             Select multiple photos or videos. Max file size: {MAX_MEDIA_LABEL} each. Swipe left on a file to remove.
                           </p>
                         </div>
@@ -1442,7 +1444,7 @@ type MeetPayload = {
                             {mediaQueue.map((item, index) => (
                               <div
                                 key={item.id}
-                                className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
+                                className="rounded-xl border border-white/10 bg-card p-3 shadow-none"
                                 onTouchStart={(event) => {
                                   touchStartXRef.current[item.id] =
                                     event.touches[0]?.clientX ?? 0;
@@ -1456,7 +1458,7 @@ type MeetPayload = {
                                 }}
                               >
                                 <div className="flex items-start gap-3">
-                                  <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                  <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-card/5">
                                     {item.type === "video" ? (
                                       <video
                                         src={item.previewUrl}
@@ -1474,13 +1476,13 @@ type MeetPayload = {
                                   </div>
                                   <div className="min-w-0 flex-1 space-y-2">
                                     <div className="flex items-center justify-between gap-2">
-                                      <p className="truncate text-sm font-semibold text-gray-700">
+                                      <p className="truncate text-sm font-semibold text-foreground">
                                         {item.file.name}
                                       </p>
                                       <div className="flex items-center gap-2">
                                         <Badge
                                           variant="outline"
-                                          className="text-[10px] uppercase tracking-wide text-gray-600"
+                                          className="text-[10px] uppercase tracking-wide text-muted-foreground"
                                         >
                                           {item.type === "photo" ? "Photo" : "Video"}
                                         </Badge>
@@ -1494,7 +1496,7 @@ type MeetPayload = {
                                         )}
                                       </div>
                                     </div>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-muted-foreground">
                                       {formatFileSize(item.file.size)} · {formatQueueStatus(item)}
                                     </p>
                                     <Input
@@ -1505,7 +1507,7 @@ type MeetPayload = {
                                       disabled={item.status === "uploading"}
                                     />
                                     {item.error && (
-                                      <p className="text-[11px] text-red-500">
+                                      <p className="text-[11px] text-rose-300">
                                         {item.error}
                                       </p>
                                     )}
@@ -1544,7 +1546,7 @@ type MeetPayload = {
                             ))}
                           </div>
                         ) : (
-                          <div className="rounded-lg border border-dashed border-gray-200 bg-white p-4 text-xs text-gray-500">
+                          <div className="rounded-lg border border-dashed border-white/10 bg-card p-4 text-xs text-muted-foreground">
                             No files selected yet.
                           </div>
                         )}
@@ -1553,20 +1555,20 @@ type MeetPayload = {
 
                     <TabsContent value="url" className="space-y-4 pt-4">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Media URL</label>
+                        <label className="text-sm font-medium text-foreground">Media URL</label>
                         <Input
                           placeholder="https://example.com/media.jpg"
                           value={mediaUrl}
                           onChange={(event) => setMediaUrl(event.target.value)}
                         />
                         {trimmedMediaUrl.length > 0 && !isValidLink && (
-                          <p className="text-xs text-red-500">
+                          <p className="text-xs text-rose-300">
                             Enter a valid http(s) URL.
                           </p>
                         )}
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Type</label>
+                        <label className="text-sm font-medium text-foreground">Type</label>
                         <Select value={mediaType} onValueChange={(value) => setMediaType(value as "photo" | "video")}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select media type" />
@@ -1578,7 +1580,7 @@ type MeetPayload = {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Caption (optional)</label>
+                        <label className="text-sm font-medium text-foreground">Caption (optional)</label>
                         <Textarea
                           value={mediaCaption}
                           onChange={(event) => setMediaCaption(event.target.value)}
@@ -1587,9 +1589,9 @@ type MeetPayload = {
                         />
                       </div>
                       {showLinkPreview && (
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                          <p className="text-xs font-semibold uppercase text-gray-500">Preview</p>
-                          <div className="mt-2 overflow-hidden rounded-lg bg-white">
+                        <div className="rounded-xl border border-white/10 bg-card/50 p-3">
+                          <p className="text-xs font-semibold uppercase text-muted-foreground">Preview</p>
+                          <div className="mt-2 overflow-hidden rounded-lg bg-card">
                             {mediaType === "video" ? (
                               <video
                                 src={trimmedMediaUrl}
@@ -1613,11 +1615,11 @@ type MeetPayload = {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 bg-white/95 px-6 py-4">
+              <div className="border-t border-white/10 bg-card/95 px-6 py-4">
                 <div className="space-y-3">
                   {uploadProgress && isUploading && (
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>
                           Uploading {uploadProgress.current} of {uploadProgress.total}
                         </span>
@@ -1626,15 +1628,15 @@ type MeetPayload = {
                       <Progress value={uploadPercent} className="h-2" />
                     </div>
                   )}
-                  {mediaWarning && <p className="text-xs text-amber-600">{mediaWarning}</p>}
-                  {mediaError && <p className="text-xs text-red-500">{mediaError}</p>}
+                  {mediaWarning && <p className="text-xs text-amber-300">{mediaWarning}</p>}
+                  {mediaError && <p className="text-xs text-rose-300">{mediaError}</p>}
                   {mediaMode === "upload" && hasValidationErrors && !mediaError && !mediaWarning && (
-                    <p className="text-xs text-amber-600">
+                    <p className="text-xs text-amber-300">
                       Remove or fix files marked as needing attention.
                     </p>
                   )}
                   {mediaMode === "upload" && hasQueueErrors && !hasValidationErrors && !mediaError && !mediaWarning && (
-                    <p className="text-xs text-amber-600">
+                    <p className="text-xs text-amber-300">
                       Some uploads failed. You can retry.
                     </p>
                   )}
@@ -1713,13 +1715,13 @@ type MeetPayload = {
           open={lightboxOpen}
           onOpenChange={(open) => setLightboxOpen(open)}
         >
-          <DialogContent className="sm:max-w-4xl bg-gray-950 border-gray-800">
+          <DialogContent className="sm:max-w-4xl bg-black/95 border-white/10">
             <div className="space-y-4">
-              <div className="flex items-center justify-between text-gray-200 text-sm">
+              <div className="flex items-center justify-between text-foreground text-sm">
                 <span>
                   Media {lightboxIndex + 1} of {meet.media.length}
                 </span>
-                <span className="text-gray-400">
+                <span className="text-muted-foreground">
                   {meet.media[lightboxIndex]?.caption || "No caption"}
                 </span>
               </div>
@@ -1751,11 +1753,11 @@ type MeetPayload = {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-2 text-gray-100 border-gray-700 hover:bg-gray-800" />
-                <CarouselNext className="right-2 text-gray-100 border-gray-700 hover:bg-gray-800" />
+                <CarouselPrevious className="left-2 text-white border-white/20 hover:bg-white/10" />
+                <CarouselNext className="right-2 text-white border-white/20 hover:bg-white/10" />
                 </Carousel>
               </div>
-              <div className="flex items-center justify-between text-xs text-gray-400">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{meet.media[lightboxIndex]?.originalFilename || ""}</span>
                 <div className="flex items-center gap-2">
                   <Button

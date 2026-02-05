@@ -54,7 +54,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
 
     if (normalizedStatus === "registered") {
       return (
-        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80">
+        <Badge className="bg-emerald-500/15 text-emerald-200 hover:bg-emerald-500/20">
           Registered
         </Badge>
       );
@@ -62,14 +62,14 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
 
     if (normalizedStatus === "not registered") {
       return (
-        <Badge variant="outline" className="text-gray-600 border-gray-200">
+        <Badge variant="outline" className="text-muted-foreground border-white/15">
           Not registered
         </Badge>
       );
     }
 
     return (
-      <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100/80">
+      <Badge className="bg-amber-500/15 text-amber-200 hover:bg-amber-500/20">
         {meet.registrationStatus}
       </Badge>
     );
@@ -99,10 +99,16 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   const objectPosition = `${focusX}% ${focusY}%`;
 
   return (
-    <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-90 transition-opacity">
-      <Card className={`overflow-hidden ${isNextUpcoming && !isPast ? 'border-l-4 border-l-gray-800 border-gray-100' : 'border-gray-100'} bg-white hover:bg-gray-50 transition-colors duration-150 relative`}>
+    <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-95 transition-opacity">
+      <Card
+        className={`overflow-hidden ${
+          isNextUpcoming && !isPast
+            ? "border-l-2 border-l-white/40 border-white/10"
+            : "border-white/10"
+        } bg-card hover:bg-white/5 transition-colors duration-150 relative`}
+      >
         {firstMedia && (
-          <div className="relative aspect-video bg-gray-100 overflow-hidden">
+          <div className="relative aspect-video bg-white/5 overflow-hidden">
             {firstMedia.type === "video" ? (
               <video
                 src={firstMedia.url}
@@ -122,18 +128,18 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                 decoding="async"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>
         )}
         <CardContent className="p-5">
           <div className="flex justify-between items-start">
             <div className="flex-grow">
-              <h3 className="font-medium text-gray-900 leading-tight">{meet.name}</h3>
-              <div className="mt-1 text-sm text-gray-500 space-y-0.5">
+              <h3 className="font-medium text-foreground leading-tight">{meet.name}</h3>
+              <div className="mt-1 text-sm text-muted-foreground space-y-0.5">
                 <div>{formatDate(meet.date)}</div>
                 <div>{meet.location}</div>
                 {isNextUpcoming && !isPast && (
-                  <div className="text-xs font-medium text-gray-700">
+                  <div className="text-xs font-medium text-muted-foreground">
                     {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
                   </div>
                 )}
@@ -150,7 +156,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                   }}
                 >
                   <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-                    <MoreVertical className="h-4 w-4 text-gray-500" />
+                    <MoreVertical className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DrawerTrigger>
                 <DrawerContent>
@@ -184,7 +190,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
           )}
             {/* All metrics for past meets */}
             {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
-              <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+              <div className="mt-2 pt-2 border-t border-white/10 text-xs text-muted-foreground space-y-1">
                 {meet.heightCleared && <div>Height: {meet.heightCleared}</div>}
                 {meet.poleUsed && <div>Pole: {meet.poleUsed}</div>}
                 {meet.deepestTakeoff && <div>Takeoff: {meet.deepestTakeoff}</div>}
@@ -193,8 +199,8 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             )}
             
             {meet.description && (
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <p className="text-sm text-gray-600 line-clamp-2">{meet.description}</p>
+              <div className="mt-3 pt-3 border-t border-white/10">
+                <p className="text-sm text-muted-foreground line-clamp-2">{meet.description}</p>
               </div>
             )}
         </CardContent>

@@ -39,7 +39,7 @@ function App() {
               const search = params.toString();
               setLocation(search ? `/?${search}` : "/?add=1");
             }}
-            className="fixed left-1/2 z-50 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg"
+            className="fixed left-1/2 z-50 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-semibold shadow-none border border-white/10"
             style={{
               bottom:
                 "calc(var(--app-bottom-nav-height) + env(safe-area-inset-bottom) + 12px)",

@@ -100,8 +100,8 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
   return (
     <>
       <DialogHeader className="pb-2">
-        <DialogTitle className="text-lg font-medium text-primary">Add New Meet</DialogTitle>
-        <DialogDescription className="text-gray-500 text-sm mt-1">
+        <DialogTitle className="text-lg font-medium text-foreground">Add New Meet</DialogTitle>
+        <DialogDescription className="text-muted-foreground text-sm mt-1">
           Enter the details for the new track and field meet
         </DialogDescription>
       </DialogHeader>
@@ -117,7 +117,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., State Championships" 
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     autoCapitalize="words"
                     autoComplete="off"
                     {...field} 
@@ -138,7 +138,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     type="date" 
                     min={today}
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     {...field} 
                   />
                 </FormControl>
@@ -156,7 +156,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., Central Stadium, Springfield" 
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     autoCapitalize="words"
                     autoComplete="off"
                     {...field} 
@@ -176,7 +176,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Textarea 
                     placeholder="Add any additional details about the meet" 
-                    className="resize-none border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="resize-none border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     rows={3}
                     {...field} 
                   />
@@ -195,7 +195,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., 2.10m" 
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     inputMode="decimal"
                     {...field} 
                   />
@@ -214,7 +214,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., Carbon Fiber 4.5m" 
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     autoCapitalize="words"
                     {...field} 
                   />
@@ -233,7 +233,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., 3.8m" 
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     inputMode="decimal"
                     {...field} 
                   />
@@ -252,7 +252,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., 1st, 2nd, 3rd" 
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     inputMode="numeric"
                     {...field} 
                   />
@@ -272,7 +272,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                   <Input 
                     placeholder="e.g., https://athletic.net/meet/12345" 
                     type="url"
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     inputMode="url"
                     {...field} 
                   />
@@ -291,7 +291,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormControl>
                   <Input 
                     placeholder="e.g., 2:45" 
-                    className="border-accent focus-visible:ring-offset-0 focus-visible:ring-1 bg-white"
+                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
                     inputMode="numeric"
                     {...field} 
                   />
@@ -309,7 +309,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                 <FormLabel className="text-sm font-medium">Registration Status</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="border-accent focus:ring-offset-0 focus:ring-1 bg-white">
+                    <SelectTrigger className="border-border bg-background/40 focus:ring-1 focus:ring-ring">
                       <SelectValue placeholder="Select registration status" />
                     </SelectTrigger>
                   </FormControl>
@@ -326,7 +326,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
           
           <Button 
             type="submit" 
-            className="w-full bg-secondary hover:bg-secondary/90 text-black py-2 h-auto rounded shadow-none transition-all hover:shadow-md mt-3 font-medium mb-2"
+            className="w-full bg-foreground text-background hover:bg-foreground/90 py-2 h-auto rounded shadow-none transition-colors mt-3 font-medium mb-2"
             disabled={isLoading}
           >
             {isLoading ? "Adding..." : "Add Meet"}

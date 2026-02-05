@@ -1,5 +1,4 @@
 import React from "react";
-import { FaUserCircle } from "react-icons/fa";
 // Import the image directly as a module (Vite will handle this)
 import enzoProfilePic from "../assets/enzo-profile.png";
 
@@ -11,11 +10,11 @@ export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
   return (
     <div className="flex items-center justify-between py-4 mb-2">
       <div className="flex items-center gap-3">
-        <div className="h-14 w-14 rounded-full overflow-hidden border-2 border-gray-200 shadow-sm bg-white flex items-center justify-center">
+        <div className="h-12 w-12 overflow-hidden rounded-[22%] border border-white/10 bg-white/5 flex items-center justify-center">
           <img 
             src={enzoProfilePic}
             alt={`${name}'s profile`}
-            className="h-12 w-12 object-contain"
+            className="h-14 w-14 object-cover scale-[1.08]"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               console.error("Image failed to load:", target.src);
@@ -33,24 +32,24 @@ export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
           />
         </div>
         <div>
-          <h2 className="text-lg font-medium text-gray-800">{name}</h2>
+          <h2 className="text-base font-medium text-foreground">{name}</h2>
           <div className="space-y-0.5">
-            <p className="text-xs text-gray-500">
+            <p className="text-[11px] text-muted-foreground">
               <a 
                 href="https://www.filamsports.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:underline hover:text-gray-600 transition-colors"
+                className="hover:underline hover:text-white transition-colors"
               >
                 🇵🇭 FilAm Sports
               </a>
             </p>
-            <p className="text-[11px] text-gray-400">
+            <p className="text-[10px] text-muted-foreground/80">
               <a
                 href="https://www.design-prism.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline hover:text-gray-500 transition-colors"
+                className="hover:underline hover:text-white transition-colors"
               >
                 engineered by prism in silicon valley
               </a>

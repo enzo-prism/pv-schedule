@@ -12,7 +12,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-card/70 backdrop-blur"
       aria-label="Primary"
     >
       <div className="mx-auto flex max-w-3xl items-center justify-around px-6 pt-2 safe-bottom">
@@ -25,12 +25,12 @@ export default function BottomNav() {
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
                 isActive
-                  ? "text-gray-900"
-                  : "text-gray-500 hover:text-gray-800"
+                  ? "text-white"
+                  : "text-muted-foreground hover:text-white"
               )}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon className={cn("h-5 w-5", isActive && "text-gray-900")} />
+              <Icon className={cn("h-5 w-5", isActive && "text-white")} />
               <span>{label}</span>
             </Link>
           );

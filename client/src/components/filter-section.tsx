@@ -14,10 +14,12 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
 
   return (
     <div className="mb-8 flex justify-center">
-      <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+      <div className="flex items-center border border-white/10 rounded-full overflow-hidden bg-white/5 backdrop-blur">
         <button
           className={`px-4 py-2 text-sm transition-colors ${
-            isUpcomingActive ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-50"
+            isUpcomingActive
+              ? "bg-white/15 text-white"
+              : "text-muted-foreground hover:bg-white/5"
           }`}
           onClick={() => onFilterChange("upcoming")}
           aria-pressed={isUpcomingActive}
@@ -25,8 +27,10 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
           Upcoming
         </button>
         <button
-          className={`px-4 py-2 text-sm transition-colors border-l border-gray-200 ${
-            isPastActive ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-50"
+          className={`px-4 py-2 text-sm transition-colors border-l border-white/10 ${
+            isPastActive
+              ? "bg-white/15 text-white"
+              : "text-muted-foreground hover:bg-white/5"
           }`}
           onClick={() => onFilterChange("past")}
           aria-pressed={isPastActive}
@@ -35,8 +39,10 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         </button>
         <Link
           href="/trends"
-          className={`px-4 py-2 text-sm transition-colors border-l border-gray-200 ${
-            isTrendsActive ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-50"
+          className={`px-4 py-2 text-sm transition-colors border-l border-white/10 ${
+            isTrendsActive
+              ? "bg-white/15 text-white"
+              : "text-muted-foreground hover:bg-white/5"
           }`}
           aria-current={isTrendsActive ? "page" : undefined}
         >
