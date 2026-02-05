@@ -10,6 +10,7 @@
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "sync:prod": "tsx server/scripts/sync-production.ts",
+    "import:json": "tsx server/scripts/import-json.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:local": "PLAYWRIGHT_BROWSERS_PATH=/tmp/playwright-browsers npm run test:e2e"

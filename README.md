@@ -81,8 +81,10 @@ See `.env.example` for defaults and flags:
 - `npm run check`
 - `npm run db:push`
 - `npm run sync:prod`
+- `npm run import:json -- --meets /path/to/meets.json --media /path/to/meet_media.json --truncate`
 
 ## Notes
 - Media uploads are stored locally under `public/uploads` (or `UPLOADS_ROOT`) and served at `/uploads/*` (25MB limit). For production, point `UPLOADS_ROOT` at a persistent volume and set `MEDIA_BASE_URL` if the frontend is hosted separately from the API.
 - Vercel deployments default to URL-only media because serverless functions have a 4.5MB payload limit; enable uploads only if you move to external object storage.
 - `isFilamMeet` is stored in the schema but not currently surfaced in the UI.
+- To load a full dataset into dev/prod, run the `import:json` script with `DATABASE_URL` set. It upserts by ID and resets sequences to the max ID.
