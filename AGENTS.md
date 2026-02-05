@@ -20,6 +20,13 @@ pv-schedule pairs a Vite React client with an Express API; use this playbook whe
 ## Coding Style & Naming Conventions
 Use TypeScript with two-space indentation; client files favor double quotes, server files use single quotes. React components, hooks, and providers live in PascalCase files, hooks start with `use`, shared logic belongs in `lib/` or `shared/`, and exports read as verbs. Prefer Tailwind utilities over bespoke CSS and keep modules focused.
 
+## Video Player (`MinimalVideo`)
+`client/src/components/minimal-video.tsx` is the custom video player used in meet detail grids and the lightbox. Key conventions:
+- Play button visibility is driven purely by `!isPlaying` — no shared UI state, no timers.
+- Bottom controls (progress bar + mute) have an independent `bottomBarVisible` state managed by an idle timer.
+- The video event listener effect must include `hasIntersected` in its dependency array so listeners attach after a lazy-loaded `<video>` mounts.
+- A full-surface invisible `<button>` handles tap-to-play/pause; the visible play icon is `pointer-events-none`.
+
 ## Testing Guidelines
 No runner ships yet; when adding coverage, colocate specs (`client/src/__tests__`, `server/__tests__`), add `vitest` + `@testing-library/react` for UI code, and pair `node --test` with `supertest` for REST handlers. Prioritize `server/storage/*` and data-shaping hooks, and seed fixtures rather than editing inline demo data.
 

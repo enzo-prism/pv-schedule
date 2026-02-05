@@ -8,6 +8,7 @@ Track & field meet scheduling for a pole vault athlete. The app pairs a Vite + R
 - Trends dashboard with charts for height, takeoff, and pole metrics.
 - Optional media previews on meet cards when media is present in the data.
 - Media gallery with lightbox browsing on the meet details page.
+- Custom video player with lazy loading, tap-to-play/pause, auto-hiding controls, and seekable progress bar.
 - Toast feedback and modal dialogs for add/edit/delete flows.
 
 ## Tech Stack
