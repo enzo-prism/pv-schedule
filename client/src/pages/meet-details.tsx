@@ -33,6 +33,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import MinimalVideo from "@/components/minimal-video";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -748,6 +749,10 @@ type MeetPayload = {
   const hasNotes = Boolean(meet.description && meet.description.trim().length > 0);
   const mediaActionItem =
     mediaActionIndex !== null ? meet.media?.[mediaActionIndex] : null;
+  const isFeaturedAction =
+    mediaActionIndex !== null &&
+    mediaActionIndex === 0 &&
+    mediaActionItem?.type === "photo";
   const trimmedMediaUrl = mediaUrl.trim();
   const uploadableItems = mediaQueue.filter(
     (item) =>
@@ -1024,10 +1029,7 @@ type MeetPayload = {
               Media
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs uppercase font-medium text-muted-foreground">
-                  Attached media
-                </p>
+              <div className="flex items-center justify-end mb-3">
                 {!isReadOnly && (
                   <Button
                     variant="outline"
@@ -1044,11 +1046,10 @@ type MeetPayload = {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {meet.media.map((item, index) => {
                     const isPhoto = item.type === "photo";
-                    const isFeaturedPhoto = index === 0 && isPhoto;
                     return (
                       <div
                         key={item.id}
-                        className="overflow-hidden rounded-lg border border-white/10 bg-card/60"
+                        className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 aspect-[9/16]"
                         role={isPhoto ? "button" : undefined}
                         tabIndex={isPhoto ? 0 : undefined}
                         onClick={isPhoto ? () => openLightbox(index) : undefined}
@@ -1068,83 +1069,28 @@ type MeetPayload = {
                         }
                       >
                         {item.type === "video" ? (
-                          <video
-                            src={item.url}
-                            className="h-48 w-full object-cover"
-                            controls
-                            preload="metadata"
-                          />
+                          <MinimalVideo src={item.url} className="h-full w-full" />
                         ) : (
                           <img
                             src={item.url}
                             alt={item.caption || `${meet.name} media`}
-                            className="h-48 w-full object-cover"
+                            className="h-full w-full object-cover"
                             loading="lazy"
                           />
                         )}
-                        <div className="flex items-start justify-between gap-2 p-3">
-                          <div className="min-w-0">
-                            {item.caption ? (
-                              <p className="text-xs text-muted-foreground line-clamp-2">
-                                {item.caption}
-                              </p>
-                            ) : (
-                              <p className="text-xs text-muted-foreground">No caption</p>
-                            )}
-                            {item.originalFilename && (
-                              <p className="text-[11px] text-muted-foreground mt-1 truncate">
-                                {item.originalFilename}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex flex-col items-end gap-2">
-                            {isFeaturedPhoto && (
-                              <Badge className="bg-white/10 text-white/80">
-                                Featured image
-                              </Badge>
-                            )}
-                            <div className="flex items-center gap-2">
-                              {isFeaturedPhoto && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    openFramingDialog(item);
-                                  }}
-                                  className="h-9 px-3 text-muted-foreground hover:text-foreground"
-                                >
-                                  Adjust framing
-                                </Button>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  openLightbox(index);
-                                }}
-                                className="h-9 px-3 text-muted-foreground hover:text-foreground"
-                              >
-                                View
-                              </Button>
-                                  {!isReadOnly && (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={(event) => {
-                                        event.stopPropagation();
-                                        deleteMediaMutation.mutate(item.id);
-                                      }}
-                                      disabled={deleteMediaMutation.isPending}
-                                      className="h-9 px-3 text-rose-300 hover:text-rose-200"
-                                    >
-                                      Delete
-                                    </Button>
-                                  )}
-                            </div>
-                          </div>
-                        </div>
+                        {!isReadOnly && (
+                          <button
+                            type="button"
+                            className="absolute right-2 top-2 rounded-full border border-white/10 bg-black/40 p-1.5 text-white/80 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setMediaActionIndex(index);
+                            }}
+                            aria-label="Media actions"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -1672,9 +1618,6 @@ type MeetPayload = {
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Media Actions</DrawerTitle>
-            <DrawerDescription>
-              {mediaActionItem?.originalFilename || mediaActionItem?.caption || "Quick actions"}
-            </DrawerDescription>
           </DrawerHeader>
           <div className="grid gap-2 px-4 pb-4">
             <DrawerClose asChild>
@@ -1689,6 +1632,21 @@ type MeetPayload = {
                 View
               </Button>
             </DrawerClose>
+            {mediaActionItem && !isReadOnly && isFeaturedAction && (
+              <DrawerClose asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (mediaActionItem) {
+                      openFramingDialog(mediaActionItem);
+                    }
+                    setMediaActionIndex(null);
+                  }}
+                >
+                  Adjust framing
+                </Button>
+              </DrawerClose>
+            )}
             {mediaActionItem && !isReadOnly && (
               <DrawerClose asChild>
                 <Button
@@ -1716,32 +1674,24 @@ type MeetPayload = {
           onOpenChange={(open) => setLightboxOpen(open)}
         >
           <DialogContent className="sm:max-w-4xl bg-black/95 border-white/10">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-foreground text-sm">
-                <span>
-                  Media {lightboxIndex + 1} of {meet.media.length}
-                </span>
-                <span className="text-muted-foreground">
-                  {meet.media[lightboxIndex]?.caption || "No caption"}
-                </span>
-              </div>
-              <div onWheel={handleLightboxWheel}>
-                <Carousel
-                  setApi={setCarouselApi}
-                  className="w-full touch-pan-y"
-                  opts={{ loop: false }}
-                >
+            <div onWheel={handleLightboxWheel}>
+              <Carousel
+                setApi={setCarouselApi}
+                className="w-full touch-pan-y"
+                opts={{ loop: false }}
+              >
                 <CarouselContent>
-                  {meet.media.map((item, index) => (
+                  {meet.media.map((item) => (
                     <CarouselItem key={item.id}>
                       <div className="flex h-[70vh] items-center justify-center">
                         {item.type === "video" ? (
-                          <video
-                            src={item.url}
-                            controls
-                            preload="metadata"
-                            className="max-h-[70vh] w-full object-contain"
-                          />
+                          <div className="w-full max-w-[420px] aspect-[9/16]">
+                            <MinimalVideo
+                              src={item.url}
+                              fit="contain"
+                              className="h-full w-full"
+                            />
+                          </div>
                         ) : (
                           <img
                             src={item.url}
@@ -1755,20 +1705,7 @@ type MeetPayload = {
                 </CarouselContent>
                 <CarouselPrevious className="left-2 text-white border-white/20 hover:bg-white/10" />
                 <CarouselNext className="right-2 text-white border-white/20 hover:bg-white/10" />
-                </Carousel>
-              </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{meet.media[lightboxIndex]?.originalFilename || ""}</span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setLightboxOpen(false)}
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
+              </Carousel>
             </div>
           </DialogContent>
         </Dialog>

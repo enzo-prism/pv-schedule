@@ -526,6 +526,58 @@ export const seedMeetMedia: SeedMediaItem[] = [
     "uploadedAt": null,
     "focusX": 50,
     "focusY": 50
+  },
+  {
+    "id": 13,
+    "meetId": 96,
+    "type": "photo",
+    "url": "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1770263210/IMG_1703_ruqkfn.jpg",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "IMG_1703_ruqkfn.jpg",
+    "position": 0,
+    "uploadedAt": null,
+    "focusX": 50,
+    "focusY": 50
+  },
+  {
+    "id": 14,
+    "meetId": 96,
+    "type": "photo",
+    "url": "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1770263211/IMG_1088_jrihxr.heic",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "IMG_1088_jrihxr.heic",
+    "position": 1,
+    "uploadedAt": null,
+    "focusX": 50,
+    "focusY": 50
+  },
+  {
+    "id": 15,
+    "meetId": 96,
+    "type": "photo",
+    "url": "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1770263210/IMG_1112_q9cysg.heic",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "IMG_1112_q9cysg.heic",
+    "position": 2,
+    "uploadedAt": null,
+    "focusX": 50,
+    "focusY": 50
+  },
+  {
+    "id": 16,
+    "meetId": 96,
+    "type": "photo",
+    "url": "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1770263211/FA2A4462-7434-4977-906D-A4DE13F0AD7D_c0vw89.jpg",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "FA2A4462-7434-4977-906D-A4DE13F0AD7D_c0vw89.jpg",
+    "position": 3,
+    "uploadedAt": null,
+    "focusX": 50,
+    "focusY": 50
   }
 ];
 
