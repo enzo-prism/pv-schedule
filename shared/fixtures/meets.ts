@@ -1,40 +1,415 @@
 import { type InsertMeet } from "@shared/schema";
 
-export const demoMeets: InsertMeet[] = [
+export type SeedMeet = {
+  id: number;
+  name: string;
+  date: string;
+  location: string;
+  description: string | null;
+  createdAt: string | null;
+  heightCleared: string | null;
+  poleUsed: string | null;
+  deepestTakeoff: string | null;
+  place: string | null;
+  link: string | null;
+  driveTime: string | null;
+  registrationStatus: string | null;
+  isFilamMeet: boolean | null;
+};
+
+export type SeedMediaItem = {
+  id: number;
+  meetId: number;
+  type: "photo" | "video";
+  url: string;
+  thumbnail: string | null;
+  caption: string | null;
+  originalFilename: string | null;
+  position: number;
+  uploadedAt: string | null;
+  focusX: number | null;
+  focusY: number | null;
+};
+
+export const seedMeets: SeedMeet[] = [
   {
-    name: "Regional Championships",
-    date: "2023-11-15",
-    location: "Franklin Field, Boston",
-    description: "Annual regional championship meet for all divisions.",
+    "id": 7,
+    "name": "West Coast Relays",
+    "date": "2025-03-29",
+    "location": "Fresno, CA",
+    "description": null,
+    "createdAt": "2025-03-03T19:12:24.594Z",
+    "heightCleared": "NH",
+    "poleUsed": "15'1\" - 165lbs",
+    "deepestTakeoff": "11'10\"",
+    "place": "DNS",
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "registered",
+    "isFilamMeet": false
   },
   {
-    name: "University Invitational",
-    date: "2023-12-05",
-    location: "University Stadium, Chicago",
-    description: "Invitational meet hosting universities from across the midwest.",
+    "id": 8,
+    "name": "Jack Albiani Invitational",
+    "date": "2025-03-07",
+    "location": "Modesto, CA",
+    "description": "big tail. Solid shot at 16\u20191 on the 70",
+    "createdAt": "2025-03-03T19:12:53.682Z",
+    "heightCleared": "15'",
+    "poleUsed": "15'1\" - 170lbs",
+    "deepestTakeoff": "11'6\"",
+    "place": "1st",
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "registered",
+    "isFilamMeet": false
   },
   {
-    name: "Winter Classic",
-    date: "2024-01-20",
-    location: "Indoor Sports Complex, Denver",
-    description: "Winter indoor track and field event for high school athletes.",
+    "id": 9,
+    "name": "Stanford Invite",
+    "date": "2025-04-05",
+    "location": "Palo Alto, CA \ud83c\uddfa\ud83c\uddf8",
+    "description": "",
+    "createdAt": "2025-03-03T19:13:24.592Z",
+    "heightCleared": "NH",
+    "poleUsed": "15'1\" - 170lbs",
+    "deepestTakeoff": "11'6\"",
+    "place": "DNS",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
   },
   {
-    name: "Spring Opener",
-    date: "2024-03-10",
-    location: "Community College Track, Portland",
-    description: "First outdoor meet of the spring season.",
+    "id": 10,
+    "name": "Philippine National Championship",
+    "date": "2025-05-02",
+    "location": "New Clark City, Philippines \ud83c\uddf5\ud83c\udded",
+    "description": "Red flag ran out of time 3rd attempt going up to 15'175 17.5 at 4.60\n\nFirst 2 attempts on 15'170 18.5\n\nAttempt 1: headwind, took it up, shot out\nAttempt 2: blow through",
+    "createdAt": "2025-03-03T19:14:08.193Z",
+    "heightCleared": "14'5\" (4.40)",
+    "poleUsed": "15'1 - 170 18.5",
+    "deepestTakeoff": "12'",
+    "place": "6th",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
   },
   {
-    name: "State Qualifier",
-    date: "2024-04-28",
-    location: "State Athletics Park, Atlanta",
-    description: "Qualifying meet for the state championships.",
+    "id": 14,
+    "name": "Aggie Open",
+    "date": "2025-03-15",
+    "location": "UC Davis",
+    "description": "Reunion battle with the legend Max Manson and the Davis boys\n\nCame in 6\" higher than normal",
+    "createdAt": "2025-03-03T21:07:11.204Z",
+    "heightCleared": "14'6\"",
+    "poleUsed": "15'1\" - 165lbs",
+    "deepestTakeoff": "11'6\"",
+    "place": "4th",
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "registered",
+    "isFilamMeet": false
   },
   {
-    name: "Last Year's Finals",
-    date: "2022-06-15",
-    location: "Olympic Stadium, Los Angeles",
-    description: "A past event from last year for testing.",
+    "id": 15,
+    "name": "Bulldog Invite",
+    "date": "2025-03-22",
+    "location": "College of San Mateo",
+    "description": "heartbreaker meet \ud83d\udc94 conditions were so great - pretty consistent tail and warm weather - my sister, old track friend Matt, and roommate Will even came to support but couldn't quite put it together. This was the highest I've come into a meet in a long time @ 15' - completely blew through the 165 on first attempt and wasn't rolling the 170 enough on the 2nd and 3rd attempts - they gave me a 4th attempt too - key things are being rlly strong the last few steps and PUSHING rather than pulling (body will try to revert back to reaching last few steps and pulling down...don't let it!)",
+    "createdAt": "2025-03-03T23:59:53.646Z",
+    "heightCleared": "NH",
+    "poleUsed": "15' - 170lbs",
+    "deepestTakeoff": "12'",
+    "place": "DNS",
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "registered",
+    "isFilamMeet": false
   },
+  {
+    "id": 18,
+    "name": "Pat Ryan Invite",
+    "date": "2025-03-14",
+    "location": "Santa Rosa, CA",
+    "description": "Some of the most wild weather I\u2019ve seen at a meet \ud83d\ude02 off and on INSANE rain and wind then super sunny randomly\n\nfinished with 14\u20196ish cleared on the 15-165lbs holding just under 14\u2019\n\nStarted very under but had a few jumps at 12\u2019 and out on takeoff\n\nRun cadence started clean but got sloppy once I moved step back - gonna play with being more conservative with moving back\n\nTook all 3 jumps at 15\u2019 on my 15-170lbs but didn\u2019t invert on any just wasn\u2019t rolling right\n\nShould\u2019ve stayed on 65 and gripped up and moved standards back (cleared with em at 65)\n\nSuper nice facility. First time here. Easy to watch PV from stands (10/10 from that perspective)",
+    "createdAt": "2025-03-08T15:45:25.340Z",
+    "heightCleared": "14'6\"",
+    "poleUsed": "15'1\" - 170lbs",
+    "deepestTakeoff": "12'6\"",
+    "place": "1st",
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 19,
+    "name": "PATAFA Pole Vault Challenge",
+    "date": "2025-05-06",
+    "location": "Cavite, Philippines \ud83c\uddf5\ud83c\udded",
+    "description": "\u2614\ufe0f\u26c8\ufe0f\u26a1\ufe0f",
+    "createdAt": "2025-03-27T22:02:58.390Z",
+    "heightCleared": "NH",
+    "poleUsed": "15'1 - 175lbs 17.5",
+    "deepestTakeoff": "12'6\"",
+    "place": "6th",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 20,
+    "name": "Chabot Finale",
+    "date": "2025-04-12",
+    "location": "Hayward, CA \ud83c\uddfa\ud83c\uddf8",
+    "description": "",
+    "createdAt": "2025-03-30T18:32:08.365Z",
+    "heightCleared": "15'",
+    "poleUsed": "15'170 18.5",
+    "deepestTakeoff": "12'",
+    "place": "1st",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 21,
+    "name": "Johnny Mathis Invitational",
+    "date": "2025-04-19",
+    "location": "San Francisco, CA \ud83c\uddfa\ud83c\uddf8",
+    "description": "",
+    "createdAt": "2025-04-07T16:02:43.041Z",
+    "heightCleared": "15'6\" (season best!!)",
+    "poleUsed": "15'175 17.5",
+    "deepestTakeoff": "12'",
+    "place": "1st",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 35,
+    "name": "Atletang Ayala World Pole Vault Challenge",
+    "date": "2025-09-20",
+    "location": "Makati, Philippines \ud83c\uddf5\ud83c\udded",
+    "description": "got that last min invite which was exciting \ud83e\udd73 \n\nbut got a concussion from missing the pit at practice on 7/4/2025...was out of shape and lacking recent time on the runway...got a couple weeks of jumping practice in right before the meet and did my best.\n\nhoping to compete at this meet again next year when I'm healthier and have had more time to prepare properly\n\nlast meet before Fall loading \ud83c\udfcb\ufe0f\u200d\u2640\ufe0f",
+    "createdAt": "2025-10-15T17:53:59.419Z",
+    "heightCleared": "4.40",
+    "poleUsed": "15'1 - 165lbs 19.5",
+    "deepestTakeoff": "11'",
+    "place": "4th",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 82,
+    "name": "Silver State Invite",
+    "date": "2025-12-06",
+    "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
+    "description": "solid first meet \u270a runway was super fast \ud83d\udd25 moved step back from 102' to 103'6\" - have never been able to get on this pole (17.5) this early, let alone blow thru (that was biggest pole I brought) - we'll be back soon and I'll be ready to go up grip and bring my 15'7\"s",
+    "createdAt": "2025-10-17T17:57:51.603Z",
+    "heightCleared": "4.50 (14'9\")",
+    "poleUsed": "15'1 - 175lbs 17.5",
+    "deepestTakeoff": "12'2\"",
+    "place": "4th",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 85,
+    "name": "Pole Vault Summit",
+    "date": "2026-01-17",
+    "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
+    "description": "Moved step from 102\u2019 to 104\u20197\u201d by the end of comp",
+    "createdAt": "2025-10-17T18:00:38.676Z",
+    "heightCleared": "4.35m (14\u20192\u201d)",
+    "poleUsed": "15\u20191\u201d - 170lbs 18.5",
+    "deepestTakeoff": "11\u20196\u201d",
+    "place": "11th",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 87,
+    "name": "Bulldog Invite",
+    "date": "2026-03-08",
+    "location": "Fresno, CA \ud83c\uddfa\ud83c\uddf8",
+    "description": "",
+    "createdAt": "2025-11-09T17:27:04.332Z",
+    "heightCleared": "",
+    "poleUsed": "",
+    "deepestTakeoff": "",
+    "place": "",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "not registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 88,
+    "name": "West Coast Relays",
+    "date": "2026-03-29",
+    "location": "Fresno, CA \ud83c\uddfa\ud83c\uddf8",
+    "description": null,
+    "createdAt": "2025-11-09T17:27:11.391Z",
+    "heightCleared": null,
+    "poleUsed": null,
+    "deepestTakeoff": null,
+    "place": null,
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "not registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 89,
+    "name": "Stanford Invite",
+    "date": "2026-04-05",
+    "location": "Palo Alto, CA \ud83c\uddfa\ud83c\uddf8",
+    "description": null,
+    "createdAt": "2025-11-09T17:27:13.239Z",
+    "heightCleared": null,
+    "poleUsed": null,
+    "deepestTakeoff": null,
+    "place": null,
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "not registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 90,
+    "name": "Bryan Clay Invite",
+    "date": "2026-04-18",
+    "location": "Azusa, CA \ud83c\uddfa\ud83c\uddf8",
+    "description": null,
+    "createdAt": "2025-11-09T17:27:14.804Z",
+    "heightCleared": null,
+    "poleUsed": null,
+    "deepestTakeoff": null,
+    "place": null,
+    "link": null,
+    "driveTime": null,
+    "registrationStatus": "not registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 94,
+    "name": "RTA Winterfest Indoor",
+    "date": "2025-12-13",
+    "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
+    "description": "Highest I\u2019ve ever gripped on the 17.5 - def need the 15\u20197 poles next time \ud83d\ude02 could maybe get 15\u20196\u201d on the 17.5 if i narrow my grip a lot. Step finished at 104\u201d - but yea def ready for longer and stiffer poles",
+    "createdAt": "2025-11-24T15:56:08.620Z",
+    "heightCleared": "4.55m (14\u201911\u201d)",
+    "poleUsed": "15\u2019 175lbs (17.5)",
+    "deepestTakeoff": "12\u2019",
+    "place": "1st",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 96,
+    "name": "Reno Holiday Invite",
+    "date": "2025-12-28",
+    "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
+    "description": "Hadn\u2019t planted a pole since the last meet (15 days ago!) - scary but appreciate the opportunity to challenge myself \ud83e\udd1d this was my highest jump since the San Francisco meet on April 19th \ud83d\udcc8 keep hammerin !! Rear delt + quad training has helped a tonnn",
+    "createdAt": "2025-12-03T17:57:48.139Z",
+    "heightCleared": "4.60m (15\u20191\u201d)",
+    "poleUsed": "15\u2019 170lbs 18.5",
+    "deepestTakeoff": "12\u2019",
+    "place": "2nd",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 97,
+    "name": "Wolf Pack Classic \ud83d\udc3a",
+    "date": "2026-02-05",
+    "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
+    "description": "",
+    "createdAt": "2026-01-16T18:00:45.098Z",
+    "heightCleared": "",
+    "poleUsed": "",
+    "deepestTakeoff": "",
+    "place": "",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 98,
+    "name": "Battle Born Invitational \u2694\ufe0f",
+    "date": "2026-02-13",
+    "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
+    "description": "",
+    "createdAt": "2026-01-16T18:01:25.459Z",
+    "heightCleared": "",
+    "poleUsed": "",
+    "deepestTakeoff": "",
+    "place": "",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "registered",
+    "isFilamMeet": false
+  }
 ];
+
+export const seedMeetMedia: SeedMediaItem[] = [
+  {
+    "id": 3,
+    "meetId": 96,
+    "type": "photo",
+    "url": "/uploads/96/1770245612194-IMG_1702.jpeg",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "IMG_1702.jpeg",
+    "position": 0,
+    "uploadedAt": "2026-02-04T22:53:32.304Z",
+    "focusX": 50,
+    "focusY": 50
+  },
+  {
+    "id": 4,
+    "meetId": 94,
+    "type": "photo",
+    "url": "/uploads/94/1770245674804-IMG_1703.jpeg",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "IMG_1703.jpeg",
+    "position": 0,
+    "uploadedAt": "2026-02-04T22:54:34.833Z",
+    "focusX": 50,
+    "focusY": 50
+  }
+];
+
+export const demoMeets: InsertMeet[] = seedMeets.map((meet) => ({
+  name: meet.name,
+  date: meet.date,
+  location: meet.location,
+  description: meet.description ?? undefined,
+  heightCleared: meet.heightCleared ?? undefined,
+  poleUsed: meet.poleUsed ?? undefined,
+  deepestTakeoff: meet.deepestTakeoff ?? undefined,
+  place: meet.place ?? undefined,
+  link: meet.link ?? undefined,
+  driveTime: meet.driveTime ?? undefined,
+  registrationStatus: meet.registrationStatus ?? undefined,
+  isFilamMeet: meet.isFilamMeet ?? undefined,
+}));

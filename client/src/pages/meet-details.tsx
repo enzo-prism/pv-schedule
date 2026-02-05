@@ -86,6 +86,7 @@ export default function MeetDetails() {
   const meetId = params?.id ? parseInt(params.id, 10) : null;
   const { toast } = useToast();
   const uploadsEnabled = import.meta.env.VITE_UPLOADS_ENABLED !== "false";
+  const isReadOnly = import.meta.env.VITE_READ_ONLY === "true";
   const initialMediaMode: MediaMode = uploadsEnabled ? "upload" : "url";
   
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
@@ -422,6 +423,9 @@ type MeetPayload = {
   });
 
   const handleEditMeet = (meetData: MeetPayload) => {
+    if (isReadOnly) {
+      return;
+    }
     if (meetId) {
       editMeetMutation.mutate({
         id: meetId,
@@ -431,6 +435,9 @@ type MeetPayload = {
   };
   
   const handleConfirmDelete = () => {
+    if (isReadOnly) {
+      return;
+    }
     if (meetId !== null) {
       deleteMeetMutation.mutate(meetId);
     }
@@ -449,6 +456,10 @@ type MeetPayload = {
 
   const handleMediaSubmit = async () => {
     if (isUploading) {
+      return;
+    }
+    if (isReadOnly) {
+      setMediaError("This app is read-only.");
       return;
     }
     if (mediaMode === "upload" && !uploadsEnabled) {
@@ -767,44 +778,46 @@ type MeetPayload = {
             <p className="truncate text-sm font-semibold text-gray-900">{meet.name}</p>
             <p className="text-xs text-gray-500">{formatDate(meet.date)}</p>
           </div>
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-9 w-9 rounded-full p-0"
-                aria-label="Meet actions"
-              >
-                <MoreVertical className="h-4 w-4 text-gray-500" />
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Meet Actions</DrawerTitle>
-                <DrawerDescription>Quick actions for this meet.</DrawerDescription>
-              </DrawerHeader>
-              <div className="grid gap-2 px-4 pb-4">
-                <DrawerClose asChild>
-                  <Button onClick={() => setMediaDialogOpen(true)}>Add media</Button>
-                </DrawerClose>
-                <DrawerClose asChild>
-                  <Button variant="outline" onClick={() => setEditMeet(meet)}>
-                    <Edit2 className="mr-2 h-4 w-4" />
-                    Edit meet
-                  </Button>
-                </DrawerClose>
-                <DrawerClose asChild>
-                  <Button
-                    variant="destructive"
-                    onClick={() => setDeleteConfirmOpen(true)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete meet
-                  </Button>
-                </DrawerClose>
-              </div>
-            </DrawerContent>
-          </Drawer>
+          {!isReadOnly && (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 rounded-full p-0"
+                  aria-label="Meet actions"
+                >
+                  <MoreVertical className="h-4 w-4 text-gray-500" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Meet Actions</DrawerTitle>
+                  <DrawerDescription>Quick actions for this meet.</DrawerDescription>
+                </DrawerHeader>
+                <div className="grid gap-2 px-4 pb-4">
+                  <DrawerClose asChild>
+                    <Button onClick={() => setMediaDialogOpen(true)}>Add media</Button>
+                  </DrawerClose>
+                  <DrawerClose asChild>
+                    <Button variant="outline" onClick={() => setEditMeet(meet)}>
+                      <Edit2 className="mr-2 h-4 w-4" />
+                      Edit meet
+                    </Button>
+                  </DrawerClose>
+                  <DrawerClose asChild>
+                    <Button
+                      variant="destructive"
+                      onClick={() => setDeleteConfirmOpen(true)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete meet
+                    </Button>
+                  </DrawerClose>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
         </div>
       </header>
 
@@ -1012,14 +1025,16 @@ type MeetPayload = {
                 <p className="text-xs uppercase font-medium text-gray-500">
                   Attached media
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setMediaDialogOpen(true)}
-                  className="h-8"
-                >
-                  Add media
-                </Button>
+                {!isReadOnly && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setMediaDialogOpen(true)}
+                    className="h-8"
+                  >
+                    Add media
+                  </Button>
+                )}
               </div>
 
               {meet.media && meet.media.length > 0 ? (
@@ -1110,18 +1125,20 @@ type MeetPayload = {
                               >
                                 View
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  deleteMediaMutation.mutate(item.id);
-                                }}
-                                disabled={deleteMediaMutation.isPending}
-                                className="h-9 px-3 text-red-500 hover:text-red-600"
-                              >
-                                Delete
-                              </Button>
+                              {!isReadOnly && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    deleteMediaMutation.mutate(item.id);
+                                  }}
+                                  disabled={deleteMediaMutation.isPending}
+                                  className="h-9 px-3 text-red-500 hover:text-red-600"
+                                >
+                                  Delete
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1137,33 +1154,35 @@ type MeetPayload = {
         </Accordion>
       </main>
 
-      <div className="fixed inset-x-0 z-30 px-4 bottom-app-nav">
-        <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-2xl border border-gray-200 bg-white/95 p-2 shadow-lg">
-          <Button
-            className="flex-1"
-            onClick={() => setMediaDialogOpen(true)}
-          >
-            Add media
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => setEditMeet(meet)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="destructive"
-            className="flex-1"
-            onClick={() => setDeleteConfirmOpen(true)}
-          >
-            Delete
-          </Button>
+      {!isReadOnly && (
+        <div className="fixed inset-x-0 z-30 px-4 bottom-app-nav">
+          <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-2xl border border-gray-200 bg-white/95 p-2 shadow-lg">
+            <Button
+              className="flex-1"
+              onClick={() => setMediaDialogOpen(true)}
+            >
+              Add media
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setEditMeet(meet)}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={() => setDeleteConfirmOpen(true)}
+            >
+              Delete
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Edit Meet Dialog */}
-      {editMeet && (
+      {!isReadOnly && editMeet && (
         <Dialog 
           open={editMeet !== null} 
           onOpenChange={(open) => !open && setEditMeet(null)}
@@ -1289,7 +1308,7 @@ type MeetPayload = {
       )}
 
       {/* Media Upload Dialog */}
-      {mediaDialogOpen && (
+      {!isReadOnly && mediaDialogOpen && (
         <Dialog
           open={mediaDialogOpen}
           onOpenChange={(open) => {
@@ -1667,7 +1686,7 @@ type MeetPayload = {
                 View
               </Button>
             </DrawerClose>
-            {mediaActionItem && (
+            {mediaActionItem && !isReadOnly && (
               <DrawerClose asChild>
                 <Button
                   variant="destructive"
@@ -1753,13 +1772,15 @@ type MeetPayload = {
       ) : null}
       
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmation
-        isOpen={deleteConfirmOpen}
-        onCancel={() => setDeleteConfirmOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Meet"
-        description="Are you sure you want to delete this meet? This action cannot be undone."
-      />
+      {!isReadOnly && (
+        <DeleteConfirmation
+          isOpen={deleteConfirmOpen}
+          onCancel={() => setDeleteConfirmOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Meet"
+          description="Are you sure you want to delete this meet? This action cannot be undone."
+        />
+      )}
     </div>
   );
 }

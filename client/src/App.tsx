@@ -23,7 +23,8 @@ function Router() {
 
 function App() {
   const [location, setLocation] = useLocation();
-  const showFab = !location.startsWith("/meet/");
+  const isReadOnly = import.meta.env.VITE_READ_ONLY === "true";
+  const showFab = !isReadOnly && !location.startsWith("/meet/");
 
   return (
     <QueryClientProvider client={queryClient}>

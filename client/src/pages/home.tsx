@@ -44,6 +44,7 @@ export default function Home() {
   const [meetToDelete, setMeetToDelete] = useState<number | null>(null);
   const [location] = useLocation();
   const { toast } = useToast();
+  const isReadOnly = import.meta.env.VITE_READ_ONLY === "true";
 
   const { data: meets = [], isLoading } = useQuery<Meet[]>({ 
     queryKey: ["/api/meets"],
@@ -123,10 +124,16 @@ export default function Home() {
   });
 
   const handleAddMeet = (meetData: MeetPayload) => {
+    if (isReadOnly) {
+      return;
+    }
     addMeetMutation.mutate(meetData);
   };
 
   const handleEditMeet = (meetData: MeetPayload) => {
+    if (isReadOnly) {
+      return;
+    }
     if (editMeet) {
       editMeetMutation.mutate({
         id: editMeet.id,
@@ -136,15 +143,24 @@ export default function Home() {
   };
 
   const handleEditClick = (meet: Meet) => {
+    if (isReadOnly) {
+      return;
+    }
     setEditMeet(meet);
   };
 
   const handleDeleteClick = (meetId: number) => {
+    if (isReadOnly) {
+      return;
+    }
     setMeetToDelete(meetId);
     setDeleteConfirmOpen(true);
   };
 
   const handleConfirmDelete = () => {
+    if (isReadOnly) {
+      return;
+    }
     if (meetToDelete !== null) {
       deleteMeetMutation.mutate(meetToDelete);
     }
@@ -261,8 +277,8 @@ export default function Home() {
               <MeetCard 
                 key={meet.id} 
                 meet={meet}
-                onEditClick={handleEditClick}
-                onDeleteClick={handleDeleteClick}
+                onEditClick={isReadOnly ? undefined : handleEditClick}
+                onDeleteClick={isReadOnly ? undefined : handleDeleteClick}
                 isNextUpcoming={meet.id === nextUpcomingMeetId && currentFilter !== "past"}
               />
             ))}
@@ -275,7 +291,7 @@ export default function Home() {
           </div>
         )}
 
-        {currentFilter === "upcoming" && (
+        {currentFilter === "upcoming" && !isReadOnly && (
           <div className="mt-8 hidden justify-center sm:flex">
             <Button
               variant="outline"
@@ -291,7 +307,7 @@ export default function Home() {
       </main>
 
       {/* Add Meet Dialog */}
-      {isAddMeetOpen && (
+      {!isReadOnly && isAddMeetOpen && (
         <Dialog 
           open={isAddMeetOpen} 
           onOpenChange={(open) => !open && setIsAddMeetOpen(false)}
@@ -307,7 +323,7 @@ export default function Home() {
       )}
 
       {/* Edit Meet Dialog */}
-      {editMeet && (
+      {!isReadOnly && editMeet && (
         <Dialog 
           open={editMeet !== null} 
           onOpenChange={(open) => !open && setEditMeet(null)}
@@ -324,13 +340,15 @@ export default function Home() {
       )}
       
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmation
-        isOpen={deleteConfirmOpen}
-        onCancel={() => setDeleteConfirmOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Meet"
-        description="Are you sure you want to delete this meet? This action cannot be undone."
-      />
+      {!isReadOnly && (
+        <DeleteConfirmation
+          isOpen={deleteConfirmOpen}
+          onCancel={() => setDeleteConfirmOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Meet"
+          description="Are you sure you want to delete this meet? This action cannot be undone."
+        />
+      )}
       
     </div>
   );

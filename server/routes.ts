@@ -12,6 +12,21 @@ import {
   uploadsEnabled,
 } from "./media";
 
+const isReadOnly = () => {
+  const configured = process.env.READ_ONLY?.trim();
+  if (configured && configured.length > 0) {
+    return configured.toLowerCase() === "true";
+  }
+  if (process.env.USE_HARDCODED_DATA === "true") {
+    return true;
+  }
+  return false;
+};
+
+const rejectReadOnly = (res: express.Response) => {
+  res.status(403).json({ message: "This app is read-only." });
+};
+
 function resolveMediaItemUrls(
   req: express.Request,
   item: {
@@ -74,6 +89,9 @@ export function registerRoutes(app: Express) {
   // POST - Create a new meet
   app.post("/api/meets", async (req, res) => {
     try {
+      if (isReadOnly()) {
+        return rejectReadOnly(res);
+      }
       const result = insertMeetSchema.safeParse(req.body);
       
       if (!result.success) {
@@ -99,6 +117,9 @@ export function registerRoutes(app: Express) {
   // PUT - Update an existing meet
   app.put("/api/meets/:id", async (req, res) => {
     try {
+      if (isReadOnly()) {
+        return rejectReadOnly(res);
+      }
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid meet ID" });
@@ -134,6 +155,9 @@ export function registerRoutes(app: Express) {
   // DELETE - Delete an existing meet
   app.delete("/api/meets/:id", async (req, res) => {
     try {
+      if (isReadOnly()) {
+        return rejectReadOnly(res);
+      }
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid meet ID" });
@@ -174,6 +198,9 @@ export function registerRoutes(app: Express) {
   // POST - Upload or add media for a meet
   app.post("/api/meets/:id/media", async (req, res) => {
     try {
+      if (isReadOnly()) {
+        return rejectReadOnly(res);
+      }
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid meet ID" });
@@ -265,6 +292,9 @@ export function registerRoutes(app: Express) {
   // PATCH - Update media metadata
   app.patch("/api/meets/:id/media/:mediaId", async (req, res) => {
     try {
+      if (isReadOnly()) {
+        return rejectReadOnly(res);
+      }
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid meet ID" });
@@ -328,6 +358,9 @@ export function registerRoutes(app: Express) {
   // DELETE - Delete media item
   app.delete("/api/meets/:id/media/:mediaId", async (req, res) => {
     try {
+      if (isReadOnly()) {
+        return rejectReadOnly(res);
+      }
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid meet ID" });

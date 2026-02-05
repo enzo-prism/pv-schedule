@@ -66,6 +66,9 @@ Track & field meet scheduling for a pole vault athlete. The app pairs a Vite + R
 ## Configuration
 See `.env.example` for defaults and flags:
 - `USE_IN_MEMORY_STORAGE`, `USE_SAMPLE_DATA`, `SEED_DEMO_DATA`
+- `USE_HARDCODED_DATA` (force in-memory fixtures even when `DATABASE_URL` is set)
+- `READ_ONLY` (disable all write endpoints)
+- `VITE_READ_ONLY` (hide add/edit/delete UI in the client)
 - `USE_PRODUCTION_DATA`, `PRODUCTION_DATABASE_URL`, `PRODUCTION_API_BASE_URL`
 - `DATABASE_URL`, `PORT`, `HOST`, `REUSE_PORT`
 - `UPLOADS_ROOT` (optional path for persistent uploads)
@@ -88,3 +91,4 @@ See `.env.example` for defaults and flags:
 - Vercel deployments default to URL-only media because serverless functions have a 4.5MB payload limit; enable uploads only if you move to external object storage.
 - `isFilamMeet` is stored in the schema but not currently surfaced in the UI.
 - To load a full dataset into dev/prod, run the `import:json` script with `DATABASE_URL` set. It upserts by ID and resets sequences to the max ID.
+- For a read-only deployment with data baked into the codebase, set `USE_HARDCODED_DATA=true` and `READ_ONLY=true` (and `VITE_READ_ONLY=true` on the client).

@@ -5,6 +5,7 @@ import type { IStorage } from "./types";
 
 const preferMemory =
   process.env.USE_IN_MEMORY_STORAGE === "true" || process.env.USE_SAMPLE_DATA === "true";
+const useHardcodedData = process.env.USE_HARDCODED_DATA === "true";
 const useProductionData = process.env.USE_PRODUCTION_DATA === "true";
 const shouldSeedDemoData = process.env.SEED_DEMO_DATA !== "false";
 const localDatabaseUrl = process.env.DATABASE_URL;
@@ -31,7 +32,10 @@ function buildPgStorage({
 
 let storage: IStorage;
 
-if (useProductionData) {
+if (useHardcodedData) {
+  logChoice("Using hardcoded fixture data (USE_HARDCODED_DATA).");
+  storage = new MemStorage();
+} else if (useProductionData) {
   if (!productionDatabaseUrl) {
     throw new Error(
       "USE_PRODUCTION_DATA is true but PRODUCTION_DATABASE_URL is not set. Provide a read-only connection string.",

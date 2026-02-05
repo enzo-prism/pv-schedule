@@ -1,5 +1,5 @@
 import { type InsertMeet, type Meet, type MediaItem } from "@shared/schema";
-import { demoMeets } from "@shared/fixtures/meets";
+import { seedMeets, seedMeetMedia, type SeedMeet, type SeedMediaItem } from "@shared/fixtures/meets";
 import { toYmdDateString } from "@shared/dates";
 import {
   type DeleteMediaResult,
@@ -13,10 +13,64 @@ export class MemStorage implements IStorage {
   private mediaByMeet: Map<number, MediaItem[]> = new Map();
   private currentId = 1;
 
-  constructor(seed: InsertMeet[] = demoMeets) {
-    seed.forEach((meet) => {
-      void this.createMeet(meet);
-    });
+  constructor(
+    seed: SeedMeet[] = seedMeets,
+    mediaSeed: SeedMediaItem[] = seedMeetMedia,
+  ) {
+    if (seed.length > 0) {
+      seed.forEach((meet) => {
+        this.seedMeet(meet);
+      });
+      const maxId = Math.max(...seed.map((meet) => meet.id));
+      this.currentId = Number.isFinite(maxId) ? maxId + 1 : 1;
+    }
+
+    if (mediaSeed.length > 0) {
+      mediaSeed.forEach((item) => {
+        const mediaList = this.mediaByMeet.get(item.meetId) ?? [];
+        mediaList.push({
+          id: String(item.id),
+          type: item.type,
+          url: item.url,
+          thumbnail: item.thumbnail ?? null,
+          caption: item.caption ?? null,
+          originalFilename: item.originalFilename ?? null,
+          position: item.position ?? mediaList.length,
+          focusX: item.focusX ?? 50,
+          focusY: item.focusY ?? 50,
+          uploadedAt: item.uploadedAt ?? new Date().toISOString(),
+        });
+        this.mediaByMeet.set(item.meetId, mediaList);
+      });
+    }
+  }
+
+  private seedMeet(seed: SeedMeet) {
+    const id = seed.id;
+    const defaultRegistrationStatus = "not registered";
+
+    const meet: Meet = {
+      id,
+      name: seed.name,
+      date: toYmdDateString(seed.date) ?? seed.date,
+      location: seed.location,
+      description: seed.description ?? null,
+      heightCleared: seed.heightCleared ?? null,
+      poleUsed: seed.poleUsed ?? null,
+      deepestTakeoff: seed.deepestTakeoff ?? null,
+      place: seed.place ?? null,
+      link: seed.link ?? null,
+      driveTime: seed.driveTime ?? null,
+      registrationStatus: seed.registrationStatus ?? defaultRegistrationStatus,
+      isFilamMeet: seed.isFilamMeet ?? false,
+      media: [],
+      createdAt: seed.createdAt ? new Date(seed.createdAt) : new Date(),
+    };
+
+    this.meets.set(id, meet);
+    if (!this.mediaByMeet.has(id)) {
+      this.mediaByMeet.set(id, []);
+    }
   }
 
   async getAllMeets(): Promise<Meet[]> {
