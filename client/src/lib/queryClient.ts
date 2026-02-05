@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { fallbackMeets, getFallbackMeet } from "./fallback-data";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -29,16 +30,42 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
-    });
+    const url = queryKey[0] as string;
+    try {
+      const res = await fetch(url, {
+        credentials: "include",
+      });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      if (url === "/api/meets") {
+        if (import.meta.env.DEV) {
+          console.warn("Using fallback meet data for /api/meets", error);
+        }
+        return fallbackMeets as T;
+      }
+
+      if (url.startsWith("/api/meets/")) {
+        const idPart = url.replace("/api/meets/", "").split(/[/?#]/)[0];
+        const meetId = Number(idPart);
+        if (Number.isFinite(meetId)) {
+          const fallbackMeet = getFallbackMeet(meetId);
+          if (fallbackMeet) {
+            if (import.meta.env.DEV) {
+              console.warn(`Using fallback meet data for /api/meets/${meetId}`, error);
+            }
+            return fallbackMeet as T;
+          }
+        }
+      }
+
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({

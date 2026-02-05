@@ -66,6 +66,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "@shared/media";
+import { isReadOnlyMode, uploadsEnabled as uploadsEnabledFlag } from "@/lib/env";
 
 type MediaMode = "upload" | "url";
 type MediaQueueStatus = "pending" | "uploading" | "uploaded" | "error" | "skipped";
@@ -85,8 +86,8 @@ export default function MeetDetails() {
   const [, params] = useRoute<{ id: string }>("/meet/:id");
   const meetId = params?.id ? parseInt(params.id, 10) : null;
   const { toast } = useToast();
-  const uploadsEnabled = import.meta.env.VITE_UPLOADS_ENABLED !== "false";
-  const isReadOnly = import.meta.env.VITE_READ_ONLY === "true";
+  const uploadsEnabled = uploadsEnabledFlag;
+  const isReadOnly = isReadOnlyMode;
   const initialMediaMode: MediaMode = uploadsEnabled ? "upload" : "url";
   
   const [editMeet, setEditMeet] = useState<Meet | null>(null);

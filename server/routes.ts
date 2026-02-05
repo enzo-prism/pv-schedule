@@ -20,6 +20,9 @@ const isReadOnly = () => {
   if (process.env.USE_HARDCODED_DATA === "true") {
     return true;
   }
+  if (process.env.VERCEL) {
+    return true;
+  }
   return false;
 };
 

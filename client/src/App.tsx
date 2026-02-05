@@ -9,6 +9,7 @@ import MeetDetails from "@/pages/meet-details";
 import Trends from "@/pages/trends";
 import BottomNav from "@/components/bottom-nav";
 import { Button } from "@/components/ui/button";
+import { isReadOnlyMode } from "@/lib/env";
 
 function Router() {
   return (
@@ -23,7 +24,7 @@ function Router() {
 
 function App() {
   const [location, setLocation] = useLocation();
-  const isReadOnly = import.meta.env.VITE_READ_ONLY === "true";
+  const isReadOnly = isReadOnlyMode;
   const showFab = !isReadOnly && !location.startsWith("/meet/");
 
   return (

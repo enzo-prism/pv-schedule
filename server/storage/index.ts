@@ -5,7 +5,12 @@ import type { IStorage } from "./types";
 
 const preferMemory =
   process.env.USE_IN_MEMORY_STORAGE === "true" || process.env.USE_SAMPLE_DATA === "true";
-const useHardcodedData = process.env.USE_HARDCODED_DATA === "true";
+const vercelEnv = process.env.VERCEL === "1" || process.env.VERCEL === "true";
+const hardcodedFlag = process.env.USE_HARDCODED_DATA?.trim();
+const useHardcodedData =
+  hardcodedFlag && hardcodedFlag.length > 0
+    ? hardcodedFlag.toLowerCase() === "true"
+    : vercelEnv;
 const useProductionData = process.env.USE_PRODUCTION_DATA === "true";
 const shouldSeedDemoData = process.env.SEED_DEMO_DATA !== "false";
 const localDatabaseUrl = process.env.DATABASE_URL;
@@ -33,7 +38,8 @@ function buildPgStorage({
 let storage: IStorage;
 
 if (useHardcodedData) {
-  logChoice("Using hardcoded fixture data (USE_HARDCODED_DATA).");
+  const sourceLabel = hardcodedFlag && hardcodedFlag.length > 0 ? "USE_HARDCODED_DATA" : "Vercel default";
+  logChoice(`Using hardcoded fixture data (${sourceLabel}).`);
   storage = new MemStorage();
 } else if (useProductionData) {
   if (!productionDatabaseUrl) {

@@ -14,6 +14,7 @@ import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import UserProfile from "@/components/user-profile";
 import { Button } from "@/components/ui/button";
+import { isReadOnlyMode } from "@/lib/env";
 
 type FilterType = "upcoming" | "past";
 
@@ -44,7 +45,7 @@ export default function Home() {
   const [meetToDelete, setMeetToDelete] = useState<number | null>(null);
   const [location] = useLocation();
   const { toast } = useToast();
-  const isReadOnly = import.meta.env.VITE_READ_ONLY === "true";
+  const isReadOnly = isReadOnlyMode;
 
   const { data: meets = [], isLoading } = useQuery<Meet[]>({ 
     queryKey: ["/api/meets"],
