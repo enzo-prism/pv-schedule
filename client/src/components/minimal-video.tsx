@@ -27,11 +27,34 @@ export default function MinimalVideo({
 }: MinimalVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hideTimeout = useRef<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(muted);
-  const [showUi, setShowUi] = useState(false);
+  const [uiVisible, setUiVisible] = useState(false);
   const [hasIntersected, setHasIntersected] = useState(!lazy);
+
+  const clearHideTimeout = () => {
+    if (hideTimeout.current !== null) {
+      window.clearTimeout(hideTimeout.current);
+      hideTimeout.current = null;
+    }
+  };
+
+  const scheduleHide = () => {
+    clearHideTimeout();
+    if (!isPlaying) {
+      return;
+    }
+    hideTimeout.current = window.setTimeout(() => {
+      setUiVisible(false);
+    }, 2200);
+  };
+
+  const revealUi = () => {
+    setUiVisible(true);
+    scheduleHide();
+  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -39,8 +62,22 @@ export default function MinimalVideo({
       return undefined;
     }
 
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setUiVisible(false);
+      clearHideTimeout();
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      setUiVisible(true);
+      clearHideTimeout();
+    };
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setUiVisible(true);
+      clearHideTimeout();
+      setProgress(100);
+    };
     const handleTime = () => {
       if (!Number.isFinite(video.duration) || video.duration === 0) {
         setProgress(0);
@@ -51,6 +88,7 @@ export default function MinimalVideo({
 
     video.addEventListener("play", handlePlay);
     video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handleEnded);
     video.addEventListener("timeupdate", handleTime);
     video.addEventListener("loadedmetadata", handleTime);
 
@@ -61,6 +99,7 @@ export default function MinimalVideo({
     return () => {
       video.removeEventListener("play", handlePlay);
       video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handleEnded);
       video.removeEventListener("timeupdate", handleTime);
       video.removeEventListener("loadedmetadata", handleTime);
     };
@@ -99,12 +138,15 @@ export default function MinimalVideo({
     }
   }, [isMuted]);
 
+  useEffect(() => () => clearHideTimeout(), []);
+
   const togglePlay = () => {
     const video = videoRef.current;
     if (!video) {
       return;
     }
     if (video.paused) {
+      setUiVisible(false);
       video.play().catch(() => undefined);
     } else {
       video.pause();
@@ -124,17 +166,41 @@ export default function MinimalVideo({
     const rect = event.currentTarget.getBoundingClientRect();
     const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
     video.currentTime = ratio * video.duration;
+    scheduleHide();
   };
 
-  const showControls = showUi || !isPlaying;
+  const showControls = uiVisible || !isPlaying;
 
   return (
     <div
       ref={containerRef}
       className={cn("relative h-full w-full overflow-hidden", className)}
-      onMouseEnter={() => setShowUi(true)}
-      onMouseLeave={() => setShowUi(false)}
-      onTouchStart={() => setShowUi(true)}
+      onPointerDown={() => {
+        if (!isPlaying) {
+          setUiVisible(true);
+          return;
+        }
+        setUiVisible((current) => {
+          const next = !current;
+          if (next) {
+            scheduleHide();
+          } else {
+            clearHideTimeout();
+          }
+          return next;
+        });
+      }}
+      onPointerMove={() => {
+        if (isPlaying) {
+          revealUi();
+        }
+      }}
+      onPointerLeave={() => {
+        if (isPlaying) {
+          setUiVisible(false);
+          clearHideTimeout();
+        }
+      }}
     >
       {hasIntersected ? (
         <video
@@ -152,13 +218,23 @@ export default function MinimalVideo({
       )}
       <div
         className={cn(
+          "pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent transition-opacity",
+          showControls ? "opacity-100" : "opacity-0",
+        )}
+      />
+      <div
+        className={cn(
           "absolute inset-0 flex items-center justify-center transition-opacity",
           showControls ? "opacity-100" : "opacity-0",
         )}
       >
         <button
           type="button"
-          onClick={togglePlay}
+          onClick={(event) => {
+            event.stopPropagation();
+            togglePlay();
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
           className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white/90 backdrop-blur"
           aria-label={isPlaying ? "Pause video" : "Play video"}
         >
@@ -169,11 +245,13 @@ export default function MinimalVideo({
         className={cn(
           "absolute bottom-2 left-2 right-2 flex items-center gap-2 transition-opacity",
           showControls ? "opacity-100" : "opacity-0",
+          showControls ? "pointer-events-auto" : "pointer-events-none",
         )}
       >
         <div
           className="relative h-1 w-full cursor-pointer overflow-hidden rounded-full bg-white/20"
           onClick={handleSeek}
+          onPointerDown={(event) => event.stopPropagation()}
           aria-hidden="true"
         >
           <div
@@ -183,7 +261,12 @@ export default function MinimalVideo({
         </div>
         <button
           type="button"
-          onClick={toggleMute}
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleMute();
+            scheduleHide();
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
           className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white/80 backdrop-blur"
           aria-label={isMuted ? "Unmute video" : "Mute video"}
         >
