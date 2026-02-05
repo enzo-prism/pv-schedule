@@ -339,7 +339,7 @@ export const seedMeets: SeedMeet[] = [
   {
     "id": 97,
     "name": "Wolf Pack Classic \ud83d\udc3a",
-    "date": "2026-02-05",
+    "date": "2026-02-07",
     "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
     "description": "",
     "createdAt": "2026-01-16T18:00:45.098Z",
