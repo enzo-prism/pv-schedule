@@ -587,7 +587,7 @@ export const seedMeetMedia: SeedMediaItem[] = [
     "thumbnail": null,
     "caption": null,
     "originalFilename": "848F8583-8D02-4BE7-A0A0-1CD31DF68425_uzyc9p.jpg",
-    "position": 0,
+    "position": 1,
     "uploadedAt": null,
     "focusX": 50,
     "focusY": 50
@@ -600,7 +600,7 @@ export const seedMeetMedia: SeedMediaItem[] = [
     "thumbnail": null,
     "caption": null,
     "originalFilename": "IMG_1704_eet1kc.jpg",
-    "position": 1,
+    "position": 0,
     "uploadedAt": null,
     "focusX": 50,
     "focusY": 50
