@@ -225,7 +225,11 @@ export default function MinimalVideo({
       <div
         className={cn(
           "absolute inset-0 flex items-center justify-center transition-opacity",
-          showControls ? "opacity-100" : "opacity-0",
+          !isPlaying
+            ? "opacity-100"
+            : uiVisible
+              ? "opacity-100"
+              : "opacity-0 pointer-events-none",
         )}
       >
         <button
@@ -235,10 +239,15 @@ export default function MinimalVideo({
             togglePlay();
           }}
           onPointerDown={(event) => event.stopPropagation()}
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white/90 backdrop-blur"
+          className={cn(
+            "flex items-center justify-center rounded-full border backdrop-blur transition-all",
+            isPlaying
+              ? "h-9 w-9 border-white/15 bg-black/30 text-white/70"
+              : "h-12 w-12 border-white/20 bg-black/50 text-white/90",
+          )}
           aria-label={isPlaying ? "Pause video" : "Play video"}
         >
-          {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
+          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-5 w-5 ml-0.5" />}
         </button>
       </div>
       <div
