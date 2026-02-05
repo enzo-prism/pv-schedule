@@ -107,7 +107,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., State Championships" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     autoCapitalize="words"
                     autoComplete="off"
                     {...field} 
@@ -127,7 +127,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     type="date" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     {...field} 
                   />
                 </FormControl>
@@ -145,7 +145,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., Central Stadium, Springfield" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     autoCapitalize="words"
                     autoComplete="off"
                     {...field} 
@@ -165,7 +165,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Textarea 
                     placeholder="Add any additional details about the meet" 
-                    className="resize-none border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="resize-none bg-card/30"
                     rows={3}
                     {...field} 
                   />
@@ -184,7 +184,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 2.10m" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     inputMode="decimal"
                     {...field} 
                   />
@@ -203,7 +203,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., Carbon Fiber 4.5m" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     autoCapitalize="words"
                     {...field} 
                   />
@@ -222,7 +222,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 3.8m" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     inputMode="decimal"
                     {...field} 
                   />
@@ -241,7 +241,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 1st, 2nd, 3rd" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     inputMode="numeric"
                     {...field} 
                   />
@@ -261,7 +261,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., https://athletic.net/meet/12345" 
                     type="url"
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     inputMode="url"
                     {...field} 
                   />
@@ -280,7 +280,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 2:45" 
-                    className="border-border bg-background/40 focus-visible:ring-1 focus-visible:ring-ring"
+                    className="bg-card/30"
                     inputMode="numeric"
                     {...field} 
                   />
@@ -298,7 +298,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormLabel className="text-sm font-medium">Registration Status</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="border-border bg-background/40 focus:ring-1 focus:ring-ring">
+                    <SelectTrigger className="bg-card/30">
                       <SelectValue placeholder="Select registration status" />
                     </SelectTrigger>
                   </FormControl>
@@ -313,11 +313,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
             )}
           />
           
-          <Button 
-            type="submit" 
-            className="w-full bg-foreground text-background hover:bg-foreground/90 py-2 h-auto rounded shadow-none transition-colors mt-3 font-medium mb-2"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full mt-3 mb-2" disabled={isLoading}>
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>
         </form>

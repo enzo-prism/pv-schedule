@@ -229,7 +229,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background relative pb-app-nav">
       {/* Main content */}
-      <main className="max-w-2xl mx-auto px-6 pt-8 pb-16">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-16">
         {/* User profile */}
         <div className="mb-8">
           <UserProfile name="Enzo Sison" />
@@ -243,7 +243,7 @@ export default function Home() {
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-white/5 animate-pulse rounded-lg" />
+              <div key={i} className="h-20 bg-white/5 animate-pulse rounded-2xl" />
             ))}
           </div>
         ) : filteredMeets.length > 0 ? (
@@ -272,7 +272,7 @@ export default function Home() {
               variant="outline"
               size="sm"
               onClick={() => setIsAddMeetOpen(true)}
-              className="gap-2 border-white/10 text-muted-foreground hover:bg-white/5"
+              className="gap-2 text-muted-foreground"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
               Add meet

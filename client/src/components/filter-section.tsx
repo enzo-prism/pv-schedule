@@ -14,12 +14,12 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
 
   return (
     <div className="mb-8 flex justify-center">
-      <div className="flex items-center border border-white/10 rounded-full overflow-hidden bg-white/5 backdrop-blur">
+      <div className="flex items-center gap-1 rounded-full border border-white/10 bg-card/40 p-1 backdrop-blur-sm">
         <button
-          className={`px-4 py-2 text-sm transition-colors ${
+          className={`rounded-full px-4 py-2 text-sm transition-colors ${
             isUpcomingActive
-              ? "bg-white/15 text-white"
-              : "text-muted-foreground hover:bg-white/5"
+              ? "bg-white/10 text-foreground"
+              : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
           }`}
           onClick={() => onFilterChange("upcoming")}
           aria-pressed={isUpcomingActive}
@@ -27,10 +27,10 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
           Upcoming
         </button>
         <button
-          className={`px-4 py-2 text-sm transition-colors border-l border-white/10 ${
+          className={`rounded-full px-4 py-2 text-sm transition-colors ${
             isPastActive
-              ? "bg-white/15 text-white"
-              : "text-muted-foreground hover:bg-white/5"
+              ? "bg-white/10 text-foreground"
+              : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
           }`}
           onClick={() => onFilterChange("past")}
           aria-pressed={isPastActive}
@@ -39,10 +39,10 @@ export default function FilterSection({ currentFilter, onFilterChange }: FilterS
         </button>
         <Link
           href="/trends"
-          className={`px-4 py-2 text-sm transition-colors border-l border-white/10 ${
+          className={`rounded-full px-4 py-2 text-sm transition-colors ${
             isTrendsActive
-              ? "bg-white/15 text-white"
-              : "text-muted-foreground hover:bg-white/5"
+              ? "bg-white/10 text-foreground"
+              : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
           }`}
           aria-current={isTrendsActive ? "page" : undefined}
         >

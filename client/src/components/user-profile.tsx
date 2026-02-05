@@ -8,9 +8,9 @@ interface UserProfileProps {
 
 export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
   return (
-    <div className="flex items-center justify-between py-4 mb-2">
+    <div className="flex items-center justify-between py-3">
       <div className="flex items-center gap-3">
-        <div className="h-12 w-12 overflow-hidden rounded-[22%] border border-white/10 bg-white/5 flex items-center justify-center">
+        <div className="h-11 w-11 overflow-hidden rounded-[22%] border border-white/10 bg-white/5 flex items-center justify-center">
           <img 
             src={enzoProfilePic}
             alt={`${name}'s profile`}
@@ -32,24 +32,24 @@ export default function UserProfile({ name = "Enzo Sison" }: UserProfileProps) {
           />
         </div>
         <div>
-          <h2 className="text-base font-medium text-foreground">{name}</h2>
+          <h2 className="text-lg font-semibold text-foreground leading-tight">{name}</h2>
           <div className="space-y-0.5">
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               <a 
                 href="https://www.filamsports.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:underline hover:text-white transition-colors"
+                className="hover:underline hover:text-foreground transition-colors"
               >
                 🇵🇭 FilAm Sports
               </a>
             </p>
-            <p className="text-[10px] text-muted-foreground/80">
+            <p className="text-[11px] text-muted-foreground/70">
               <a
                 href="https://www.design-prism.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline hover:text-white transition-colors"
+                className="hover:underline hover:text-foreground transition-colors"
               >
                 engineered by prism in silicon valley
               </a>

@@ -29,7 +29,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen pb-app-nav">
+      <div className="min-h-screen">
         <Router />
         {showFab && (
           <Button

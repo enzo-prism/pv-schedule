@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import MinimalVideo from "@/components/minimal-video";
-import { getOptimizedImageUrl, getOptimizedVideoUrl } from "@/lib/media";
+import { getOptimizedImageUrl, getOptimizedVideoPosterUrl, getOptimizedVideoUrl } from "@/lib/media";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -794,8 +794,10 @@ type MeetPayload = {
       ? getOptimizedVideoUrl(heroMedia.url, { width: 1600 })
       : null;
   const heroPosterUrl =
-    heroMedia && heroMedia.type === "video" && heroMedia.thumbnail
-      ? getOptimizedImageUrl(heroMedia.thumbnail, { width: 1600 })
+    heroMedia && heroMedia.type === "video"
+      ? heroMedia.thumbnail
+        ? getOptimizedImageUrl(heroMedia.thumbnail, { width: 1600 })
+        : getOptimizedVideoPosterUrl(heroMedia.url, { width: 1600 })
       : null;
   const heroFocusX = typeof heroMedia?.focusX === "number" ? heroMedia.focusX : 50;
   const heroFocusY = typeof heroMedia?.focusY === "number" ? heroMedia.focusY : 50;
@@ -1100,6 +1102,11 @@ type MeetPayload = {
                       {item.type === "video" ? (
                         <MinimalVideo
                           src={getOptimizedVideoUrl(item.url, { width: 720 })}
+                          poster={
+                            item.thumbnail
+                              ? getOptimizedImageUrl(item.thumbnail, { width: 720 })
+                              : getOptimizedVideoPosterUrl(item.url, { width: 720 }) ?? undefined
+                          }
                           className="h-full w-full"
                         />
                       ) : (
@@ -1721,6 +1728,11 @@ type MeetPayload = {
                           <div className="w-full max-w-[420px] aspect-[9/16]">
                             <MinimalVideo
                               src={getOptimizedVideoUrl(item.url, { width: 1080 })}
+                              poster={
+                                item.thumbnail
+                                  ? getOptimizedImageUrl(item.thumbnail, { width: 1080 })
+                                  : getOptimizedVideoPosterUrl(item.url, { width: 1080 }) ?? undefined
+                              }
                               fit="contain"
                               className="h-full w-full"
                               lazy={false}

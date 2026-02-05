@@ -327,7 +327,7 @@ export default function Trends() {
           delta: heightPoints[heightPoints.length - 1].meters - heightPoints[0].meters,
         }
       : null;
-  const topVenue = useMemo(() => {
+  const topVenue = useMemo<{ location: string; count: number } | null>(() => {
     const counts = new Map<string, number>();
     rangedRows.forEach((row) => {
       const location = row.location?.trim();
@@ -473,7 +473,7 @@ export default function Trends() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden pb-app-nav">
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-8 pb-24 space-y-6">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-24 space-y-6">
         <div className="mb-2">
           <UserProfile name="Enzo Sison" />
         </div>
@@ -509,55 +509,65 @@ export default function Trends() {
           </div>
         ) : isError ? null : (
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Meets</p>
-              <div className="mt-2 text-2xl font-semibold text-foreground">{meetsInRange}</div>
-              <p className="mt-1 text-xs text-muted-foreground">{rangeLabel}</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Height PR</p>
-              <div className="mt-2 text-2xl font-semibold text-foreground">{heightPrValue}</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {heightPrImperial || "No height data"}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Best Takeoff</p>
-              <div className="mt-2 text-2xl font-semibold text-foreground">{takeoffBestValue}</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {takeoffBest ? "Best in range" : "No takeoff data"}
-              </p>
-            </div>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Meets</p>
+                <div className="mt-2 text-2xl font-semibold text-foreground">{meetsInRange}</div>
+                <p className="mt-1 text-xs text-muted-foreground">{rangeLabel}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Height PR</p>
+                <div className="mt-2 text-2xl font-semibold text-foreground">{heightPrValue}</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {heightPrImperial || "No height data"}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Best Takeoff</p>
+                <div className="mt-2 text-2xl font-semibold text-foreground">{takeoffBestValue}</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {takeoffBest ? "Best in range" : "No takeoff data"}
+                </p>
+              </CardContent>
+            </Card>
           </div>
         )}
 
         {isLoading ? (
-          <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-4/5" />
-            </div>
-          </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-4/5" />
+              </div>
+            </CardContent>
+          </Card>
         ) : isError ? null : (
-          <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Insights</p>
-            <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
-              <div className="flex items-start gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-300/70" />
-                <span>
-                  <span className="text-foreground">Height trend:</span> {heightTrendLabel}
-                </span>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Insights</p>
+              <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
+                <div className="flex items-start gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-300/70" />
+                  <span>
+                    <span className="text-foreground">Height trend:</span> {heightTrendLabel}
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-300/70" />
+                  <span>
+                    <span className="text-foreground">Most visited venue:</span>{" "}
+                    {venueInsightLabel}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-start gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-300/70" />
-                <span>
-                  <span className="text-foreground">Most visited venue:</span>{" "}
-                  {venueInsightLabel}
-                </span>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {isLoading ? (

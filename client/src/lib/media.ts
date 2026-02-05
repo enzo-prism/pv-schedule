@@ -79,3 +79,20 @@ export const getOptimizedVideoUrl = (
   }
   return injectTransforms(url, transforms);
 };
+
+// For Cloudinary videos, request a JPEG frame for use as a poster/thumbnail.
+// Returns null when we can't safely derive one.
+export const getOptimizedVideoPosterUrl = (
+  url: string,
+  { width }: { width?: number } = {},
+) => {
+  if (!isCloudinaryUrl(url)) {
+    return null;
+  }
+
+  const transforms = ["so_0", "f_jpg", "q_auto"];
+  if (width) {
+    transforms.push(`w_${width}`);
+  }
+  return injectTransforms(url, transforms);
+};

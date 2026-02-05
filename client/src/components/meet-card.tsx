@@ -15,7 +15,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { getOptimizedImageUrl, getOptimizedVideoUrl } from "@/lib/media";
+import { getOptimizedImageUrl, getOptimizedVideoPosterUrl, getOptimizedVideoUrl } from "@/lib/media";
 
 interface MeetCardProps {
   meet: Meet;
@@ -106,19 +106,27 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   const objectPosition = `${focusX}% ${focusY}%`;
 
   return (
-    <Link href={`/meet/${meet.id}`} className="block cursor-pointer hover:opacity-95 transition-opacity">
+    <Link
+      href={`/meet/${meet.id}`}
+      className="block cursor-pointer transition-transform duration-150 hover:-translate-y-px"
+    >
       <Card
         className={`overflow-hidden ${
           isNextUpcoming && !isPast
-            ? "border-l-2 border-l-white/40 border-white/10"
-            : "border-white/10"
-        } bg-card hover:bg-white/5 transition-colors duration-150 relative`}
+            ? "border-l-2 border-l-white/25"
+            : ""
+        } hover:bg-white/5 hover:border-white/15 transition-colors duration-150 relative`}
       >
         {firstMedia && (
           <div className="relative aspect-video bg-white/5 overflow-hidden">
             {firstMedia.type === "video" ? (
               <video
                 src={previewUrl}
+                poster={
+                  firstMedia.thumbnail
+                    ? getOptimizedImageUrl(firstMedia.thumbnail, { width: 720 })
+                    : getOptimizedVideoPosterUrl(firstMedia.url, { width: 720 }) ?? undefined
+                }
                 className="w-full h-full object-cover"
                 muted
                 loop
@@ -139,7 +147,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>
         )}
-        <CardContent className="p-5">
+        <CardContent className="p-4 sm:p-5">
           <div className="flex justify-between items-start">
             <div className="flex-grow">
               <h3 className="font-medium text-foreground leading-tight">{meet.name}</h3>
