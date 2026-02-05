@@ -1,8 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
+import type { Request } from "express";
 import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "@shared/media";
-
-const UPLOADS_ROOT = path.resolve(process.cwd(), "public", "uploads");
 
 const EXTENSION_MAP: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -26,6 +25,26 @@ export function inferMediaType(
     return "video";
   }
   return fallbackType ?? null;
+}
+
+export function uploadsEnabled(): boolean {
+  const configured = process.env.UPLOADS_ENABLED?.trim();
+  if (configured && configured.length > 0) {
+    return configured.toLowerCase() === "true";
+  }
+
+  if (process.env.VERCEL) {
+    return false;
+  }
+
+  return true;
+}
+
+export function getUploadsRoot(): string {
+  const configured = process.env.UPLOADS_ROOT?.trim();
+  return configured && configured.length > 0
+    ? configured
+    : path.resolve(process.cwd(), "public", "uploads");
 }
 
 function sanitizeFilename(filename: string): string {
@@ -54,7 +73,7 @@ function ensureExtension(filename: string, contentType?: string): string {
 }
 
 export async function ensureMeetUploadDir(meetId: number): Promise<string> {
-  const dir = path.join(UPLOADS_ROOT, String(meetId));
+  const dir = path.join(getUploadsRoot(), String(meetId));
   await fs.mkdir(dir, { recursive: true });
   return dir;
 }
@@ -107,7 +126,7 @@ export async function removeLocalUpload(url: string | null | undefined): Promise
   }
 
   const relativePath = url.replace(/^\/uploads\//, "");
-  const fullPath = path.resolve(UPLOADS_ROOT, relativePath);
+  const fullPath = path.resolve(getUploadsRoot(), relativePath);
 
   try {
     await fs.unlink(fullPath);
@@ -123,4 +142,36 @@ export function isValidRemoteUrl(input: string): boolean {
   } catch {
     return false;
   }
+}
+
+export function resolveMediaUrl(
+  req: Request | null,
+  url: string | null | undefined,
+): string | null | undefined {
+  if (!url) {
+    return url;
+  }
+
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+
+  if (!url.startsWith("/uploads/")) {
+    return url;
+  }
+
+  const mediaBase = process.env.MEDIA_BASE_URL?.trim();
+  if (mediaBase) {
+    return `${mediaBase.replace(/\/$/, "")}${url}`;
+  }
+
+  if (req) {
+    const host = req.get("host");
+    if (host) {
+      const protocol = req.protocol || (req.secure ? "https" : "http");
+      return `${protocol}://${host}${url}`;
+    }
+  }
+
+  return url;
 }

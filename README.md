@@ -68,6 +68,10 @@ See `.env.example` for defaults and flags:
 - `USE_IN_MEMORY_STORAGE`, `USE_SAMPLE_DATA`, `SEED_DEMO_DATA`
 - `USE_PRODUCTION_DATA`, `PRODUCTION_DATABASE_URL`, `PRODUCTION_API_BASE_URL`
 - `DATABASE_URL`, `PORT`, `HOST`, `REUSE_PORT`
+- `UPLOADS_ROOT` (optional path for persistent uploads)
+- `MEDIA_BASE_URL` (optional absolute base URL for serving uploads)
+- `UPLOADS_ENABLED` (set `false` to disable file uploads; defaults to `false` on Vercel unless explicitly enabled)
+- `VITE_UPLOADS_ENABLED` (set `false` to hide upload UI in the client)
 
 ## Common Commands
 - `npm install`
@@ -79,5 +83,6 @@ See `.env.example` for defaults and flags:
 - `npm run sync:prod`
 
 ## Notes
-- Media uploads are stored locally under `public/uploads` and served at `/uploads/*` (25MB limit). For production, consider object storage.
+- Media uploads are stored locally under `public/uploads` (or `UPLOADS_ROOT`) and served at `/uploads/*` (25MB limit). For production, point `UPLOADS_ROOT` at a persistent volume and set `MEDIA_BASE_URL` if the frontend is hosted separately from the API.
+- Vercel deployments default to URL-only media because serverless functions have a 4.5MB payload limit; enable uploads only if you move to external object storage.
 - `isFilamMeet` is stored in the schema but not currently surfaced in the UI.

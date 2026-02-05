@@ -85,11 +85,13 @@ export default function MeetDetails() {
   const [, params] = useRoute<{ id: string }>("/meet/:id");
   const meetId = params?.id ? parseInt(params.id, 10) : null;
   const { toast } = useToast();
+  const uploadsEnabled = import.meta.env.VITE_UPLOADS_ENABLED !== "false";
+  const initialMediaMode: MediaMode = uploadsEnabled ? "upload" : "url";
   
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
-  const [mediaMode, setMediaMode] = useState<MediaMode>("upload");
+  const [mediaMode, setMediaMode] = useState<MediaMode>(initialMediaMode);
   const [mediaQueue, setMediaQueue] = useState<MediaQueueItem[]>([]);
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaCaption, setMediaCaption] = useState("");
@@ -147,7 +149,7 @@ type MeetPayload = {
     setUploadProgress(null);
     setIsUploading(false);
     setIsDragActive(false);
-    setMediaMode("upload");
+    setMediaMode(initialMediaMode);
   };
 
   const readFileAsDataUrl = (file: File) =>
@@ -447,6 +449,10 @@ type MeetPayload = {
 
   const handleMediaSubmit = async () => {
     if (isUploading) {
+      return;
+    }
+    if (mediaMode === "upload" && !uploadsEnabled) {
+      setMediaError("File uploads are disabled on this deployment. Please add a link instead.");
       return;
     }
     setMediaError(null);
@@ -1300,13 +1306,19 @@ type MeetPayload = {
                   <DialogHeader className="pr-8">
                     <DialogTitle>Add Media</DialogTitle>
                     <DialogDescription>
-                      Upload a photo or video, or add a link to hosted media.
+                      {uploadsEnabled
+                        ? "Upload a photo or video, or add a link to hosted media."
+                        : "Add a link to hosted media. File uploads are disabled here."}
                     </DialogDescription>
                   </DialogHeader>
 
                   <Tabs
                     value={mediaMode}
                     onValueChange={(value) => {
+                      if (!uploadsEnabled && value === "upload") {
+                        setMediaMode("url");
+                        return;
+                      }
                       setMediaMode(value as MediaMode);
                       setMediaError(null);
                       setMediaWarning(null);
@@ -1317,194 +1329,207 @@ type MeetPayload = {
                       }
                     }}
                   >
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="upload">Upload</TabsTrigger>
-                      <TabsTrigger value="url">Link</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="upload" className="space-y-4 pt-4">
-                      <div
-                        className={`rounded-xl border-2 border-dashed p-4 transition ${
-                          isDragActive
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 bg-gray-50"
-                        }`}
-                        onDragOver={handleDragOver}
-                        onDragEnter={() => setIsDragActive(true)}
-                        onDragLeave={(event) => {
-                          if (event.currentTarget === event.target) {
-                            setIsDragActive(false);
-                          }
-                        }}
-                        onDrop={handleDrop}
-                      >
-                        <div className="flex flex-col items-center gap-2 text-center">
-                          <p className="text-sm font-semibold text-gray-700">
-                            Drag and drop files here
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            or use the buttons below
-                          </p>
-                        </div>
-                        <div className="mt-3 grid grid-cols-2 gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="h-11 justify-center gap-2"
-                            onClick={() => libraryInputRef.current?.click()}
-                          >
-                            <ImagePlus className="h-4 w-4" />
-                            Choose Media
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="h-11 justify-center gap-2"
-                            onClick={() => cameraInputRef.current?.click()}
-                          >
-                            <Camera className="h-4 w-4" />
-                            Camera
-                          </Button>
-                        </div>
-                        <input
-                          ref={libraryInputRef}
-                          type="file"
-                          accept="image/*,video/*"
-                          multiple
-                          className="hidden"
-                          onChange={(event) => {
-                            handleDropFiles(event.target.files);
-                            event.currentTarget.value = "";
-                          }}
-                        />
-                        <input
-                          ref={cameraInputRef}
-                          type="file"
-                          accept="image/*,video/*"
-                          capture="environment"
-                          className="hidden"
-                          onChange={(event) => {
-                            handleDropFiles(event.target.files);
-                            event.currentTarget.value = "";
-                          }}
-                        />
-                        <p className="mt-2 text-xs text-gray-500">
-                          Select multiple photos or videos. Max file size: {MAX_MEDIA_LABEL} each. Swipe left on a file to remove.
-                        </p>
-                      </div>
-
-                      {mediaQueue.length > 0 ? (
-                        <div className="space-y-3">
-                          {mediaQueue.map((item, index) => (
-                            <div
-                              key={item.id}
-                              className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
-                              onTouchStart={(event) => {
-                                touchStartXRef.current[item.id] =
-                                  event.touches[0]?.clientX ?? 0;
-                              }}
-                              onTouchEnd={(event) => {
-                                const startX = touchStartXRef.current[item.id] ?? 0;
-                                const endX = event.changedTouches[0]?.clientX ?? 0;
-                                if (startX - endX > 80) {
-                                  removeQueueItem(item.id);
-                                }
-                              }}
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                                  {item.type === "video" ? (
-                                    <video
-                                      src={item.previewUrl}
-                                      className="h-full w-full object-cover"
-                                      muted
-                                      playsInline
-                                    />
-                                  ) : (
-                                    <img
-                                      src={item.previewUrl}
-                                      alt={item.file.name}
-                                      className="h-full w-full object-cover"
-                                    />
-                                  )}
-                                </div>
-                                <div className="min-w-0 flex-1 space-y-2">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <p className="truncate text-sm font-semibold text-gray-700">
-                                      {item.file.name}
-                                    </p>
-                                    <div className="flex items-center gap-2">
-                                      <Badge
-                                        variant="outline"
-                                        className="text-[10px] uppercase tracking-wide text-gray-600"
-                                      >
-                                        {item.type === "photo" ? "Photo" : "Video"}
-                                      </Badge>
-                                      {item.status === "error" && (
-                                        <Badge
-                                          variant={item.errorType === "upload" ? "secondary" : "destructive"}
-                                          className="text-[10px] uppercase tracking-wide"
-                                        >
-                                          {item.errorType === "upload" ? "Upload failed" : "Fix needed"}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <p className="text-xs text-gray-500">
-                                    {formatFileSize(item.file.size)} · {formatQueueStatus(item)}
-                                  </p>
-                                  <Input
-                                    value={item.caption ?? ""}
-                                    onChange={(event) => updateQueueCaption(item.id, event.target.value)}
-                                    placeholder="Add a caption"
-                                    className="h-9"
-                                    disabled={item.status === "uploading"}
-                                  />
-                                  {item.error && (
-                                    <p className="text-[11px] text-red-500">
-                                      {item.error}
-                                    </p>
-                                  )}
-                                </div>
-                                <div className="flex flex-col items-center gap-1">
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    disabled={index === 0 || item.status === "uploading"}
-                                    onClick={() => moveQueueItem(item.id, "up")}
-                                  >
-                                    <ArrowUp className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    disabled={index === mediaQueue.length - 1 || item.status === "uploading"}
-                                    onClick={() => moveQueueItem(item.id, "down")}
-                                  >
-                                    <ArrowDown className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  disabled={item.status === "uploading"}
-                                  onClick={() => removeQueueItem(item.id)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="rounded-lg border border-dashed border-gray-200 bg-white p-4 text-xs text-gray-500">
-                          No files selected yet.
-                        </div>
+                    <TabsList
+                      className={`grid w-full ${uploadsEnabled ? "grid-cols-2" : "grid-cols-1"}`}
+                    >
+                      {uploadsEnabled && (
+                        <TabsTrigger value="upload">Upload</TabsTrigger>
                       )}
-                    </TabsContent>
+                      <TabsTrigger value="url">
+                        {uploadsEnabled ? "Link" : "Add link"}
+                      </TabsTrigger>
+                    </TabsList>
+                    {!uploadsEnabled && (
+                      <p className="text-xs text-amber-600">
+                        File uploads are disabled on this deployment. Add a hosted URL instead.
+                      </p>
+                    )}
+
+                    {uploadsEnabled && (
+                      <TabsContent value="upload" className="space-y-4 pt-4">
+                        <div
+                          className={`rounded-xl border-2 border-dashed p-4 transition ${
+                            isDragActive
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 bg-gray-50"
+                          }`}
+                          onDragOver={handleDragOver}
+                          onDragEnter={() => setIsDragActive(true)}
+                          onDragLeave={(event) => {
+                            if (event.currentTarget === event.target) {
+                              setIsDragActive(false);
+                            }
+                          }}
+                          onDrop={handleDrop}
+                        >
+                          <div className="flex flex-col items-center gap-2 text-center">
+                            <p className="text-sm font-semibold text-gray-700">
+                              Drag and drop files here
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              or use the buttons below
+                            </p>
+                          </div>
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="h-11 justify-center gap-2"
+                              onClick={() => libraryInputRef.current?.click()}
+                            >
+                              <ImagePlus className="h-4 w-4" />
+                              Choose Media
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="h-11 justify-center gap-2"
+                              onClick={() => cameraInputRef.current?.click()}
+                            >
+                              <Camera className="h-4 w-4" />
+                              Camera
+                            </Button>
+                          </div>
+                          <input
+                            ref={libraryInputRef}
+                            type="file"
+                            accept="image/*,video/*"
+                            multiple
+                            className="hidden"
+                            onChange={(event) => {
+                              handleDropFiles(event.target.files);
+                              event.currentTarget.value = "";
+                            }}
+                          />
+                          <input
+                            ref={cameraInputRef}
+                            type="file"
+                            accept="image/*,video/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={(event) => {
+                              handleDropFiles(event.target.files);
+                              event.currentTarget.value = "";
+                            }}
+                          />
+                          <p className="mt-2 text-xs text-gray-500">
+                            Select multiple photos or videos. Max file size: {MAX_MEDIA_LABEL} each. Swipe left on a file to remove.
+                          </p>
+                        </div>
+
+                        {mediaQueue.length > 0 ? (
+                          <div className="space-y-3">
+                            {mediaQueue.map((item, index) => (
+                              <div
+                                key={item.id}
+                                className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
+                                onTouchStart={(event) => {
+                                  touchStartXRef.current[item.id] =
+                                    event.touches[0]?.clientX ?? 0;
+                                }}
+                                onTouchEnd={(event) => {
+                                  const startX = touchStartXRef.current[item.id] ?? 0;
+                                  const endX = event.changedTouches[0]?.clientX ?? 0;
+                                  if (startX - endX > 80) {
+                                    removeQueueItem(item.id);
+                                  }
+                                }}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                    {item.type === "video" ? (
+                                      <video
+                                        src={item.previewUrl}
+                                        className="h-full w-full object-cover"
+                                        muted
+                                        playsInline
+                                      />
+                                    ) : (
+                                      <img
+                                        src={item.previewUrl}
+                                        alt={item.file.name}
+                                        className="h-full w-full object-cover"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="min-w-0 flex-1 space-y-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="truncate text-sm font-semibold text-gray-700">
+                                        {item.file.name}
+                                      </p>
+                                      <div className="flex items-center gap-2">
+                                        <Badge
+                                          variant="outline"
+                                          className="text-[10px] uppercase tracking-wide text-gray-600"
+                                        >
+                                          {item.type === "photo" ? "Photo" : "Video"}
+                                        </Badge>
+                                        {item.status === "error" && (
+                                          <Badge
+                                            variant={item.errorType === "upload" ? "secondary" : "destructive"}
+                                            className="text-[10px] uppercase tracking-wide"
+                                          >
+                                            {item.errorType === "upload" ? "Upload failed" : "Fix needed"}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                      {formatFileSize(item.file.size)} · {formatQueueStatus(item)}
+                                    </p>
+                                    <Input
+                                      value={item.caption ?? ""}
+                                      onChange={(event) => updateQueueCaption(item.id, event.target.value)}
+                                      placeholder="Add a caption"
+                                      className="h-9"
+                                      disabled={item.status === "uploading"}
+                                    />
+                                    {item.error && (
+                                      <p className="text-[11px] text-red-500">
+                                        {item.error}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col items-center gap-1">
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      disabled={index === 0 || item.status === "uploading"}
+                                      onClick={() => moveQueueItem(item.id, "up")}
+                                    >
+                                      <ArrowUp className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      disabled={index === mediaQueue.length - 1 || item.status === "uploading"}
+                                      onClick={() => moveQueueItem(item.id, "down")}
+                                    >
+                                      <ArrowDown className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={item.status === "uploading"}
+                                    onClick={() => removeQueueItem(item.id)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="rounded-lg border border-dashed border-gray-200 bg-white p-4 text-xs text-gray-500">
+                            No files selected yet.
+                          </div>
+                        )}
+                      </TabsContent>
+                    )}
 
                     <TabsContent value="url" className="space-y-4 pt-4">
                       <div className="space-y-2">

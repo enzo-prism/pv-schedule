@@ -1,5 +1,4 @@
 import express, { type Express } from "express";
-import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMeetSchema } from "@shared/schema";
 import { normalizeMeetMetrics } from "@shared/metrics";
@@ -8,15 +7,46 @@ import {
   inferMediaType,
   isValidRemoteUrl,
   removeLocalUpload,
+  resolveMediaUrl,
   saveBase64Upload,
+  uploadsEnabled,
 } from "./media";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+function resolveMediaItemUrls(
+  req: express.Request,
+  item: {
+    url: string;
+    thumbnail: string | null;
+    [key: string]: any;
+  },
+) {
+  return {
+    ...item,
+    url: resolveMediaUrl(req, item.url) ?? item.url,
+    thumbnail:
+      resolveMediaUrl(req, item.thumbnail ?? undefined) ??
+      item.thumbnail ??
+      null,
+  };
+}
+
+function resolveMeetMedia(req: express.Request, meet: any) {
+  if (!meet?.media || !Array.isArray(meet.media)) {
+    return meet;
+  }
+
+  return {
+    ...meet,
+    media: meet.media.map((item: any) => resolveMediaItemUrls(req, item)),
+  };
+}
+
+export function registerRoutes(app: Express) {
   // GET - Get all meets
   app.get("/api/meets", async (_req, res) => {
     try {
       const meets = await storage.getAllMeets();
-      res.json(meets);
+      res.json(meets.map((meet) => resolveMeetMedia(_req, meet)));
     } catch (error) {
       res.status(500).json({ message: "Failed to retrieve meets" });
     }
@@ -35,7 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Meet not found" });
       }
 
-      res.json(meet);
+      res.json(resolveMeetMedia(req, meet));
     } catch (error) {
       res.status(500).json({ message: "Failed to retrieve meet" });
     }
@@ -135,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const media = await storage.getMediaForMeet(id);
-      res.json(media);
+      res.json(media.map((item) => resolveMediaItemUrls(req, item)));
     } catch (error) {
       res.status(500).json({ message: "Failed to retrieve media" });
     }
@@ -158,6 +188,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const mode = body.mode ?? (body.data ? "upload" : body.url ? "url" : null);
 
       if (mode === "upload") {
+        if (!uploadsEnabled()) {
+          return res.status(413).json({
+            message: "File uploads are disabled on this deployment. Please add a URL instead.",
+          });
+        }
+
         const filename = String(body.filename || "");
         const data = String(body.data || "");
         const contentType = body.contentType ? String(body.contentType) : undefined;
@@ -312,6 +348,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
-  const httpServer = createServer(app);
-  return httpServer;
+  return;
 }

@@ -14,6 +14,7 @@ describe("media flow (api)", () => {
     USE_PRODUCTION_DATA: process.env.USE_PRODUCTION_DATA,
     DATABASE_URL: process.env.DATABASE_URL,
     PRODUCTION_DATABASE_URL: process.env.PRODUCTION_DATABASE_URL,
+    MEDIA_BASE_URL: process.env.MEDIA_BASE_URL,
   };
 
   beforeAll(async () => {
@@ -22,6 +23,7 @@ describe("media flow (api)", () => {
     process.env.USE_PRODUCTION_DATA = "false";
     delete process.env.DATABASE_URL;
     delete process.env.PRODUCTION_DATABASE_URL;
+    process.env.MEDIA_BASE_URL = "https://example.test";
 
     vi.resetModules();
     const { registerRoutes } = await import("../routes");
@@ -107,11 +109,13 @@ describe("media flow (api)", () => {
     expect(mediaRes.body.map((item: { type: string }) => item.type)).toEqual(
       expect.arrayContaining(["photo", "video"]),
     );
+    expect(mediaRes.body[0].url).toMatch(/^https:\/\/example\.test\/uploads\//);
 
     await Promise.all(
-      mediaRes.body.map((item: { url?: string | null }) =>
-        removeLocalUpload(item.url),
-      ),
+      mediaRes.body.map((item: { url?: string | null }) => {
+        const localUrl = item.url?.replace(/^https?:\/\/[^/]+/, "");
+        return removeLocalUpload(localUrl);
+      }),
     );
   });
 });
