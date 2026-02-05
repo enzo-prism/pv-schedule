@@ -10,6 +10,8 @@ type MinimalVideoProps = {
   loop?: boolean;
   autoPlay?: boolean;
   poster?: string;
+  lazy?: boolean;
+  rootMargin?: string;
 };
 
 export default function MinimalVideo({
@@ -20,12 +22,16 @@ export default function MinimalVideo({
   loop = false,
   autoPlay = false,
   poster,
+  lazy = true,
+  rootMargin = "300px",
 }: MinimalVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(muted);
   const [showUi, setShowUi] = useState(false);
+  const [hasIntersected, setHasIntersected] = useState(!lazy);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -59,6 +65,32 @@ export default function MinimalVideo({
       video.removeEventListener("loadedmetadata", handleTime);
     };
   }, [autoPlay]);
+
+  useEffect(() => {
+    if (!lazy) {
+      return;
+    }
+    const target = containerRef.current;
+    if (!target) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHasIntersected(true);
+          } else if (videoRef.current && !entry.isIntersecting) {
+            videoRef.current.pause();
+          }
+        });
+      },
+      { rootMargin },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [lazy, rootMargin]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -98,21 +130,26 @@ export default function MinimalVideo({
 
   return (
     <div
+      ref={containerRef}
       className={cn("relative h-full w-full overflow-hidden", className)}
       onMouseEnter={() => setShowUi(true)}
       onMouseLeave={() => setShowUi(false)}
       onTouchStart={() => setShowUi(true)}
     >
-      <video
-        ref={videoRef}
-        src={src}
-        className={cn("h-full w-full", fit === "contain" ? "object-contain" : "object-cover")}
-        playsInline
-        preload="metadata"
-        muted={isMuted}
-        loop={loop}
-        poster={poster}
-      />
+      {hasIntersected ? (
+        <video
+          ref={videoRef}
+          src={src}
+          className={cn("h-full w-full", fit === "contain" ? "object-contain" : "object-cover")}
+          playsInline
+          preload={lazy ? "metadata" : "auto"}
+          muted={isMuted}
+          loop={loop}
+          poster={poster}
+        />
+      ) : (
+        <div className="h-full w-full bg-white/5" />
+      )}
       <div
         className={cn(
           "absolute inset-0 flex items-center justify-center transition-opacity",

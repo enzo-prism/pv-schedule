@@ -50,6 +50,7 @@ test("user can add multiple media items to a meet", async ({ page }) => {
   await expect(page.getByRole("dialog", { name: "Add Media" })).toBeHidden({
     timeout: 20000,
   });
-  await expect(page.getByText("jump.png")).toBeVisible();
-  await expect(page.getByText("vault.mp4")).toBeVisible();
+  const main = page.getByRole("main");
+  await expect(main.locator("img")).toHaveCount(1);
+  await expect(main.locator("video")).toHaveCount(1);
 });

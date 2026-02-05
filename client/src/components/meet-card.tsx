@@ -15,7 +15,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { getDisplayImageUrl } from "@/lib/media";
+import { getOptimizedImageUrl, getOptimizedVideoUrl } from "@/lib/media";
 
 interface MeetCardProps {
   meet: Meet;
@@ -97,8 +97,10 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   const firstMedia = meet.media && meet.media.length > 0 ? meet.media[0] : undefined;
   const previewUrl =
     firstMedia && firstMedia.type === "photo"
-      ? getDisplayImageUrl(firstMedia.url)
-      : firstMedia?.url;
+      ? getOptimizedImageUrl(firstMedia.url, { width: 720 })
+      : firstMedia
+        ? getOptimizedVideoUrl(firstMedia.url, { width: 720 })
+        : undefined;
   const focusX = typeof firstMedia?.focusX === "number" ? firstMedia.focusX : 50;
   const focusY = typeof firstMedia?.focusY === "number" ? firstMedia.focusY : 50;
   const objectPosition = `${focusX}% ${focusY}%`;
@@ -116,11 +118,12 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
           <div className="relative aspect-video bg-white/5 overflow-hidden">
             {firstMedia.type === "video" ? (
               <video
-                src={firstMedia.url}
+                src={previewUrl}
                 className="w-full h-full object-cover"
                 muted
                 loop
                 playsInline
+                preload="metadata"
                 aria-label="Meet video preview"
               />
             ) : (

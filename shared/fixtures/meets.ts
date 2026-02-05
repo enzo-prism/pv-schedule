@@ -578,6 +578,45 @@ export const seedMeetMedia: SeedMediaItem[] = [
     "uploadedAt": null,
     "focusX": 50,
     "focusY": 50
+  },
+  {
+    "id": 17,
+    "meetId": 94,
+    "type": "photo",
+    "url": "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1770263872/848F8583-8D02-4BE7-A0A0-1CD31DF68425_uzyc9p.jpg",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "848F8583-8D02-4BE7-A0A0-1CD31DF68425_uzyc9p.jpg",
+    "position": 0,
+    "uploadedAt": null,
+    "focusX": 50,
+    "focusY": 50
+  },
+  {
+    "id": 18,
+    "meetId": 94,
+    "type": "photo",
+    "url": "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1770263992/IMG_1704_eet1kc.jpg",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "IMG_1704_eet1kc.jpg",
+    "position": 1,
+    "uploadedAt": null,
+    "focusX": 50,
+    "focusY": 50
+  },
+  {
+    "id": 19,
+    "meetId": 94,
+    "type": "video",
+    "url": "https://res.cloudinary.com/dhqpqfw6w/video/upload/v1770263879/IMG_0932_drhcns.mov",
+    "thumbnail": null,
+    "caption": null,
+    "originalFilename": "IMG_0932_drhcns.mov",
+    "position": 2,
+    "uploadedAt": null,
+    "focusX": 50,
+    "focusY": 50
   }
 ];
 

@@ -189,6 +189,11 @@ svg {
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 360px;
+}
+
 /* Custom Scrollbar Styles */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;

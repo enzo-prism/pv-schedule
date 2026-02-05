@@ -34,7 +34,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import MinimalVideo from "@/components/minimal-video";
-import { getDisplayImageUrl } from "@/lib/media";
+import { getOptimizedImageUrl, getOptimizedVideoUrl } from "@/lib/media";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1050,7 +1050,7 @@ type MeetPayload = {
                     return (
                       <div
                         key={item.id}
-                        className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 aspect-[9/16]"
+                        className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 aspect-[9/16] content-auto"
                         role={isPhoto ? "button" : undefined}
                         tabIndex={isPhoto ? 0 : undefined}
                         onClick={isPhoto ? () => openLightbox(index) : undefined}
@@ -1070,13 +1070,17 @@ type MeetPayload = {
                         }
                       >
                         {item.type === "video" ? (
-                          <MinimalVideo src={item.url} className="h-full w-full" />
+                          <MinimalVideo
+                            src={getOptimizedVideoUrl(item.url, { width: 720 })}
+                            className="h-full w-full"
+                          />
                         ) : (
                           <img
-                            src={getDisplayImageUrl(item.url)}
+                            src={getOptimizedImageUrl(item.url, { width: 720 })}
                             alt={item.caption || `${meet.name} media`}
                             className="h-full w-full object-cover"
                             loading="lazy"
+                            decoding="async"
                           />
                         )}
                         {!isReadOnly && (
@@ -1172,7 +1176,7 @@ type MeetPayload = {
               <div className="aspect-video w-full overflow-hidden rounded-lg bg-card/5">
                 {framingMedia ? (
                   <img
-                    src={getDisplayImageUrl(framingMedia.url)}
+                    src={getOptimizedImageUrl(framingMedia.url, { width: 960 })}
                     alt={framingMedia.caption || `${meet.name} featured`}
                     className="h-full w-full object-cover"
                     style={{
@@ -1541,17 +1545,18 @@ type MeetPayload = {
                           <div className="mt-2 overflow-hidden rounded-lg bg-card">
                             {mediaType === "video" ? (
                               <video
-                                src={trimmedMediaUrl}
+                                src={getOptimizedVideoUrl(trimmedMediaUrl, { width: 720 })}
                                 controls
                                 preload="metadata"
                                 className="h-48 w-full object-cover"
                               />
                             ) : (
                               <img
-                                src={getDisplayImageUrl(trimmedMediaUrl)}
+                                src={getOptimizedImageUrl(trimmedMediaUrl, { width: 720 })}
                                 alt="Media preview"
                                 className="h-48 w-full object-cover"
                                 loading="lazy"
+                                decoding="async"
                               />
                             )}
                           </div>
@@ -1688,16 +1693,19 @@ type MeetPayload = {
                         {item.type === "video" ? (
                           <div className="w-full max-w-[420px] aspect-[9/16]">
                             <MinimalVideo
-                              src={item.url}
+                              src={getOptimizedVideoUrl(item.url, { width: 1080 })}
                               fit="contain"
                               className="h-full w-full"
+                              lazy={false}
                             />
                           </div>
                         ) : (
                           <img
-                            src={getDisplayImageUrl(item.url)}
+                            src={getOptimizedImageUrl(item.url, { width: 1400 })}
                             alt={item.caption || `${meet.name} media`}
                             className="max-h-[70vh] w-full object-contain"
+                            loading="lazy"
+                            decoding="async"
                           />
                         )}
                       </div>
