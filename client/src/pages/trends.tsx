@@ -120,6 +120,17 @@ function formatMetersValue(meters: number): string {
   return imperial ? `${formatted} m (${imperial})` : `${formatted} m`;
 }
 
+function formatMetersShort(meters: number): string {
+  return `${meters.toFixed(2)} m`;
+}
+
+function formatDeltaMeters(delta: number): string {
+  const abs = Math.abs(delta);
+  const { feet, inches } = metersToFeetInches(abs);
+  const imperial = formatFeetInches(feet, inches);
+  return imperial ? `${abs.toFixed(2)} m (${imperial})` : `${abs.toFixed(2)} m`;
+}
+
 function formatTakeoffValue(feetDecimal: number): string {
   const { feet, inches } = feetDecimalToFeetInches(feetDecimal);
   return formatFeetInches(feet, inches);
@@ -305,6 +316,37 @@ export default function Trends() {
 
   const poleLatest = polePoints.length > 0 ? polePoints[polePoints.length - 1] : null;
 
+  const rangeLabel =
+    rangeOptions.find((option) => option.value === range)?.label ?? "Selected range";
+  const meetsInRange = rangedRows.length;
+  const heightTrend =
+    heightPoints.length >= 2
+      ? {
+          first: heightPoints[0],
+          last: heightPoints[heightPoints.length - 1],
+          delta: heightPoints[heightPoints.length - 1].meters - heightPoints[0].meters,
+        }
+      : null;
+  const topVenue = useMemo(() => {
+    const counts = new Map<string, number>();
+    rangedRows.forEach((row) => {
+      const location = row.location?.trim();
+      if (!location) {
+        return;
+      }
+      counts.set(location, (counts.get(location) ?? 0) + 1);
+    });
+
+    let top: { location: string; count: number } | null = null;
+    counts.forEach((count, location) => {
+      if (!top || count > top.count) {
+        top = { location, count };
+      }
+    });
+
+    return top;
+  }, [rangedRows]);
+
   const handlePointClick = (id: number | string | undefined) => {
     if (id === undefined || id === null) {
       return;
@@ -405,6 +447,29 @@ export default function Trends() {
     poleLatest && poleLatest.value !== null
       ? `Latest ${formatPoleMetricValue(poleMetric, poleLatest.value)}`
       : "No pole data yet";
+  const heightPrValue = heightPr ? formatMetersShort(heightPr.meters) : "—";
+  const heightPrImperial = heightPr
+    ? (() => {
+        const { feet, inches } = metersToFeetInches(heightPr.meters);
+        return formatFeetInches(feet, inches);
+      })()
+    : null;
+  const takeoffBestValue = takeoffBest ? formatTakeoffValue(takeoffBest.takeoffFeet) : "—";
+
+  const heightTrendLabel = (() => {
+    if (!heightTrend) {
+      return "Add at least two height entries to see a trend.";
+    }
+    if (Math.abs(heightTrend.delta) < 0.01) {
+      return "Flat since the first height in range.";
+    }
+    const direction = heightTrend.delta > 0 ? "Up" : "Down";
+    return `${direction} ${formatDeltaMeters(heightTrend.delta)} since the first height in range.`;
+  })();
+
+  const venueInsightLabel = topVenue
+    ? `${topVenue.location} (${topVenue.count} meet${topVenue.count !== 1 ? "s" : ""})`
+    : "Add more meets for venue insights.";
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden pb-app-nav">
@@ -435,6 +500,65 @@ export default function Trends() {
             ))}
           </TabsList>
         </Tabs>
+
+        {isLoading ? (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+          </div>
+        ) : isError ? null : (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Meets</p>
+              <div className="mt-2 text-2xl font-semibold text-foreground">{meetsInRange}</div>
+              <p className="mt-1 text-xs text-muted-foreground">{rangeLabel}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Height PR</p>
+              <div className="mt-2 text-2xl font-semibold text-foreground">{heightPrValue}</div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {heightPrImperial || "No height data"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Best Takeoff</p>
+              <div className="mt-2 text-2xl font-semibold text-foreground">{takeoffBestValue}</div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {takeoffBest ? "Best in range" : "No takeoff data"}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-4/5" />
+            </div>
+          </div>
+        ) : isError ? null : (
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Insights</p>
+            <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-300/70" />
+                <span>
+                  <span className="text-foreground">Height trend:</span> {heightTrendLabel}
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-300/70" />
+                <span>
+                  <span className="text-foreground">Most visited venue:</span>{" "}
+                  {venueInsightLabel}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

@@ -7,6 +7,7 @@ import {
   MapPin,
   ArrowLeft,
   Clock,
+  Link2,
   Edit2,
   Trash2,
   MoreVertical,
@@ -40,7 +41,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Carousel,
@@ -712,6 +712,21 @@ type MeetPayload = {
     return format(parsed, "EEEE, MMMM d, yyyy");
   };
 
+  const getMeetInitials = (value: string) => {
+    const words = value
+      .split(" ")
+      .map((word) => word.trim())
+      .filter(Boolean);
+    if (words.length === 0) {
+      return "ME";
+    }
+    return words
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -740,13 +755,9 @@ type MeetPayload = {
     ? "bg-white/10 text-muted-foreground"
     : "bg-emerald-500/15 text-emerald-200";
   const showRegistrationStatus = !isPast && meet.registrationStatus;
-  const hasMetrics = Boolean(
-    meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place,
-  );
   const framingMedia = framingMediaId
     ? meet.media?.find((item) => item.id === framingMediaId)
     : null;
-  const hasLogistics = Boolean(meet.link || meet.driveTime);
   const hasNotes = Boolean(meet.description && meet.description.trim().length > 0);
   const mediaActionItem =
     mediaActionIndex !== null ? meet.media?.[mediaActionIndex] : null;
@@ -772,6 +783,48 @@ type MeetPayload = {
     ? Math.round((uploadProgress.current / uploadProgress.total) * 100)
     : 0;
   const showLinkPreview = mediaMode === "url" && isValidLink;
+  const heroMedia = meet.media?.[0] ?? null;
+  const heroIsVideo = heroMedia?.type === "video";
+  const heroImageUrl =
+    heroMedia && heroMedia.type === "photo"
+      ? getOptimizedImageUrl(heroMedia.url, { width: 1600 })
+      : null;
+  const heroVideoUrl =
+    heroMedia && heroMedia.type === "video"
+      ? getOptimizedVideoUrl(heroMedia.url, { width: 1600 })
+      : null;
+  const heroPosterUrl =
+    heroMedia && heroMedia.type === "video" && heroMedia.thumbnail
+      ? getOptimizedImageUrl(heroMedia.thumbnail, { width: 1600 })
+      : null;
+  const heroFocusX = typeof heroMedia?.focusX === "number" ? heroMedia.focusX : 50;
+  const heroFocusY = typeof heroMedia?.focusY === "number" ? heroMedia.focusY : 50;
+  const heroObjectPosition = `${heroFocusX}% ${heroFocusY}%`;
+  const dayDifferenceLabel = getDayDifference(meet.date);
+  const meetInitials = getMeetInitials(meet.name ?? "Meet");
+  const metricTiles = [
+    {
+      label: "Height Cleared",
+      value: meet.heightCleared ?? "",
+      Icon: HeightIcon,
+    },
+    {
+      label: "Pole Used",
+      value: meet.poleUsed ?? "",
+      Icon: PoleIcon,
+    },
+    {
+      label: "Deepest Takeoff",
+      value: meet.deepestTakeoff ?? "",
+      Icon: TakeoffIcon,
+    },
+    {
+      label: "Place",
+      value: meet.place ?? "",
+      Icon: PlaceIcon,
+    },
+  ];
+  const hasAnyMetrics = metricTiles.some((item) => String(item.value).trim().length > 0);
 
   return (
     <div className="min-h-screen bg-background pb-app-nav">
@@ -830,31 +883,58 @@ type MeetPayload = {
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-4 pb-32">
-        <Accordion
-          type="multiple"
-          defaultValue={["overview", "media"]}
-          className="space-y-3"
-        >
-          <AccordionItem
-            value="overview"
-            className="rounded-xl border border-white/10 bg-card shadow-none"
-          >
-            <AccordionTrigger className="px-4 text-sm font-semibold">
-              Overview
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4 space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
+      <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-4 pb-32">
+        <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-card/70">
+          <div className="relative aspect-[16/9] sm:aspect-[21/9]">
+            {heroMedia ? (
+              heroIsVideo ? (
+                <video
+                  src={heroVideoUrl ?? heroMedia.url}
+                  poster={heroPosterUrl ?? undefined}
+                  className="h-full w-full object-cover"
+                  style={{ objectPosition: heroObjectPosition }}
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
+                <img
+                  src={heroImageUrl ?? heroMedia.url}
+                  alt={heroMedia.caption || `${meet.name} cover`}
+                  className="h-full w-full object-cover"
+                  style={{ objectPosition: heroObjectPosition }}
+                  loading="eager"
+                  decoding="async"
+                />
+              )
+            ) : (
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(120% 120% at 10% 0%, rgba(255,255,255,0.08), transparent 60%), radial-gradient(120% 120% at 90% 20%, rgba(255,255,255,0.06), transparent 55%), linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.35))",
+                }}
+              >
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-black/30 text-lg font-semibold text-white/80">
+                  {meetInitials}
+                </div>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
                 <Badge
                   variant="outline"
-                  className={`${statusClass} font-normal text-xs px-2 py-0.5`}
+                  className={`${statusClass} font-normal px-2 py-0.5`}
                 >
                   {isPast ? "Past" : "Upcoming"}
                 </Badge>
-                <div className="flex items-center text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5 mr-1" />
-                  <span className="text-xs">{getDayDifference(meet.date)}</span>
-                </div>
+                {dayDifferenceLabel && (
+                  <div className="flex items-center gap-1 rounded-full border border-white/15 bg-black/30 px-2 py-0.5 text-white/80">
+                    <Clock className="h-3 w-3" />
+                    <span>{dayDifferenceLabel}</span>
+                  </div>
+                )}
                 {showRegistrationStatus && (
                   <Badge
                     variant="secondary"
@@ -874,238 +954,185 @@ type MeetPayload = {
                   </Badge>
                 )}
               </div>
-              <div className="space-y-3 text-sm text-foreground">
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <span>{formatDate(meet.date)}</span>
-                </div>
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <span>{meet.location}</span>
-                </div>
+              <h1 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">
+                {meet.name}
+              </h1>
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  {formatDate(meet.date)}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" />
+                  {meet.location}
+                </span>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </div>
+          </div>
+        </section>
 
-          <AccordionItem
-            value="metrics"
-            className="rounded-xl border border-white/10 bg-card shadow-none"
-          >
-            <AccordionTrigger className="px-4 text-sm font-semibold">
-              Vault Metrics
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4 space-y-3 text-sm">
-              {hasMetrics ? (
-                <>
-                  {meet.heightCleared && (
-                    <div className="flex items-center text-foreground">
-                      <HeightIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Height Cleared
-                        </span>
-                        <span className="text-base">{meet.heightCleared}</span>
-                      </div>
-                    </div>
-                  )}
-                  {meet.poleUsed && (
-                    <div className="flex items-center text-foreground">
-                      <PoleIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Pole Used
-                        </span>
-                        <span className="text-base">{meet.poleUsed}</span>
-                      </div>
-                    </div>
-                  )}
-                  {meet.deepestTakeoff && (
-                    <div className="flex items-center text-foreground">
-                      <TakeoffIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Deepest Takeoff
-                        </span>
-                        <span className="text-base">{meet.deepestTakeoff}</span>
-                      </div>
-                    </div>
-                  )}
-                  {meet.place && (
-                    <div className="flex items-center text-foreground">
-                      <PlaceIcon className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
-                      <div>
-                        <span className="text-xs text-muted-foreground block">
-                          Place/Ranking
-                        </span>
-                        <span className="text-base">{meet.place}</span>
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="text-muted-foreground">No vault metrics yet.</p>
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {hasAnyMetrics ? (
+            metricTiles.map(({ label, value, Icon }) => {
+              const displayValue = String(value).trim();
+              const isEmpty = displayValue.length === 0;
+              return (
+                <div
+                  key={label}
+                  className="rounded-2xl border border-white/10 bg-card/70 p-4"
+                >
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Icon className="h-4 w-4" />
+                    <span>{label}</span>
+                  </div>
+                  <div
+                    className={`mt-2 text-base font-semibold ${
+                      isEmpty ? "text-muted-foreground" : "text-foreground"
+                    }`}
+                  >
+                    {isEmpty ? "—" : displayValue}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-2 rounded-2xl border border-white/10 bg-card/70 p-4 text-sm text-muted-foreground sm:col-span-4">
+              No metrics yet.
+            </div>
+          )}
+        </section>
+
+        <section className="grid gap-4">
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-foreground">
+                Overview & Logistics
+              </h2>
+            </div>
+            <div className="mt-3 space-y-2 text-sm text-foreground">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span>{formatDate(meet.date)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <span>{meet.location}</span>
+              </div>
+              {meet.link && (
+                <div className="flex items-center gap-2">
+                  <Link2 className="h-4 w-4 text-muted-foreground" />
+                  <a
+                    href={meet.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sky-300 hover:text-sky-200 underline break-all"
+                  >
+                    {meet.link}
+                  </a>
+                </div>
               )}
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem
-            value="logistics"
-            className="rounded-xl border border-white/10 bg-card shadow-none"
-          >
-            <AccordionTrigger className="px-4 text-sm font-semibold">
-              Logistics
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4 space-y-3 text-sm">
-              {hasLogistics ? (
-                <>
-                  {meet.link && (
-                    <div className="flex items-center text-foreground">
-                      <svg
-                        className="h-4 w-4 mr-2 text-muted-foreground"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                      </svg>
-                      <a
-                        href={meet.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sky-300 hover:text-sky-200 underline break-all"
-                      >
-                        {meet.link}
-                      </a>
-                    </div>
-                  )}
-                  {meet.driveTime && (
-                    <div className="flex items-center text-foreground">
-                      <svg
-                        className="h-4 w-4 mr-2 text-muted-foreground"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12,6 12,12 16,14" />
-                      </svg>
-                      <span>{meet.driveTime}</span>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="text-muted-foreground">No logistics details yet.</p>
+              {meet.driveTime && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>{meet.driveTime}</span>
+                </div>
               )}
-            </AccordionContent>
-          </AccordionItem>
+              {!meet.link && !meet.driveTime && (
+                <p className="text-xs text-muted-foreground">
+                  No additional logistics yet.
+                </p>
+              )}
+            </div>
+          </div>
 
-          <AccordionItem
-            value="notes"
-            className="rounded-xl border border-white/10 bg-card shadow-none"
-          >
-            <AccordionTrigger className="px-4 text-sm font-semibold">
-              Notes
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4 text-sm text-foreground">
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 sm:p-5">
+            <h2 className="text-sm font-semibold text-foreground">Notes</h2>
+            <div className="mt-3 text-sm text-foreground">
               {hasNotes ? (
                 <p className="whitespace-pre-line">{meet.description}</p>
               ) : (
                 <p className="text-muted-foreground">No notes yet.</p>
               )}
-            </AccordionContent>
-          </AccordionItem>
+            </div>
+          </div>
 
-          <AccordionItem
-            value="media"
-            className="rounded-xl border border-white/10 bg-card shadow-none"
-          >
-            <AccordionTrigger className="px-4 text-sm font-semibold">
-              Media
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4">
-              <div className="flex items-center justify-end mb-3">
-                {!isReadOnly && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setMediaDialogOpen(true)}
-                    className="h-8"
-                  >
-                    Add media
-                  </Button>
-                )}
-              </div>
-
-              {meet.media && meet.media.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {meet.media.map((item, index) => {
-                    const isPhoto = item.type === "photo";
-                    return (
-                      <div
-                        key={item.id}
-                        className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 aspect-[9/16] content-auto"
-                        role={isPhoto ? "button" : undefined}
-                        tabIndex={isPhoto ? 0 : undefined}
-                        onClick={isPhoto ? () => openLightbox(index) : undefined}
-                        onTouchStart={() => startMediaLongPress(index)}
-                        onTouchEnd={cancelMediaLongPress}
-                        onTouchMove={cancelMediaLongPress}
-                        onTouchCancel={cancelMediaLongPress}
-                        onKeyDown={
-                          isPhoto
-                            ? (event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                  event.preventDefault();
-                                  openLightbox(index);
-                                }
-                              }
-                            : undefined
-                        }
-                      >
-                        {item.type === "video" ? (
-                          <MinimalVideo
-                            src={getOptimizedVideoUrl(item.url, { width: 720 })}
-                            className="h-full w-full"
-                          />
-                        ) : (
-                          <img
-                            src={getOptimizedImageUrl(item.url, { width: 720 })}
-                            alt={item.caption || `${meet.name} media`}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        )}
-                        {!isReadOnly && (
-                          <button
-                            type="button"
-                            className="absolute right-2 top-2 rounded-full border border-white/10 bg-black/40 p-1.5 text-white/80 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setMediaActionIndex(index);
-                            }}
-                            aria-label="Media actions"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No media yet.</p>
+          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-foreground">Media</h2>
+              {!isReadOnly && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMediaDialogOpen(true)}
+                  className="h-8"
+                >
+                  Add media
+                </Button>
               )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+            </div>
+
+            {meet.media && meet.media.length > 0 ? (
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {meet.media.map((item, index) => {
+                  const isPhoto = item.type === "photo";
+                  return (
+                    <div
+                      key={item.id}
+                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 aspect-[9/16] content-auto"
+                      role={isPhoto ? "button" : undefined}
+                      tabIndex={isPhoto ? 0 : undefined}
+                      onClick={isPhoto ? () => openLightbox(index) : undefined}
+                      onTouchStart={() => startMediaLongPress(index)}
+                      onTouchEnd={cancelMediaLongPress}
+                      onTouchMove={cancelMediaLongPress}
+                      onTouchCancel={cancelMediaLongPress}
+                      onKeyDown={
+                        isPhoto
+                          ? (event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                openLightbox(index);
+                              }
+                            }
+                          : undefined
+                      }
+                    >
+                      {item.type === "video" ? (
+                        <MinimalVideo
+                          src={getOptimizedVideoUrl(item.url, { width: 720 })}
+                          className="h-full w-full"
+                        />
+                      ) : (
+                        <img
+                          src={getOptimizedImageUrl(item.url, { width: 720 })}
+                          alt={item.caption || `${meet.name} media`}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
+                      {!isReadOnly && (
+                        <button
+                          type="button"
+                          className="absolute right-2 top-2 rounded-full border border-white/10 bg-black/40 p-1.5 text-white/80 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setMediaActionIndex(index);
+                          }}
+                          aria-label="Media actions"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-muted-foreground">No media yet.</p>
+            )}
+          </div>
+        </section>
       </main>
 
       {!isReadOnly && (
