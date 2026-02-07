@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { diffInDays, isPastDate, parseDateInput } from "@shared/dates";
+import { formatDaysUntilLabel, isMeetCountdownUrgent } from "@/lib/meet-countdown";
 import {
   Drawer,
   DrawerClose,
@@ -16,6 +17,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { getOptimizedImageUrl, getOptimizedVideoPosterUrl, getOptimizedVideoUrl } from "@/lib/media";
+import { cn } from "@/lib/utils";
 
 interface MeetCardProps {
   meet: Meet;
@@ -25,11 +27,6 @@ interface MeetCardProps {
 }
 
 export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcoming = false }: MeetCardProps) {
-  // This function calculates how many days until the meet
-  const getDaysUntil = (dateString: string | Date) => {
-    return diffInDays(dateString) ?? 0;
-  };
-
   const formatDate = (dateString: string | Date) => {
     const parsed = parseDateInput(dateString);
     if (!parsed) {
@@ -93,7 +90,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   };
 
   // Calculate days until the meet (for upcoming meets)
-  const daysUntil = !isPast ? getDaysUntil(meet.date) : 0;
+  const daysUntil = !isPast ? diffInDays(meet.date) : null;
   const firstMedia = meet.media && meet.media.length > 0 ? meet.media[0] : undefined;
   const previewUrl =
     firstMedia && firstMedia.type === "photo"
@@ -154,9 +151,16 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               <div className="mt-1 text-sm text-muted-foreground space-y-0.5">
                 <div>{formatDate(meet.date)}</div>
                 <div>{meet.location}</div>
-                {isNextUpcoming && !isPast && (
-                  <div className="text-xs font-medium text-muted-foreground">
-                    {daysUntil === 0 ? "Today" : `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`}
+                {!isPast && daysUntil !== null && (
+                  <div
+                    className={cn(
+                      "text-xs font-medium",
+                      isMeetCountdownUrgent(daysUntil)
+                        ? "text-emerald-300 font-semibold drop-shadow-[0_0_10px_rgba(16,185,129,0.85)] motion-safe:animate-[pulse_1s_ease-in-out_infinite]"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {formatDaysUntilLabel(daysUntil)}
                   </div>
                 )}
               </div>
