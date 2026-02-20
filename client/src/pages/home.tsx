@@ -234,7 +234,9 @@ export default function Home() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <UserProfile name="Enzo Sison" />
             <FilterSection
+              currentPage="meets"
               currentFilter={currentFilter}
+              showFilters
               onFilterChange={handleFilterChange}
               className="self-start sm:self-auto"
             />

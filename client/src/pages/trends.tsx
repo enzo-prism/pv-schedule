@@ -365,10 +365,6 @@ export default function Trends() {
     setLocation(`/meet/${id}`);
   };
 
-  const handleFilterChange = (filter: "upcoming" | "past") => {
-    setLocation(`/?filter=${filter}`);
-  };
-
   const handleMobileChartScroll = () => {
     const scroller = mobileChartScrollerRef.current;
     if (!scroller) {
@@ -519,8 +515,7 @@ export default function Trends() {
               <UserProfile name="Enzo Sison" />
             </div>
             <FilterSection
-              currentFilter="trends"
-              onFilterChange={handleFilterChange}
+              currentPage="trends"
               className="self-start sm:self-end"
             />
           </div>

@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import MeetDetails from "@/pages/meet-details";
 import Trends from "@/pages/trends";
+import Cycle from "@/pages/cycle";
 import BottomNav from "@/components/bottom-nav";
 import { Button } from "@/components/ui/button";
 import { isReadOnlyMode } from "@/lib/env";
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/meet/:id" component={MeetDetails} />
       <Route path="/trends" component={Trends} />
+      <Route path="/cycle" component={Cycle} />
       <Route component={NotFound} />
     </Switch>
   );

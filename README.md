@@ -87,6 +87,18 @@ See `.env.example` for defaults and flags:
 - `npm run sync:prod`
 - `npm run import:json -- --meets /path/to/meets.json --media /path/to/meet_media.json --truncate`
 
+## Meet Content Workflow
+- Primary source of truth for hardcoded data is `shared/fixtures/meets.ts`.
+- For local dev, if no DB env is set, app uses in-memory fixtures automatically.
+- For Postgres, add or update a meet in `shared/fixtures/meets.ts` and restart the app; startup now backfills missing seeded meet IDs into `meets` when DB mode is used.
+- If you need a clean local DB from production, use `npm run sync:prod` (truncates and replaces local tables before import).
+- If only one meet is missing in DB mode, prefer inserting it with the import/sync flow or temporarily force hardcoded mode (`USE_HARDCODED_DATA=true`) during debugging.
+
+## Title and Flag Formatting
+- Sanction labels are displayed from the `name` field; if a title is missing `World Athletics` or `USATF`, the UI now defaults to `USATF`.
+- Location flags are stored directly in `location` strings in fixtures for consistent rendering.
+- When adding a new meet title, include the desired sanction in the title (for example, `World Athletics ...`) and place the location suffix at the end of `location`.
+
 ## Notes
 - Media uploads are stored locally under `public/uploads` (or `UPLOADS_ROOT`) and served at `/uploads/*` (25MB limit). For production, point `UPLOADS_ROOT` at a persistent volume and set `MEDIA_BASE_URL` if the frontend is hosted separately from the API.
 - Vercel deployments default to URL-only media because serverless functions have a 4.5MB payload limit; enable uploads only if you move to external object storage.
