@@ -69,6 +69,8 @@ import {
 } from "@/components/ui/drawer";
 import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "@shared/media";
 import { isReadOnlyMode, uploadsEnabled as uploadsEnabledFlag } from "@/lib/env";
+import { formatLocationWithFlag } from "@/lib/location";
+import { formatMeetName } from "@/lib/meet-title";
 
 type MediaMode = "upload" | "url";
 type MediaQueueStatus = "pending" | "uploading" | "uploaded" | "error" | "skipped";
@@ -803,7 +805,8 @@ type MeetPayload = {
   const heroFocusY = typeof heroMedia?.focusY === "number" ? heroMedia.focusY : 50;
   const heroObjectPosition = `${heroFocusX}% ${heroFocusY}%`;
   const dayDifferenceLabel = getDayDifference(meet.date);
-  const meetInitials = getMeetInitials(meet.name ?? "Meet");
+  const displayMeetName = formatMeetName(meet.name ?? "Meet", meet.date);
+  const meetInitials = getMeetInitials(displayMeetName);
   const metricTiles = [
     {
       label: "Height Cleared",
@@ -839,7 +842,9 @@ type MeetPayload = {
             </Button>
           </Link>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{meet.name}</p>
+            <p className="truncate text-sm font-semibold text-foreground">
+              {displayMeetName}
+            </p>
             <p className="text-xs text-muted-foreground">{formatDate(meet.date)}</p>
           </div>
           {!isReadOnly && (
@@ -902,7 +907,7 @@ type MeetPayload = {
               ) : (
                 <img
                   src={heroImageUrl ?? heroMedia.url}
-                  alt={heroMedia.caption || `${meet.name} cover`}
+                  alt={heroMedia.caption || `${displayMeetName} cover`}
                   className="h-full w-full object-cover"
                   style={{ objectPosition: heroObjectPosition }}
                   loading="eager"
@@ -957,7 +962,7 @@ type MeetPayload = {
                 )}
               </div>
               <h1 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">
-                {meet.name}
+                {displayMeetName}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
@@ -966,7 +971,7 @@ type MeetPayload = {
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin className="h-4 w-4" />
-                  {meet.location}
+                  {formatLocationWithFlag(meet.location)}
                 </span>
               </div>
             </div>
@@ -1018,7 +1023,7 @@ type MeetPayload = {
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{meet.location}</span>
+                <span>{formatLocationWithFlag(meet.location)}</span>
               </div>
               {meet.link && (
                 <div className="flex items-center gap-2">
@@ -1112,7 +1117,7 @@ type MeetPayload = {
                       ) : (
                         <img
                           src={getOptimizedImageUrl(item.url, { width: 720 })}
-                          alt={item.caption || `${meet.name} media`}
+                          alt={item.caption || `${displayMeetName} media`}
                           className="h-full w-full object-cover"
                           loading="lazy"
                           decoding="async"
@@ -1211,7 +1216,7 @@ type MeetPayload = {
                 {framingMedia ? (
                   <img
                     src={getOptimizedImageUrl(framingMedia.url, { width: 960 })}
-                    alt={framingMedia.caption || `${meet.name} featured`}
+                    alt={framingMedia.caption || `${displayMeetName} featured`}
                     className="h-full w-full object-cover"
                     style={{
                       objectPosition: `${framingDraftX}% ${framingDraftY}%`,
@@ -1741,7 +1746,7 @@ type MeetPayload = {
                         ) : (
                           <img
                             src={getOptimizedImageUrl(item.url, { width: 1400 })}
-                            alt={item.caption || `${meet.name} media`}
+                            alt={item.caption || `${displayMeetName} media`}
                             className="max-h-[70vh] w-full object-contain"
                             loading="lazy"
                             decoding="async"

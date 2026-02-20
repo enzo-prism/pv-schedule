@@ -13,17 +13,8 @@ import {
 } from "./media";
 
 const isReadOnly = () => {
-  const configured = process.env.READ_ONLY?.trim();
-  if (configured && configured.length > 0) {
-    return configured.toLowerCase() === "true";
-  }
-  if (process.env.USE_HARDCODED_DATA === "true") {
-    return true;
-  }
-  if (process.env.VERCEL) {
-    return true;
-  }
-  return false;
+  // Force read-only mode to support a hard-coded, streamlined schedule UI.
+  return true;
 };
 
 const rejectReadOnly = (res: express.Response) => {

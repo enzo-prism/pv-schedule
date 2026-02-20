@@ -1,5 +1,5 @@
 import { type Meet, type InsertMeet, type MediaItem } from "@shared/schema";
-import { demoMeets } from "@shared/fixtures/meets";
+import { demoMeets, seedMeets } from "@shared/fixtures/meets";
 import { toYmdDateString } from "@shared/dates";
 import type { DbClient } from "../db";
 import {
@@ -122,10 +122,64 @@ export class PgStorage implements IStorage {
         for (const meet of demoMeets) {
           await this.createMeet(meet);
         }
+      } else {
+        await this.seedMissingDemoMeets();
       }
     } catch (error) {
       console.error(`[PgStorage] Error initializing database (${this.label}):`, error);
     }
+  }
+
+  private async seedMissingDemoMeets() {
+    const result = await this.db.query("SELECT id FROM meets");
+    const existingIds = new Set(result.rows.map((row) => Number(row.id)));
+
+    for (const seedMeet of seedMeets) {
+      if (existingIds.has(seedMeet.id)) {
+        continue;
+      }
+
+      const query = `
+        INSERT INTO meets (
+          id,
+          name,
+          date,
+          location,
+          description,
+          height_cleared,
+          pole_used,
+          deepest_takeoff,
+          place,
+          link,
+          drive_time,
+          registration_status,
+          is_filam_meet,
+          created_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      `;
+
+      await this.db.query(query, [
+        seedMeet.id,
+        seedMeet.name,
+        toYmdDateString(seedMeet.date) ?? seedMeet.date,
+        seedMeet.location,
+        seedMeet.description ?? null,
+        seedMeet.heightCleared ?? null,
+        seedMeet.poleUsed ?? null,
+        seedMeet.deepestTakeoff ?? null,
+        seedMeet.place ?? null,
+        seedMeet.link ?? null,
+        seedMeet.driveTime ?? null,
+        seedMeet.registrationStatus ?? "not registered",
+        seedMeet.isFilamMeet ?? false,
+        seedMeet.createdAt ? new Date(seedMeet.createdAt) : new Date(),
+      ]);
+    }
+
+    await this.db.query(
+      "SELECT setval(pg_get_serial_sequence('meets', 'id'), COALESCE(MAX(id), 1), true) FROM meets",
+    );
   }
 
   private async fetchMeets(query: string, params: any[] = []): Promise<Meet[]> {

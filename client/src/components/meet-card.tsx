@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/drawer";
 import { getOptimizedImageUrl, getOptimizedVideoPosterUrl, getOptimizedVideoUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
+import { formatLocationWithFlag } from "@/lib/location";
+import { getMeetTitleParts } from "@/lib/meet-title";
 
 interface MeetCardProps {
   meet: Meet;
@@ -38,6 +40,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
 
   // We still calculate isPast for internal filtering, but don't display it on home page
   const isPast = isPastDate(meet.date);
+  const titleParts = getMeetTitleParts(meet.name, meet.date);
   const normalizedStatus = (meet.registrationStatus ?? "").trim().toLowerCase();
   const showRegistrationBadge =
     !isPast &&
@@ -115,7 +118,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
         } hover:bg-white/5 hover:border-white/15 transition-colors duration-150 relative`}
       >
         {firstMedia && (
-          <div className="relative aspect-video bg-white/5 overflow-hidden">
+          <div className="relative aspect-video bg-white/5 overflow-hidden hidden sm:block">
             {firstMedia.type === "video" ? (
               <video
                 src={previewUrl}
@@ -134,7 +137,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             ) : (
               <img
                 src={previewUrl}
-                alt={firstMedia.caption || `${meet.name} preview`}
+                alt={firstMedia.caption || `${titleParts.full} preview`}
                 className="w-full h-full object-cover"
                 style={{ objectPosition }}
                 loading="lazy"
@@ -144,13 +147,22 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>
         )}
-        <CardContent className="p-4 sm:p-5">
+        <CardContent className="p-3 sm:p-5">
           <div className="flex justify-between items-start">
             <div className="flex-grow">
-              <h3 className="font-medium text-foreground leading-tight">{meet.name}</h3>
+              <div className="flex flex-wrap gap-2 items-center">
+                <h3 className="font-medium text-foreground leading-tight line-clamp-2 flex-1 min-w-[160px]">
+                  {titleParts.title}
+                </h3>
+                {titleParts.sanction && (
+                  <span className="text-[10px] tracking-[0.08em] uppercase text-muted-foreground border border-white/10 bg-white/5 px-2 py-0.5 rounded-full">
+                    {titleParts.sanction}
+                  </span>
+                )}
+              </div>
               <div className="mt-1 text-sm text-muted-foreground space-y-0.5">
                 <div>{formatDate(meet.date)}</div>
-                <div>{meet.location}</div>
+                <div>{formatLocationWithFlag(meet.location)}</div>
                 {!isPast && daysUntil !== null && (
                   <div
                     className={cn(
@@ -210,7 +222,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
           )}
             {/* All metrics for past meets */}
             {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
-              <div className="mt-2 pt-2 border-t border-white/10 text-xs text-muted-foreground space-y-1">
+              <div className="mt-2 pt-2 border-t border-white/10 text-xs text-muted-foreground space-y-1 hidden sm:block">
                 {meet.heightCleared && <div>Height: {meet.heightCleared}</div>}
                 {meet.poleUsed && <div>Pole: {meet.poleUsed}</div>}
                 {meet.deepestTakeoff && <div>Takeoff: {meet.deepestTakeoff}</div>}
@@ -219,7 +231,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             )}
             
             {meet.description && (
-              <div className="mt-3 pt-3 border-t border-white/10">
+              <div className="mt-3 pt-3 border-t border-white/10 hidden sm:block">
                 <p className="text-sm text-muted-foreground line-clamp-2">{meet.description}</p>
               </div>
             )}

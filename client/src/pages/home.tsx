@@ -230,41 +230,44 @@ export default function Home() {
     <div className="min-h-screen bg-background relative pb-app-nav">
       {/* Main content */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-16">
-        {/* User profile */}
-        <div className="mb-8">
-          <UserProfile name="Enzo Sison" />
+        <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <UserProfile name="Enzo Sison" />
+            <FilterSection
+              currentFilter={currentFilter}
+              onFilterChange={handleFilterChange}
+              className="self-start sm:self-auto"
+            />
+          </div>
+        </section>
+
+        <div className="mt-4">
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-20 bg-white/5 animate-pulse rounded-2xl" />
+              ))}
+            </div>
+          ) : filteredMeets.length > 0 ? (
+            <div className="space-y-3">
+              {filteredMeets.map((meet: Meet) => (
+                <MeetCard 
+                  key={meet.id} 
+                  meet={meet}
+                  onEditClick={isReadOnly ? undefined : handleEditClick}
+                  onDeleteClick={isReadOnly ? undefined : handleDeleteClick}
+                  isNextUpcoming={meet.id === nextUpcomingMeetId && currentFilter !== "past"}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-sm">
+                No {currentFilter} meets found
+              </p>
+            </div>
+          )}
         </div>
-
-        <FilterSection
-          currentFilter={currentFilter}
-          onFilterChange={handleFilterChange}
-        />
-
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-white/5 animate-pulse rounded-2xl" />
-            ))}
-          </div>
-        ) : filteredMeets.length > 0 ? (
-          <div className="space-y-3">
-            {filteredMeets.map((meet: Meet) => (
-              <MeetCard 
-                key={meet.id} 
-                meet={meet}
-                onEditClick={isReadOnly ? undefined : handleEditClick}
-                onDeleteClick={isReadOnly ? undefined : handleDeleteClick}
-                isNextUpcoming={meet.id === nextUpcomingMeetId && currentFilter !== "past"}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-sm">
-              No {currentFilter} meets found
-            </p>
-          </div>
-        )}
 
         {currentFilter === "upcoming" && !isReadOnly && (
           <div className="mt-8 hidden justify-center sm:flex">

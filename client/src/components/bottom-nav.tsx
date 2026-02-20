@@ -15,7 +15,7 @@ export default function BottomNav() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-card/50 backdrop-blur-xl"
       aria-label="Primary"
     >
-      <div className="mx-auto flex max-w-3xl items-center justify-around px-6 pt-2 safe-bottom">
+      <div className="mx-auto flex max-w-3xl min-h-[74px] items-center justify-around px-6 py-2 safe-bottom">
         {navItems.map(({ href, label, Icon }) => {
           const isActive = location === href;
           return (
@@ -23,7 +23,7 @@ export default function BottomNav() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-1 flex-col items-center gap-1 rounded-2xl px-3 py-2 text-xs font-medium transition-colors",
+                "flex flex-1 flex-col items-center gap-1 rounded-2xl px-3 py-2 text-xs font-medium transition-colors min-h-[64px] justify-center",
                 isActive
                   ? "text-white"
                   : "text-muted-foreground hover:text-white"
@@ -32,7 +32,7 @@ export default function BottomNav() {
             >
               <span
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-full border border-transparent transition-colors",
+                  "flex h-10 w-10 items-center justify-center rounded-full border border-transparent transition-colors",
                   isActive ? "bg-white/10 border-white/10" : "bg-transparent",
                 )}
                 aria-hidden="true"

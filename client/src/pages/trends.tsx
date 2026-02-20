@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
+import { formatLocationWithFlag } from "@/lib/location";
+import { formatMeetName } from "@/lib/meet-title";
 import type { Meet } from "@shared/schema";
 import type { MeetTrendRow } from "@shared/trends";
 import {
@@ -97,6 +99,12 @@ const rangeOptions = [
   { label: "All time", value: "all" },
 ];
 
+const mobileTrendCharts = [
+  { id: "height", label: "Height" },
+  { id: "takeoff", label: "Takeoff" },
+  { id: "pole", label: "Pole" },
+];
+
 function normalizeDate(date: Date): Date {
   return startOfDay(date);
 }
@@ -174,7 +182,7 @@ function TrendCardSkeleton() {
         <Skeleton className="h-3 w-32" />
       </CardHeader>
       <CardContent>
-        <Skeleton className="h-[240px] w-full" />
+        <Skeleton className="h-[260px] w-full" />
       </CardContent>
     </Card>
   );
@@ -184,6 +192,9 @@ export default function Trends() {
   const [, setLocation] = useLocation();
   const [range, setRange] = useState("90");
   const [poleMetric, setPoleMetric] = useState<PoleMetric>("lengthFt");
+  const [activeMobileChart, setActiveMobileChart] = useState(0);
+  const mobileChartScrollerRef = useRef<HTMLDivElement>(null);
+  const mobileChartSlideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const { data: meets = [], isLoading, isError } = useQuery<Meet[]>({
     queryKey: ["/api/meets"],
@@ -211,7 +222,7 @@ export default function Trends() {
 
         return {
           id: meet.id,
-          name: meet.name ?? null,
+          name: formatMeetName(meet.name ?? "", meet.date),
           location: meet.location ?? null,
           startAt: normalizedDate.toISOString(),
           date: normalizedDate,
@@ -358,6 +369,34 @@ export default function Trends() {
     setLocation(`/?filter=${filter}`);
   };
 
+  const handleMobileChartScroll = () => {
+    const scroller = mobileChartScrollerRef.current;
+    if (!scroller) {
+      return;
+    }
+
+    const chartWidth = scroller.clientWidth;
+    if (chartWidth <= 0) {
+      return;
+    }
+
+    const next = Math.min(
+      mobileTrendCharts.length - 1,
+      Math.max(0, Math.round(scroller.scrollLeft / chartWidth)),
+    );
+    setActiveMobileChart((current) => (current === next ? current : next));
+  };
+
+  const scrollToMobileChart = (index: number) => {
+    const chartCard = mobileChartSlideRefs.current[index];
+    if (!chartCard) {
+      return;
+    }
+
+    chartCard.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    setActiveMobileChart(index);
+  };
+
   const renderHeightDot = ({ cx, cy, payload }: DotProps) => {
     if (
       cx === undefined ||
@@ -468,38 +507,47 @@ export default function Trends() {
   })();
 
   const venueInsightLabel = topVenue
-    ? `${topVenue.location} (${topVenue.count} meet${topVenue.count !== 1 ? "s" : ""})`
+    ? `${formatLocationWithFlag(topVenue.location)} (${topVenue.count} meet${topVenue.count !== 1 ? "s" : ""})`
     : "Add more meets for venue insights.";
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden pb-app-nav">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-24 space-y-6">
-        <div className="mb-2">
-          <UserProfile name="Enzo Sison" />
-        </div>
+        <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <UserProfile name="Enzo Sison" />
+            </div>
+            <FilterSection
+              currentFilter="trends"
+              onFilterChange={handleFilterChange}
+              className="self-start sm:self-end"
+            />
+          </div>
 
-        <FilterSection currentFilter="trends" onFilterChange={handleFilterChange} />
+          <div className="mt-4">
+            <h1 className="text-2xl font-semibold text-foreground">Trends</h1>
+          </div>
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold text-foreground">Trends</h1>
-        </div>
-
-        <Tabs value={range} onValueChange={setRange}>
-          <TabsList
-            aria-label="Date range"
-            className="h-auto w-full flex-wrap justify-center gap-1 sm:h-10 sm:w-auto sm:flex-nowrap"
-          >
-            {rangeOptions.map((option) => (
-              <TabsTrigger
-                key={option.value}
-                value={option.value}
-                className="px-2.5 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm"
+          <div className="mt-4">
+            <Tabs value={range} onValueChange={setRange}>
+              <TabsList
+                aria-label="Date range"
+                className="inline-flex h-auto w-full gap-1 overflow-x-auto whitespace-nowrap rounded-full border border-white/10 bg-card/45 p-1.5 backdrop-blur-sm sm:w-auto sm:flex-nowrap"
               >
-                {option.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+                {rangeOptions.map((option) => (
+                  <TabsTrigger
+                    key={option.value}
+                    value={option.value}
+                    className="px-3 py-2 min-h-[40px] rounded-full text-xs font-medium sm:px-2.5 sm:py-1.5 sm:text-sm"
+                  >
+                    {option.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+        </section>
 
         {isLoading ? (
           <div className="grid gap-3 sm:grid-cols-3">
@@ -571,11 +619,59 @@ export default function Trends() {
         )}
 
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <TrendCardSkeleton />
-            <TrendCardSkeleton />
-            <TrendCardSkeleton />
-          </div>
+          <>
+            <div className="mb-3 flex gap-2 overflow-x-auto px-4 -mx-4 pb-1 sm:hidden">
+              {mobileTrendCharts.map((chart) => (
+                <button
+                  type="button"
+                  key={chart.id}
+                  className="rounded-full border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                  disabled
+                >
+                  {chart.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="sm:hidden">
+              <div
+                ref={mobileChartScrollerRef}
+                onScroll={handleMobileChartScroll}
+                className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-snap-type:x_mandatory]"
+              >
+                <div
+                  ref={(element) => {
+                    mobileChartSlideRefs.current[0] = element;
+                  }}
+                  className="min-w-full snap-start"
+                >
+                  <TrendCardSkeleton />
+                </div>
+                <div
+                  ref={(element) => {
+                    mobileChartSlideRefs.current[1] = element;
+                  }}
+                  className="min-w-full snap-start"
+                >
+                  <TrendCardSkeleton />
+                </div>
+                <div
+                  ref={(element) => {
+                    mobileChartSlideRefs.current[2] = element;
+                  }}
+                  className="min-w-full snap-start"
+                >
+                  <TrendCardSkeleton />
+                </div>
+              </div>
+            </div>
+
+            <div className="hidden sm:grid sm:grid-cols-1 gap-6 lg:grid-cols-2">
+              <TrendCardSkeleton />
+              <TrendCardSkeleton />
+              <TrendCardSkeleton />
+            </div>
+          </>
         ) : isError ? (
           <Card>
             <CardHeader>
@@ -586,300 +682,647 @@ export default function Trends() {
             </CardHeader>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Card className="min-w-0">
-              <CardHeader className="pb-4 space-y-2">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-lg">Height Cleared</CardTitle>
-                  </div>
-                  {heightPr && (
-                    <Badge variant="secondary">PR {heightPr.meters.toFixed(2)}m</Badge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">{heightSummary}</p>
-              </CardHeader>
-              <CardContent>
-                {heightSeries.length === 0 || heightPoints.length === 0 ? (
-                  <div className="flex h-[240px] items-center justify-center text-sm text-muted-foreground">
-                    No height data to chart yet.
-                  </div>
-                ) : (
-                  <ChartContainer
-                    config={heightChartConfig}
-                    className="h-[240px] w-full aspect-auto overflow-hidden sm:h-auto sm:aspect-video sm:overflow-visible"
-                  >
-                    <AreaChart data={heightSeries} margin={{ left: 12, right: 12 }}>
-                      <CartesianGrid vertical={false} />
-                      <XAxis
-                        dataKey="dateValue"
-                        type="number"
-                        domain={["dataMin", "dataMax"]}
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        width={36}
-                        tickFormatter={(value) => Number(value).toFixed(2)}
-                      />
-                      <ChartTooltip
-                        cursor={false}
-                        content={
-                          <ChartTooltipContent
-                            className="max-w-[calc(100vw-2rem)] sm:max-w-none"
-                            labelFormatter={(value) =>
-                              formatDateLabel(Number(value), "MMM d, yyyy")
-                            }
-                            formatter={(value) => {
-                              if (typeof value !== "number") {
-                                return null;
+          <>
+            <div className="mb-3 flex gap-2 overflow-x-auto px-4 -mx-4 pb-1 sm:hidden">
+              {mobileTrendCharts.map((chart, index) => (
+                <button
+                  type="button"
+                  key={chart.id}
+                  onClick={() => scrollToMobileChart(index)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    activeMobileChart === index
+                      ? "border-primary/70 bg-primary text-primary-foreground"
+                      : "border-border/80 bg-background text-muted-foreground"
+                  }`}
+                >
+                  {chart.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="sm:hidden">
+              <div
+                ref={mobileChartScrollerRef}
+                onScroll={handleMobileChartScroll}
+                className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-snap-type:x_mandatory]"
+              >
+                <div
+                  ref={(element) => {
+                    mobileChartSlideRefs.current[0] = element;
+                  }}
+                  className="min-w-full snap-start"
+                >
+                  <Card className="min-w-0">
+                    <CardHeader className="pb-4 space-y-2">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <CardTitle className="text-lg">Height Cleared</CardTitle>
+                        </div>
+                        {heightPr && (
+                          <Badge variant="secondary">PR {heightPr.meters.toFixed(2)}m</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{heightSummary}</p>
+                    </CardHeader>
+                    <CardContent>
+                      {heightSeries.length === 0 || heightPoints.length === 0 ? (
+                        <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+                          No height data to chart yet.
+                        </div>
+                      ) : (
+                        <ChartContainer
+                          config={heightChartConfig}
+                          className="h-[260px] w-full overflow-hidden sm:h-[320px] sm:aspect-video sm:overflow-visible"
+                        >
+                          <AreaChart data={heightSeries} margin={{ left: 12, right: 12 }}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                              dataKey="dateValue"
+                              type="number"
+                              domain={["dataMin", "dataMax"]}
+                              tickLine={false}
+                              axisLine={false}
+                              tickMargin={8}
+                              tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
+                              interval="preserveStartEnd"
+                            />
+                            <YAxis
+                              tickLine={false}
+                              axisLine={false}
+                              tickMargin={8}
+                              width={36}
+                              tickFormatter={(value) => Number(value).toFixed(2)}
+                            />
+                            <ChartTooltip
+                              cursor={false}
+                              content={
+                                <ChartTooltipContent
+                                  className="max-w-[calc(100vw-2rem)] sm:max-w-none"
+                                  labelFormatter={(value) =>
+                                    formatDateLabel(Number(value), "MMM d, yyyy")
+                                  }
+                                  formatter={(value) => {
+                                    if (typeof value !== "number") {
+                                      return null;
+                                    }
+                                    const { feet, inches } = metersToFeetInches(value);
+                                    return (
+                                      <div className="flex flex-col gap-1">
+                                        <span className="font-mono text-foreground">
+                                          {value.toFixed(2)} m
+                                        </span>
+                                        <span className="text-muted-foreground">
+                                          {formatFeetInches(feet, inches)}
+                                        </span>
+                                      </div>
+                                    );
+                                  }}
+                                />
                               }
-                              const { feet, inches } = metersToFeetInches(value);
-                              return (
-                                <div className="flex flex-col gap-1">
-                                  <span className="font-mono text-foreground">
-                                    {value.toFixed(2)} m
-                                  </span>
-                                  <span className="text-muted-foreground">
-                                    {formatFeetInches(feet, inches)}
-                                  </span>
-                                </div>
-                              );
-                            }}
-                          />
-                        }
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="meters"
-                        stroke="var(--color-height)"
-                        fill="var(--color-height)"
-                        fillOpacity={0.2}
-                        strokeWidth={2}
-                        dot={renderHeightDot}
-                        activeDot={{ r: 6 }}
-                      />
-                      {heightPr && (
-                        <ReferenceDot
-                          x={heightPr.dateValue}
-                          y={heightPr.meters ?? 0}
-                          r={6}
-                          fill="var(--color-height)"
-                          stroke="hsl(var(--background))"
-                          strokeWidth={2}
-                          isFront
-                        />
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="meters"
+                              stroke="var(--color-height)"
+                              fill="var(--color-height)"
+                              fillOpacity={0.2}
+                              strokeWidth={2}
+                              dot={renderHeightDot}
+                              activeDot={{ r: 6 }}
+                            />
+                            {heightPr && (
+                              <ReferenceDot
+                                x={heightPr.dateValue}
+                                y={heightPr.meters ?? 0}
+                                r={6}
+                                fill="var(--color-height)"
+                                stroke="hsl(var(--background))"
+                                strokeWidth={2}
+                                isFront
+                              />
+                            )}
+                          </AreaChart>
+                        </ChartContainer>
                       )}
-                    </AreaChart>
-                  </ChartContainer>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="min-w-0">
-              <CardHeader className="pb-4 space-y-2">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-lg">Deepest Takeoff</CardTitle>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
-                <p className="text-xs text-muted-foreground">{takeoffSummary}</p>
-              </CardHeader>
-              <CardContent>
-                {takeoffSeries.length === 0 || takeoffPoints.length === 0 ? (
-                  <div className="flex h-[240px] items-center justify-center text-sm text-muted-foreground">
-                    No takeoff data to chart yet.
-                  </div>
-                ) : (
-                  <ChartContainer
-                    config={takeoffChartConfig}
-                    className="h-[240px] w-full aspect-auto overflow-hidden sm:h-auto sm:aspect-video sm:overflow-visible"
-                  >
-                    <LineChart data={takeoffSeries} margin={{ left: 12, right: 12 }}>
-                      <CartesianGrid vertical={false} />
-                      <XAxis
-                        dataKey="dateValue"
-                        type="number"
-                        domain={["dataMin", "dataMax"]}
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        width={36}
-                        tickFormatter={(value) => Number(value).toFixed(2)}
-                      />
-                      <ChartTooltip
-                        cursor={false}
-                        content={
-                          <ChartTooltipContent
-                            className="max-w-[calc(100vw-2rem)] sm:max-w-none"
-                            labelFormatter={(value) =>
-                              formatDateLabel(Number(value), "MMM d, yyyy")
-                            }
-                            formatter={(value) => {
-                              if (typeof value !== "number") {
-                                return null;
+
+                <div
+                  ref={(element) => {
+                    mobileChartSlideRefs.current[1] = element;
+                  }}
+                  className="min-w-full snap-start"
+                >
+                  <Card className="min-w-0">
+                    <CardHeader className="pb-4 space-y-2">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <CardTitle className="text-lg">Deepest Takeoff</CardTitle>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{takeoffSummary}</p>
+                    </CardHeader>
+                    <CardContent>
+                      {takeoffSeries.length === 0 || takeoffPoints.length === 0 ? (
+                        <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+                          No takeoff data to chart yet.
+                        </div>
+                      ) : (
+                        <ChartContainer
+                          config={takeoffChartConfig}
+                          className="h-[260px] w-full overflow-hidden sm:h-[320px] sm:aspect-video sm:overflow-visible"
+                        >
+                          <LineChart data={takeoffSeries} margin={{ left: 12, right: 12 }}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                              dataKey="dateValue"
+                              type="number"
+                              domain={["dataMin", "dataMax"]}
+                              tickLine={false}
+                              axisLine={false}
+                              tickMargin={8}
+                              tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
+                              interval="preserveStartEnd"
+                            />
+                            <YAxis
+                              tickLine={false}
+                              axisLine={false}
+                              tickMargin={8}
+                              width={36}
+                              tickFormatter={(value) => Number(value).toFixed(2)}
+                            />
+                            <ChartTooltip
+                              cursor={false}
+                              content={
+                                <ChartTooltipContent
+                                  className="max-w-[calc(100vw-2rem)] sm:max-w-none"
+                                  labelFormatter={(value) =>
+                                    formatDateLabel(Number(value), "MMM d, yyyy")
+                                  }
+                                  formatter={(value) => {
+                                    if (typeof value !== "number") {
+                                      return null;
+                                    }
+                                    const { feet, inches } = feetDecimalToFeetInches(value);
+                                    return (
+                                      <div className="flex flex-col gap-1">
+                                        <span className="font-mono text-foreground">
+                                          {value.toFixed(2)} ft
+                                        </span>
+                                        <span className="text-muted-foreground">
+                                          {formatFeetInches(feet, inches)}
+                                        </span>
+                                      </div>
+                                    );
+                                  }}
+                                />
                               }
-                              const { feet, inches } = feetDecimalToFeetInches(value);
-                              return (
-                                <div className="flex flex-col gap-1">
-                                  <span className="font-mono text-foreground">
-                                    {value.toFixed(2)} ft
-                                  </span>
-                                  <span className="text-muted-foreground">
-                                    {formatFeetInches(feet, inches)}
-                                  </span>
-                                </div>
-                              );
-                            }}
-                          />
-                        }
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="takeoffFeet"
-                        stroke="var(--color-takeoff)"
-                        strokeWidth={2}
-                        dot={renderTakeoffDot}
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
-                  </ChartContainer>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="min-w-0 lg:col-span-2">
-              <CardHeader className="pb-4 space-y-3">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <CardTitle className="text-lg">Pole Used</CardTitle>
-                  </div>
-                  <Select
-                    value={poleMetric}
-                    onValueChange={(value) => setPoleMetric(value as PoleMetric)}
-                  >
-                    <SelectTrigger
-                      className="w-full sm:w-[200px]"
-                      aria-label="Select pole metric"
-                    >
-                      <SelectValue placeholder="Select metric" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="lengthFt">Pole Length (ft)</SelectItem>
-                      <SelectItem value="ratingLbs">Rating (lbs)</SelectItem>
-                      <SelectItem value="flex">Flex</SelectItem>
-                    </SelectContent>
-                  </Select>
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="takeoffFeet"
+                              stroke="var(--color-takeoff)"
+                              strokeWidth={2}
+                              dot={renderTakeoffDot}
+                              activeDot={{ r: 6 }}
+                            />
+                          </LineChart>
+                        </ChartContainer>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
-                <p className="text-xs text-muted-foreground">{poleSummary}</p>
-              </CardHeader>
-              <CardContent>
-                {poleSeries.length === 0 || polePoints.length === 0 ? (
-                  <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
-                    No pole data to chart yet.
+
+                <div
+                  ref={(element) => {
+                    mobileChartSlideRefs.current[2] = element;
+                  }}
+                  className="min-w-full snap-start"
+                >
+                  <Card className="min-w-0">
+                    <CardHeader className="pb-4 space-y-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <CardTitle className="text-lg">Pole Used</CardTitle>
+                        </div>
+                        <Select
+                          value={poleMetric}
+                          onValueChange={(value) => setPoleMetric(value as PoleMetric)}
+                        >
+                          <SelectTrigger
+                            className="w-full sm:w-[200px]"
+                            aria-label="Select pole metric"
+                          >
+                            <SelectValue placeholder="Select metric" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="lengthFt">Pole Length (ft)</SelectItem>
+                            <SelectItem value="ratingLbs">Rating (lbs)</SelectItem>
+                            <SelectItem value="flex">Flex</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{poleSummary}</p>
+                    </CardHeader>
+                    <CardContent>
+                      {poleSeries.length === 0 || polePoints.length === 0 ? (
+                        <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+                          No pole data to chart yet.
+                        </div>
+                      ) : (
+                        <ChartContainer
+                          config={poleChartConfig}
+                          className="h-[260px] w-full overflow-hidden sm:h-[320px] sm:aspect-video sm:overflow-visible"
+                        >
+                          <LineChart data={poleSeries} margin={{ left: 12, right: 12 }}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                              dataKey="dateValue"
+                              type="number"
+                              domain={["dataMin", "dataMax"]}
+                              tickLine={false}
+                              axisLine={false}
+                              tickMargin={8}
+                              tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
+                              interval="preserveStartEnd"
+                            />
+                            <YAxis
+                              dataKey="value"
+                              type="number"
+                              domain={["dataMin", "dataMax"]}
+                              reversed={poleMetric === "flex"}
+                              tickLine={false}
+                              axisLine={false}
+                              tickMargin={8}
+                              width={36}
+                              tickFormatter={(value) => formatPoleMetricValue(poleMetric, Number(value))}
+                            />
+                            <ChartTooltip
+                              cursor={false}
+                              content={({ active, payload }) => {
+                                if (!active || !payload?.length) {
+                                  return null;
+                                }
+
+                                const data = payload[0]?.payload as PolePoint | undefined;
+                                if (!data) {
+                                  return null;
+                                }
+
+                                const label = format(data.date, "MMM d, yyyy");
+                                const length =
+                                  data.pole.lengthFt !== undefined
+                                    ? formatTakeoffValue(roundToHalfFoot(data.pole.lengthFt))
+                                    : "—";
+                                const rating =
+                                  data.pole.ratingLbs !== undefined
+                                    ? `${data.pole.ratingLbs} lbs`
+                                    : "—";
+                                const flexValue =
+                                  data.pole.flex !== undefined ? `${data.pole.flex} flex` : "—";
+
+                                return (
+                                  <div className="grid w-full min-w-[14rem] max-w-[calc(100vw-2rem)] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-none sm:max-w-none">
+                                    <div className="font-medium text-foreground">
+                                      {data.name || "Meet"} · {label}
+                                    </div>
+                                    <div className="text-muted-foreground break-words">
+                                      {data.pole.raw || "No pole details recorded"}
+                                    </div>
+                                    <div className="grid gap-1 pt-1">
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Length</span>
+                                        <span className="font-mono text-foreground">{length}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Rating</span>
+                                        <span className="font-mono text-foreground">{rating}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Flex</span>
+                                        <span className="font-mono text-foreground">{flexValue}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="value"
+                              stroke="var(--color-pole)"
+                              strokeWidth={2}
+                              dot={renderPoleDot}
+                              activeDot={{ r: 6 }}
+                            />
+                          </LineChart>
+                        </ChartContainer>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+
+            <div className="hidden sm:grid sm:grid-cols-1 gap-6 lg:grid-cols-2">
+              <Card className="min-w-0">
+                <CardHeader className="pb-4 space-y-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-lg">Height Cleared</CardTitle>
+                    </div>
+                    {heightPr && (
+                      <Badge variant="secondary">PR {heightPr.meters.toFixed(2)}m</Badge>
+                    )}
                   </div>
-                ) : (
-                  <ChartContainer
-                    config={poleChartConfig}
-                    className="h-[260px] w-full aspect-auto overflow-hidden sm:h-auto sm:aspect-video sm:overflow-visible"
-                  >
-                    <LineChart data={poleSeries} margin={{ left: 12, right: 12 }}>
-                      <CartesianGrid vertical={false} />
-                      <XAxis
-                        dataKey="dateValue"
-                        type="number"
-                        domain={["dataMin", "dataMax"]}
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
-                      />
-                      <YAxis
-                        dataKey="value"
-                        type="number"
-                        domain={["dataMin", "dataMax"]}
-                        reversed={poleMetric === "flex"}
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        width={36}
-                        tickFormatter={(value) => formatPoleMetricValue(poleMetric, Number(value))}
-                      />
-                      <ChartTooltip
-                        cursor={false}
-                        content={({ active, payload }) => {
-                          if (!active || !payload?.length) {
-                            return null;
+                  <p className="text-xs text-muted-foreground">{heightSummary}</p>
+                </CardHeader>
+                <CardContent>
+                  {heightSeries.length === 0 || heightPoints.length === 0 ? (
+                    <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+                      No height data to chart yet.
+                    </div>
+                  ) : (
+                    <ChartContainer
+                      config={heightChartConfig}
+                      className="h-[260px] w-full overflow-hidden sm:h-[320px] sm:aspect-video sm:overflow-visible"
+                    >
+                      <AreaChart data={heightSeries} margin={{ left: 12, right: 12 }}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                          dataKey="dateValue"
+                          type="number"
+                          domain={["dataMin", "dataMax"]}
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
+                          interval="preserveStartEnd"
+                        />
+                        <YAxis
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          width={36}
+                          tickFormatter={(value) => Number(value).toFixed(2)}
+                        />
+                        <ChartTooltip
+                          cursor={false}
+                          content={
+                            <ChartTooltipContent
+                              className="max-w-[calc(100vw-2rem)] sm:max-w-none"
+                              labelFormatter={(value) =>
+                                formatDateLabel(Number(value), "MMM d, yyyy")
+                              }
+                              formatter={(value) => {
+                                if (typeof value !== "number") {
+                                  return null;
+                                }
+                                const { feet, inches } = metersToFeetInches(value);
+                                return (
+                                  <div className="flex flex-col gap-1">
+                                    <span className="font-mono text-foreground">
+                                      {value.toFixed(2)} m
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                      {formatFeetInches(feet, inches)}
+                                    </span>
+                                  </div>
+                                );
+                              }}
+                            />
                           }
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="meters"
+                          stroke="var(--color-height)"
+                          fill="var(--color-height)"
+                          fillOpacity={0.2}
+                          strokeWidth={2}
+                          dot={renderHeightDot}
+                          activeDot={{ r: 6 }}
+                        />
+                        {heightPr && (
+                          <ReferenceDot
+                            x={heightPr.dateValue}
+                            y={heightPr.meters ?? 0}
+                            r={6}
+                            fill="var(--color-height)"
+                            stroke="hsl(var(--background))"
+                            strokeWidth={2}
+                            isFront
+                          />
+                        )}
+                      </AreaChart>
+                    </ChartContainer>
+                  )}
+                </CardContent>
+              </Card>
 
-                          const data = payload[0]?.payload as PolePoint | undefined;
-                          if (!data) {
-                            return null;
+              <Card className="min-w-0">
+                <CardHeader className="pb-4 space-y-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-lg">Deepest Takeoff</CardTitle>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{takeoffSummary}</p>
+                </CardHeader>
+                <CardContent>
+                  {takeoffSeries.length === 0 || takeoffPoints.length === 0 ? (
+                    <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+                      No takeoff data to chart to chart yet.
+                    </div>
+                  ) : (
+                    <ChartContainer
+                      config={takeoffChartConfig}
+                      className="h-[260px] w-full overflow-hidden sm:h-[320px] sm:aspect-video sm:overflow-visible"
+                    >
+                      <LineChart data={takeoffSeries} margin={{ left: 12, right: 12 }}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                          dataKey="dateValue"
+                          type="number"
+                          domain={["dataMin", "dataMax"]}
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
+                          interval="preserveStartEnd"
+                        />
+                        <YAxis
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          width={36}
+                          tickFormatter={(value) => Number(value).toFixed(2)}
+                        />
+                        <ChartTooltip
+                          cursor={false}
+                          content={
+                            <ChartTooltipContent
+                              className="max-w-[calc(100vw-2rem)] sm:max-w-none"
+                              labelFormatter={(value) =>
+                                formatDateLabel(Number(value), "MMM d, yyyy")
+                              }
+                              formatter={(value) => {
+                                if (typeof value !== "number") {
+                                  return null;
+                                }
+                                const { feet, inches } = feetDecimalToFeetInches(value);
+                                return (
+                                  <div className="flex flex-col gap-1">
+                                    <span className="font-mono text-foreground">
+                                      {value.toFixed(2)} ft
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                      {formatFeetInches(feet, inches)}
+                                    </span>
+                                  </div>
+                                );
+                              }}
+                            />
                           }
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="takeoffFeet"
+                          stroke="var(--color-takeoff)"
+                          strokeWidth={2}
+                          dot={renderTakeoffDot}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ChartContainer>
+                  )}
+                </CardContent>
+              </Card>
 
-                          const label = format(data.date, "MMM d, yyyy");
-                          const length =
-                            data.pole.lengthFt !== undefined
-                              ? formatTakeoffValue(roundToHalfFoot(data.pole.lengthFt))
-                              : "—";
-                          const rating =
-                            data.pole.ratingLbs !== undefined
-                              ? `${data.pole.ratingLbs} lbs`
-                              : "—";
-                          const flexValue =
-                            data.pole.flex !== undefined ? `${data.pole.flex} flex` : "—";
+              <Card className="min-w-0 lg:col-span-2">
+                <CardHeader className="pb-4 space-y-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <CardTitle className="text-lg">Pole Used</CardTitle>
+                    </div>
+                    <Select
+                      value={poleMetric}
+                      onValueChange={(value) => setPoleMetric(value as PoleMetric)}
+                    >
+                      <SelectTrigger
+                        className="w-full sm:w-[200px]"
+                        aria-label="Select pole metric"
+                      >
+                        <SelectValue placeholder="Select metric" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="lengthFt">Pole Length (ft)</SelectItem>
+                        <SelectItem value="ratingLbs">Rating (lbs)</SelectItem>
+                        <SelectItem value="flex">Flex</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{poleSummary}</p>
+                </CardHeader>
+                <CardContent>
+                  {poleSeries.length === 0 || polePoints.length === 0 ? (
+                    <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+                      No pole data to chart yet.
+                    </div>
+                  ) : (
+                    <ChartContainer
+                      config={poleChartConfig}
+                      className="h-[260px] w-full overflow-hidden sm:h-[320px] sm:aspect-video sm:overflow-visible"
+                    >
+                      <LineChart data={poleSeries} margin={{ left: 12, right: 12 }}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                          dataKey="dateValue"
+                          type="number"
+                          domain={["dataMin", "dataMax"]}
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          tickFormatter={(value) => formatDateLabel(Number(value), "MMM d")}
+                          interval="preserveStartEnd"
+                        />
+                        <YAxis
+                          dataKey="value"
+                          type="number"
+                          domain={["dataMin", "dataMax"]}
+                          reversed={poleMetric === "flex"}
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          width={36}
+                          tickFormatter={(value) => formatPoleMetricValue(poleMetric, Number(value))}
+                        />
+                        <ChartTooltip
+                          cursor={false}
+                          content={({ active, payload }) => {
+                            if (!active || !payload?.length) {
+                              return null;
+                            }
 
-                          return (
-                            <div className="grid w-full min-w-[14rem] max-w-[calc(100vw-2rem)] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-none sm:max-w-none">
-                              <div className="font-medium text-foreground">
-                                {data.name || "Meet"} · {label}
-                              </div>
-                              <div className="text-muted-foreground break-words">
-                                {data.pole.raw || "No pole details recorded"}
-                              </div>
-                              <div className="grid gap-1 pt-1">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Length</span>
-                                  <span className="font-mono text-foreground">{length}</span>
+                            const data = payload[0]?.payload as PolePoint | undefined;
+                            if (!data) {
+                              return null;
+                            }
+
+                            const label = format(data.date, "MMM d, yyyy");
+                            const length =
+                              data.pole.lengthFt !== undefined
+                                ? formatTakeoffValue(roundToHalfFoot(data.pole.lengthFt))
+                                : "—";
+                            const rating =
+                              data.pole.ratingLbs !== undefined
+                                ? `${data.pole.ratingLbs} lbs`
+                                : "—";
+                            const flexValue =
+                              data.pole.flex !== undefined ? `${data.pole.flex} flex` : "—";
+
+                            return (
+                              <div className="grid w-full min-w-[14rem] max-w-[calc(100vw-2rem)] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-none sm:max-w-none">
+                                <div className="font-medium text-foreground">
+                                  {data.name || "Meet"} · {label}
                                 </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Rating</span>
-                                  <span className="font-mono text-foreground">{rating}</span>
+                                <div className="text-muted-foreground break-words">
+                                  {data.pole.raw || "No pole details recorded"}
                                 </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Flex</span>
-                                  <span className="font-mono text-foreground">{flexValue}</span>
+                                <div className="grid gap-1 pt-1">
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Length</span>
+                                    <span className="font-mono text-foreground">{length}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Rating</span>
+                                    <span className="font-mono text-foreground">{rating}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Flex</span>
+                                    <span className="font-mono text-foreground">{flexValue}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke="var(--color-pole)"
-                        strokeWidth={2}
-                        dot={renderPoleDot}
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
-                  </ChartContainer>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                            );
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="var(--color-pole)"
+                          strokeWidth={2}
+                          dot={renderPoleDot}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ChartContainer>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )}
       </main>
     </div>
