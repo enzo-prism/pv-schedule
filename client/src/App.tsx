@@ -8,7 +8,6 @@ import Home from "@/pages/home";
 import MeetDetails from "@/pages/meet-details";
 import Trends from "@/pages/trends";
 import Cycle from "@/pages/cycle";
-import BottomNav from "@/components/bottom-nav";
 import { Button } from "@/components/ui/button";
 import { isReadOnlyMode } from "@/lib/env";
 
@@ -52,7 +51,6 @@ function App() {
             Add meet
           </Button>
         )}
-        <BottomNav />
       </div>
       <Toaster />
     </QueryClientProvider>

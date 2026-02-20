@@ -40,7 +40,6 @@ import {
 import FilterSection from "@/components/filter-section";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfile from "@/components/user-profile";
 
 type TrendRow = Omit<MeetTrendRow, "id" | "name" | "location"> & {
@@ -525,22 +524,29 @@ export default function Trends() {
           </div>
 
           <div className="mt-4">
-            <Tabs value={range} onValueChange={setRange}>
-              <TabsList
-                aria-label="Date range"
-                className="inline-flex h-auto w-full gap-1 overflow-x-auto whitespace-nowrap rounded-full border border-white/10 bg-card/45 p-1.5 backdrop-blur-sm sm:w-auto sm:flex-nowrap"
-              >
-                {rangeOptions.map((option) => (
-                  <TabsTrigger
+            <div
+              aria-label="Date range"
+              className="inline-flex w-full items-center gap-1 overflow-x-auto whitespace-nowrap rounded-full border border-white/10 bg-card/45 p-1.5 backdrop-blur-sm [scrollbar-width:none]"
+            >
+              {rangeOptions.map((option) => {
+                const isActive = range === option.value;
+                return (
+                  <button
                     key={option.value}
-                    value={option.value}
-                    className="px-3 py-2 min-h-[40px] rounded-full text-xs font-medium sm:px-2.5 sm:py-1.5 sm:text-sm"
+                    type="button"
+                    onClick={() => setRange(option.value)}
+                    className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium transition-colors min-h-[40px] whitespace-nowrap ${
+                      isActive
+                        ? "bg-white/10 text-foreground"
+                        : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                    }`}
+                    aria-pressed={isActive}
                   >
                     {option.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 

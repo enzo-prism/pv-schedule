@@ -7,12 +7,15 @@ const navItems = [
   { href: "/trends", label: "Trends", Icon: TrendingUp },
 ];
 
-export default function BottomNav() {
+export default function BottomNav({ className }: { className?: string }) {
   const [location] = useLocation();
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-card/50 backdrop-blur-xl"
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-card/50 backdrop-blur-xl",
+        className
+      )}
       aria-label="Primary"
     >
       <div className="mx-auto flex max-w-3xl min-h-[74px] items-center justify-around px-6 py-2 safe-bottom">
