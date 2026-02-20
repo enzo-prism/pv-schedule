@@ -105,3 +105,14 @@ See `.env.example` for defaults and flags:
 - `isFilamMeet` is stored in the schema but not currently surfaced in the UI.
 - To load a full dataset into dev/prod, run the `import:json` script with `DATABASE_URL` set. It upserts by ID and resets sequences to the max ID.
 - For a read-only deployment with data baked into the codebase, set `USE_HARDCODED_DATA=true` and `READ_ONLY=true` (and `VITE_READ_ONLY=true` on the client).
+
+## Ongoing UI Notes (Developer)
+- Route tabs in the sticky headers are shared through `client/src/components/filter-section.tsx` and currently support `Meets`, `Trends`, and `Cycle`.
+- Trends page range controls now use the same rounded segmented style as the Meets filters:
+  - File: `client/src/pages/trends.tsx`
+  - Options are defined in `rangeOptions`.
+  - Selected value is stored in `range` state.
+- Bottom navigation is intentionally not mounted in the main app layout for a cleaner mobile-first flow:
+  - File: `client/src/App.tsx`
+  - The page shell currently renders `Router` + `Toaster` without `BottomNav`.
+- If you want to re-enable bottom nav later, use `client/src/components/bottom-nav.tsx` as the reusable nav component.
