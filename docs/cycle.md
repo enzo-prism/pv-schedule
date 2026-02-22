@@ -9,6 +9,11 @@
 - Week rows with available plan data are interactive and open to week detail screens.
 - Week 1–5 are currently seeded with full day details.
 - Weeks 6–16 currently show a non-blocking “coming soon” state.
+- Week detail screens include compact `Prev week`, `Next week`, and `All weeks` actions.
+
+### Labeling
+- Day row previews use descriptive tags based on workout focus (for example, `Jump day`, `Lift day`, `Plyometrics`) so they avoid generic copy.
+- The compact weekday rail in day view uses short labels (`sun`, `mon`, `tue`, etc.) with dates.
 
 ## Day details
 - Day screens include:

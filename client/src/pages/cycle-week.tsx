@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import FilterSection from "@/components/filter-section";
 import UserProfile from "@/components/user-profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cycleDayLabelById, cycleDayOrder, formatCycleDayLabel, getCycleWeek } from "@/lib/cycle";
+import {
+  cycleDayLabelById,
+  cycleDayOrder,
+  formatCycleDayLabel,
+  getCycleDayPreviewLabel,
+  getCycleWeek,
+} from "@/lib/cycle";
 import { usePageMeta } from "@/lib/use-page-meta";
 
 export default function CycleWeek() {
@@ -19,6 +25,9 @@ export default function CycleWeek() {
     ? `Day-by-day view for cycle week ${weekData.week}.`
     : "Open a cycle week and day sessions.";
   usePageMeta(pageTitle || "Cycle Week", pageDescription);
+
+  const prevWeek = Number.isInteger(week) && week > 1 ? week - 1 : undefined;
+  const nextWeek = Number.isInteger(week) && week < 16 ? week + 1 : undefined;
 
   if (!rawWeek || !weekData) {
     return (
@@ -77,59 +86,77 @@ export default function CycleWeek() {
                   <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-xs text-primary">
                     W{weekData.week}
                   </span>
-                  <span className="text-xs text-muted-foreground">week detail</span>
                 </div>
                 <CardTitle className="mt-1.5 text-lg sm:text-xl">{weekData.window}</CardTitle>
                 <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{weekData.phase}</p>
               </div>
-              <Link href="/cycle">
-                <Button variant="outline" size="sm">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  All weeks
-                </Button>
-              </Link>
+              <div className="flex gap-2 self-end">
+                {prevWeek ? (
+                  <Link href={`/cycle/week/${prevWeek}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2 text-xs"
+                      aria-label="Go to previous week"
+                    >
+                      <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+                      Prev week
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2 text-xs"
+                    disabled
+                    aria-label="No previous week"
+                  >
+                    <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+                    Prev week
+                  </Button>
+                )}
+                <Link href="/cycle">
+                  <Button variant="outline" size="sm" className="h-8 px-2 text-xs">
+                    All weeks
+                  </Button>
+                </Link>
+                {nextWeek ? (
+                  <Link href={`/cycle/week/${nextWeek}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2 text-xs"
+                      aria-label="Go to next week"
+                    >
+                      Next week
+                      <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2 text-xs"
+                    disabled
+                    aria-label="No next week"
+                  >
+                    Next week
+                    <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p
-              className={`rounded-md border px-3 py-2 text-xs ${
-                isAvailable
-                  ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"
-                  : "border-amber-200/20 bg-amber-200/10 text-amber-200"
-              }`}
-            >
-              {isAvailable
-                ? "Day-by-day sessions are available for this week."
-                : "Day-by-day details are coming soon."}
-            </p>
-
             {isAvailable ? (
               <>
-                <div className="overflow-x-auto">
-                  <div className="flex min-w-max gap-2 pb-1">
-                    {cycleDayOrder.map((dayId) => {
-                      const dayEntry = weekData.days?.[dayId];
-                      const dayLabel = dayEntry
-                        ? formatCycleDayLabel(dayId, dayEntry.dateLabel)
-                        : cycleDayLabelById[dayId];
-
-                      return (
-                        <Link key={dayId} href={`/cycle/week/${weekData.week}/day/${dayId}`}>
-                          <Button variant="outline" size="sm" className="h-10 min-w-max">
-                            {dayLabel}
-                          </Button>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
                 <div className="divide-y divide-white/10 rounded-lg border border-white/10">
                   {cycleDayOrder.map((dayId) => {
                     const day = weekData.days?.[dayId];
                     const dayLabel = day
                       ? formatCycleDayLabel(dayId, day.dateLabel)
                       : cycleDayLabelById[dayId];
-                    const dayPreview = day?.sessionItems?.[0]?.title ?? "No session listed";
+                    const dayPreview = getCycleDayPreviewLabel(day);
 
                     return (
                       <Link

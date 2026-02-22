@@ -51,6 +51,7 @@ Track & field meet scheduling for a pole vault athlete. The app pairs a Vite + R
 - `GET /cycle` is the cycle index with 16 weeks, linking to weeks with loaded details.
 - `GET /cycle/week/:week` opens the week-level summary and day launch list.
 - `GET /cycle/week/:week/day/:day` opens a selected day workout, including previous/next day navigation.
+- Week detail pages include `Prev week`, `Next week`, and `All weeks` navigation controls.
 - Weeks without day-level plan data render a compact “coming soon” state at week level.
 
 ### Copy link and metadata behavior

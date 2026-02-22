@@ -49,6 +49,16 @@ export const cycleDayLabelById: Record<CycleDayId, string> = {
   sat: "Saturday",
 };
 
+export const cycleDayShortLabelById: Record<CycleDayId, string> = {
+  sun: "sun",
+  mon: "mon",
+  tue: "tue",
+  wed: "wed",
+  thu: "thu",
+  fri: "fri",
+  sat: "sat",
+};
+
 const sharedRoutineReferenceSections: Record<string, CycleDayDetail[]> = {
   friday: [
     {
@@ -379,6 +389,80 @@ export function getCycleDayId(day: string): CycleDayId | undefined {
 
 export function formatCycleDayLabel(dayId: CycleDayId, dateLabel?: string): string {
   return `${cycleDayLabelById[dayId]}${dateLabel ? ` ${dateLabel}` : ""}`.trim();
+}
+
+export function formatCycleDayShortLabel(dayId: CycleDayId, dateLabel?: string): string {
+  return `${cycleDayShortLabelById[dayId]}${dateLabel ? ` ${dateLabel}` : ""}`.trim();
+}
+
+export function getCycleDayPreviewLabel(day: CycleDay | undefined): string {
+  if (!day) {
+    return "No session listed";
+  }
+
+  const isGenericDayStarter = (title: string) => {
+    const normalized = title.toLowerCase();
+    return (
+      normalized.includes("warm up") ||
+      normalized.includes("warmup") ||
+      normalized.includes("cool down") ||
+      normalized.includes("cooldown")
+    );
+  };
+
+  const summarizeSessionLabel = (title: string) => {
+    const normalized = title.toLowerCase();
+    if (normalized.includes("vault tech") || normalized.includes("vault jump")) {
+      return "Jump day";
+    }
+    if (normalized.includes("plyometric")) {
+      return "Plyometrics";
+    }
+    if (normalized.includes("lift")) {
+      return "Lift day";
+    }
+    if (normalized.includes("wickets")) {
+      return "Wickets";
+    }
+    if (normalized.includes("bounding")) {
+      return "Bounding";
+    }
+    if (normalized.includes("speed drills") || normalized.includes("speed")) {
+      return "Speed work";
+    }
+    if (normalized.includes("abdominals")) {
+      return "Abdominals";
+    }
+    if (normalized.includes("bar work") || normalized.includes("rings")) {
+      return "Bar work";
+    }
+    if (normalized.includes("pole runs") || normalized.includes("pole")) {
+      return "Pole runs";
+    }
+    return title;
+  };
+
+  const meaningfulSessionItems = day.sessionItems
+    .map((item) => item.title)
+    .filter((title) => !isGenericDayStarter(title.toLowerCase()));
+
+  const focusSession = meaningfulSessionItems[0];
+
+  if (!focusSession) {
+    return "Cool-down flow";
+  }
+
+  const hasVaultFocus = day.sessionItems.some((item) =>
+    item.title.toLowerCase().includes("vault tech") ||
+    item.title.toLowerCase().includes("vault jump") ||
+    item.summary.some((line) => line.toLowerCase().includes("vault tech")),
+  );
+
+  if (hasVaultFocus) {
+    return "Jump day";
+  }
+
+  return summarizeSessionLabel(focusSession);
 }
 
 export function normalizeSessionLineForDedupe(line: string): string {

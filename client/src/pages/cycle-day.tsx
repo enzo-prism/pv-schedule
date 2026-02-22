@@ -6,9 +6,10 @@ import UserProfile from "@/components/user-profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import {
-  cycleDayLabelById,
   cycleDayOrder,
+  cycleDayShortLabelById,
   formatCycleDayLabel,
+  formatCycleDayShortLabel,
   getCycleDay,
   getCycleDayNavigation,
   getCycleWeek,
@@ -169,8 +170,8 @@ export default function CycleDay() {
                   {cycleDayOrder.map((dayId) => {
                     const dayEntry = weekData.days?.[dayId];
                     const label = dayEntry
-                      ? formatCycleDayLabel(dayId, dayEntry.dateLabel)
-                      : cycleDayLabelById[dayId];
+                      ? formatCycleDayShortLabel(dayId, dayEntry.dateLabel)
+                      : `${cycleDayShortLabelById[dayId]}`;
                     const isCurrent = dayId === canonicalDayId;
 
                     if (isCurrent) {
