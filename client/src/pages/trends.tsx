@@ -41,7 +41,6 @@ import FilterSection from "@/components/filter-section";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserProfile from "@/components/user-profile";
-import PrismAnimation from "@/components/prism-animation";
 import { usePageMeta } from "@/lib/use-page-meta";
 
 type TrendRow = Omit<MeetTrendRow, "id" | "name" | "location"> & {
@@ -522,10 +521,6 @@ export default function Trends() {
               className="self-start sm:self-end"
             />
           </div>
-          <div className="mt-4 flex justify-center">
-            <PrismAnimation className="h-28 w-28 sm:h-32 sm:w-32" />
-          </div>
-
           <div className="mt-4">
             <h1 className="text-2xl font-semibold text-foreground">Trends</h1>
           </div>

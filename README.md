@@ -121,6 +121,7 @@ See `.env.example` for defaults and flags:
 - To load a full dataset into dev/prod, run the `import:json` script with `DATABASE_URL` set. It upserts by ID and resets sequences to the max ID.
 - For a read-only deployment with data baked into the codebase, set `USE_HARDCODED_DATA=true` and `READ_ONLY=true` (and `VITE_READ_ONLY=true` on the client).
 - Additional Cycle docs: `docs/cycle.md`.
+- Recent UI cleanup: removed the legacy looping SVG animation header artwork from Home and Trends to avoid a distracting background animation artifact.
 
 ## Ongoing UI Notes (Developer)
 - Route tabs in the sticky headers are shared through `client/src/components/filter-section.tsx` and currently support `Meets`, `Trends`, and `Cycle`.

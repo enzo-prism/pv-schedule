@@ -13,7 +13,6 @@ import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import UserProfile from "@/components/user-profile";
-import PrismAnimation from "@/components/prism-animation";
 import { Button } from "@/components/ui/button";
 import { isReadOnlyMode } from "@/lib/env";
 import { usePageMeta } from "@/lib/use-page-meta";
@@ -244,9 +243,6 @@ export default function Home() {
               onFilterChange={handleFilterChange}
               className="self-start sm:self-auto"
             />
-          </div>
-          <div className="mt-4 flex justify-center">
-            <PrismAnimation className="h-28 w-28 sm:h-32 sm:w-32" />
           </div>
         </section>
 
