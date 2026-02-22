@@ -1,34 +1,14 @@
-import { CalendarDays } from "lucide-react";
+import { ArrowRight, CalendarDays } from "lucide-react";
+import { Link } from "wouter";
 import FilterSection from "@/components/filter-section";
 import UserProfile from "@/components/user-profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-type CyclePhase = {
-  week: number;
-  window: string;
-  phase: string;
-};
-
-const cyclePhases: CyclePhase[] = [
-  { week: 1, window: "Feb 22 - 28", phase: "Speed/Comp Phase (emphasis Speed)" },
-  { week: 2, window: "March 1 - 7", phase: "Speed/Comp Phase (emphasis Speed)" },
-  { week: 3, window: "March 8 - 14", phase: "Speed/Comp Phase (emphasis Speed)" },
-  { week: 4, window: "March 15 - 21", phase: "Comp/Speed Phase (emphasis Comps)" },
-  { week: 5, window: "March 22 – 28", phase: "Comp/Speed Phase (emphasis Comps)" },
-  { week: 6, window: "March 29 – April 4", phase: "Active Rest" },
-  { week: 7, window: "April 5 – 11", phase: "Load week 1" },
-  { week: 8, window: "April 12 – 18", phase: "Load week 2" },
-  { week: 9, window: "April 19 – 25", phase: "Load week 3" },
-  { week: 10, window: "April 26 – May 2", phase: "Active Rest" },
-  { week: 11, window: "May 3 - 9", phase: "Transition" },
-  { week: 12, window: "May 10 - 16", phase: "Transition" },
-  { week: 13, window: "May 17 – 23", phase: "Speed/Peak" },
-  { week: 14, window: "May 24-30", phase: "Speed/Peak" },
-  { week: 15, window: "June 1 – 6", phase: "Speed/Peak" },
-  { week: 16, window: "June 7 – 15", phase: "National Champs" },
-];
+import { cycleWeekSummaries, getCycleWeek } from "@/lib/cycle";
+import { usePageMeta } from "@/lib/use-page-meta";
 
 export default function Cycle() {
+  usePageMeta("Cycle", "Open the weekly cycle plan.");
+
   return (
     <div className="min-h-screen bg-background relative pb-app-nav">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-16">
@@ -47,7 +27,7 @@ export default function Cycle() {
             <CardHeader>
               <CardTitle className="text-xl">2026 Cycle Plan</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Phase focus for the upcoming season based on your outline.
+                Review each week and expand to day-level session details.
               </p>
             </CardHeader>
             <CardContent>
@@ -63,22 +43,50 @@ export default function Cycle() {
           <Card>
             <CardContent className="p-0">
               <div className="divide-y divide-white/10">
-                {cyclePhases.map((entry) => (
-                  <div
-                    key={entry.week}
-                    className="flex items-start gap-4 px-4 py-3 sm:py-4"
-                  >
-                    <div className="w-14 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-center text-xs font-medium text-white/80">
-                      W{entry.week}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-sm font-medium text-foreground">
-                        {entry.window}
+                {cycleWeekSummaries.map((entry) => {
+                  const weekData = getCycleWeek(entry.week);
+                  const isAvailable = weekData?.detailStatus === "available";
+
+                  return isAvailable ? (
+                    <Link
+                      key={entry.week}
+                      href={`/cycle/week/${entry.week}`}
+                      className="grid min-h-[72px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.02] sm:py-4"
+                    >
+                      <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
+                        W{entry.week}
                       </div>
-                      <div className="text-sm text-muted-foreground">{entry.phase}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-foreground">
+                          {entry.window}
+                        </div>
+                        <div className="text-sm text-muted-foreground">{entry.phase}</div>
+                      </div>
+                      <div className="flex items-center gap-1 pt-0.5 text-sm text-muted-foreground">
+                        <span>View</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </Link>
+                  ) : (
+                    <div
+                      key={entry.week}
+                      className="grid min-h-[72px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:py-4"
+                    >
+                      <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
+                        W{entry.week}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-foreground">
+                          {entry.window}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{entry.phase}</div>
+                      </div>
+                      <div className="inline-flex rounded-full border border-amber-200/30 bg-amber-200/10 px-2 py-1 text-xs text-amber-200/90">
+                        Coming soon
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

@@ -71,6 +71,7 @@ import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "@shared/media";
 import { isReadOnlyMode, uploadsEnabled as uploadsEnabledFlag } from "@/lib/env";
 import { formatLocationWithFlag } from "@/lib/location";
 import { formatMeetName } from "@/lib/meet-title";
+import { usePageMeta } from "@/lib/use-page-meta";
 
 type MediaMode = "upload" | "url";
 type MediaQueueStatus = "pending" | "uploading" | "uploaded" | "error" | "skipped";
@@ -139,6 +140,16 @@ type MeetPayload = {
     queryKey: [`/api/meets/${meetId}`],
     enabled: meetId !== null,
   });
+  const meetMetaTitle = meet
+    ? `${formatMeetName(meet.name ?? "", meet.date)} | Meet`
+    : meetId
+      ? `Meet ${meetId}`
+      : "Meet details";
+  const meetMetaDescription = meet
+    ? `${formatMeetName(meet.name ?? "", meet.date)} workout day.`
+    : "Open one meet’s workout day page.";
+
+  usePageMeta(meetMetaTitle, meetMetaDescription);
 
   const clearMediaQueue = () => {
     mediaQueue.forEach((item) => URL.revokeObjectURL(item.previewUrl));

@@ -8,6 +8,8 @@ import Home from "@/pages/home";
 import MeetDetails from "@/pages/meet-details";
 import Trends from "@/pages/trends";
 import Cycle from "@/pages/cycle";
+import CycleWeek from "@/pages/cycle-week";
+import CycleDay from "@/pages/cycle-day";
 import { Button } from "@/components/ui/button";
 import { isReadOnlyMode } from "@/lib/env";
 
@@ -18,6 +20,8 @@ function Router() {
       <Route path="/meet/:id" component={MeetDetails} />
       <Route path="/trends" component={Trends} />
       <Route path="/cycle" component={Cycle} />
+      <Route path="/cycle/week/:week/day/:day" component={CycleDay} />
+      <Route path="/cycle/week/:week" component={CycleWeek} />
       <Route component={NotFound} />
     </Switch>
   );

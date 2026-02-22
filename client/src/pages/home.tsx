@@ -13,8 +13,10 @@ import EditMeetForm from "@/components/edit-meet-form";
 import FilterSection from "@/components/filter-section";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import UserProfile from "@/components/user-profile";
+import PrismAnimation from "@/components/prism-animation";
 import { Button } from "@/components/ui/button";
 import { isReadOnlyMode } from "@/lib/env";
+import { usePageMeta } from "@/lib/use-page-meta";
 
 type FilterType = "upcoming" | "past";
 
@@ -38,6 +40,8 @@ type MeetPayload = {
 };
 
 export default function Home() {
+  usePageMeta("Meets", "View your meet schedule.");
+
   const [isAddMeetOpen, setIsAddMeetOpen] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<FilterType>(getInitialFilter);
   const [editMeet, setEditMeet] = useState<Meet | null>(null);
@@ -240,6 +244,9 @@ export default function Home() {
               onFilterChange={handleFilterChange}
               className="self-start sm:self-auto"
             />
+          </div>
+          <div className="mt-4 flex justify-center">
+            <PrismAnimation className="h-28 w-28 sm:h-32 sm:w-32" />
           </div>
         </section>
 

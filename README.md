@@ -10,6 +10,8 @@ Track & field meet scheduling for a pole vault athlete. The app pairs a Vite + R
 - Media gallery with lightbox browsing on the meet details page.
 - Custom video player with lazy loading, tap-to-play/pause, auto-hiding controls, and seekable progress bar.
 - Toast feedback and modal dialogs for add/edit/delete flows.
+- Cycle plan with week/day drill-down pages and shareable day links.
+- Short, unique page titles and descriptions for improved sharing and tab identity.
 
 ## Tech Stack
 - Client: React 18 + Vite, Wouter routing, TanStack Query, Tailwind CSS, shadcn/ui, Recharts, date-fns.
@@ -22,6 +24,8 @@ Track & field meet scheduling for a pole vault athlete. The app pairs a Vite + R
 - `server/storage/*` selects memory or Postgres storage and normalizes media payloads.
 - `client/src/pages` contains route-level screens for home, meet details, and trends.
 - `client/src/components` holds reusable UI building blocks (cards, forms, dialogs, charts).
+- `client/src/lib/cycle.ts` defines cycle week/day data, detail payloads, and lookup helpers.
+- `client/src/lib/use-page-meta.ts` centralizes page title/description updates.
 
 ## Data Model
 - `meets`: `name`, `date`, `location`, `description`, `height_cleared`, `pole_used`, `deepest_takeoff`, `place`, `link`, `drive_time`, `registration_status`, `is_filam_meet`, `created_at`.
@@ -42,6 +46,16 @@ Track & field meet scheduling for a pole vault athlete. The app pairs a Vite + R
 - `POST /api/meets/:id/media` (JSON upload or URL)
 - `PATCH /api/meets/:id/media/:mediaId`
 - `DELETE /api/meets/:id/media/:mediaId`
+
+## Cycle routes and behavior
+- `GET /cycle` is the cycle index with 16 weeks, linking to weeks with loaded details.
+- `GET /cycle/week/:week` opens the week-level summary and day launch list.
+- `GET /cycle/week/:week/day/:day` opens a selected day workout, including previous/next day navigation.
+- Weeks without day-level plan data render a compact “coming soon” state at week level.
+
+### Copy link and metadata behavior
+- `Cycle day` pages include a copy-link control for quick sharing of specific workout views.
+- Page title and description are set per route via `use-page-meta` for cleaner tab labels and share previews.
 
 ### Media Upload Payloads
 - Upload file (base64 data URL):
@@ -105,6 +119,7 @@ See `.env.example` for defaults and flags:
 - `isFilamMeet` is stored in the schema but not currently surfaced in the UI.
 - To load a full dataset into dev/prod, run the `import:json` script with `DATABASE_URL` set. It upserts by ID and resets sequences to the max ID.
 - For a read-only deployment with data baked into the codebase, set `USE_HARDCODED_DATA=true` and `READ_ONLY=true` (and `VITE_READ_ONLY=true` on the client).
+- Additional Cycle docs: `docs/cycle.md`.
 
 ## Ongoing UI Notes (Developer)
 - Route tabs in the sticky headers are shared through `client/src/components/filter-section.tsx` and currently support `Meets`, `Trends`, and `Cycle`.
