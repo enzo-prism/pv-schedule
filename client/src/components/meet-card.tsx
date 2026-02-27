@@ -154,11 +154,6 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                 <h3 className="font-medium text-foreground leading-tight line-clamp-2 flex-1 min-w-[160px]">
                   {titleParts.title}
                 </h3>
-                {titleParts.sanction && (
-                  <span className="text-[10px] tracking-[0.08em] uppercase text-muted-foreground border border-white/10 bg-white/5 px-2 py-0.5 rounded-full">
-                    {titleParts.sanction}
-                  </span>
-                )}
               </div>
               <div className="mt-1 text-sm text-muted-foreground space-y-0.5">
                 <div>{formatDate(meet.date)}</div>
@@ -222,17 +217,17 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
           )}
             {/* All metrics for past meets */}
             {isPast && (meet.heightCleared || meet.poleUsed || meet.deepestTakeoff || meet.place) && (
-              <div className="mt-2 pt-2 border-t border-white/10 text-xs text-muted-foreground space-y-1 hidden sm:block">
-                {meet.heightCleared && <div>Height: {meet.heightCleared}</div>}
-                {meet.poleUsed && <div>Pole: {meet.poleUsed}</div>}
-                {meet.deepestTakeoff && <div>Takeoff: {meet.deepestTakeoff}</div>}
-                {meet.place && <div>Place: #{meet.place}</div>}
+              <div className="mt-2 pt-2 border-t border-white/10 text-xs text-muted-foreground grid grid-cols-2 gap-x-3 gap-y-1 sm:block sm:space-y-1">
+                {meet.heightCleared && <div className="truncate">Height: {meet.heightCleared}</div>}
+                {meet.poleUsed && <div className="truncate">Pole: {meet.poleUsed}</div>}
+                {meet.deepestTakeoff && <div className="truncate">Takeoff: {meet.deepestTakeoff}</div>}
+                {meet.place && <div className="truncate">Place: #{meet.place}</div>}
               </div>
             )}
             
             {meet.description && (
-              <div className="mt-3 pt-3 border-t border-white/10 hidden sm:block">
-                <p className="text-sm text-muted-foreground line-clamp-2">{meet.description}</p>
+              <div className="mt-2 pt-2 border-t border-white/10 sm:mt-3 sm:pt-3">
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{meet.description}</p>
               </div>
             )}
         </CardContent>
