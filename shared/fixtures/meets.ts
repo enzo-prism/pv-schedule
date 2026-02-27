@@ -257,22 +257,6 @@ export const seedMeets: SeedMeet[] = [
     "isFilamMeet": false
   },
   {
-    "id": 87,
-    "name": "Bulldog Invite",
-    "date": "2026-03-08",
-    "location": "Fresno, CA \ud83c\uddfa\ud83c\uddf8",
-    "description": "",
-    "createdAt": "2025-11-09T17:27:04.332Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
     "id": 88,
     "name": "West Coast Relays",
     "date": "2026-03-29",
@@ -382,22 +366,6 @@ export const seedMeets: SeedMeet[] = [
     "link": "",
     "driveTime": "",
     "registrationStatus": "registered",
-    "isFilamMeet": false
-  },
-  {
-    "id": 100,
-    "name": "World Athletics Beach Opener",
-    "date": "2026-03-06",
-    "location": "Long Beach, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
     "isFilamMeet": false
   },
   {
