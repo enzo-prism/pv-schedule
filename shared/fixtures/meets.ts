@@ -357,7 +357,7 @@ export const seedMeets: SeedMeet[] = [
     "name": "Battle Born Invitational \u2694\ufe0f",
     "date": "2026-02-13",
     "location": "Reno, NV \ud83c\uddfa\ud83c\uddf8",
-    "description": "Battle born classic Reno 2026\n\nPlaced 10th of 14.\n\nHad 2 really close shots at 4.75m. 3rd attempt was closest, just didn't hold my pike long enough.\n\nBiggest things to focus on: initiating pressure early and holding it consistently. I felt like I lost some pressure through the takeoff, plant to inversion.\n\nWhen I apply pressure like that, the 15' 175lbs 17.5 loads better and gets small quickly.",
+    "description": "Had 2 really close shots at 4.75m. 3rd attempt was closest, just didn't hold my pike long enough.\n\nBiggest things to focus on: initiating pressure early and holding it consistently. I felt like I lost some pressure through the takeoff, plant to inversion.\n\nWhen I apply pressure like that, the 15' 175lbs 17.5 loads better and gets small quickly.",
     "createdAt": "2026-01-16T18:01:25.459Z",
     "heightCleared": "4.60m (15'1\")",
     "poleUsed": "15' 175lbs 17.5",
