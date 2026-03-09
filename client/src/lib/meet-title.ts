@@ -32,7 +32,6 @@ const MEET_EMOJI_BY_TITLE: Record<string, string> = {
   "wolf pack classic": "🐺",
   "battle born invitational": "⚔️",
   "beach opener": "🏖️",
-  "ben brown invitational": "🎖️",
   "triton invitational": "🐬",
   "mt. sac relays bronze cont. tour": "🥉",
   "duke invitational": "🦁",

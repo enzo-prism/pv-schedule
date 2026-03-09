@@ -369,22 +369,6 @@ export const seedMeets: SeedMeet[] = [
     "isFilamMeet": false
   },
   {
-    "id": 101,
-    "name": "World Athletics Ben Brown Invitational",
-    "date": "2026-03-12",
-    "location": "Fullerton, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
     "id": 103,
     "name": "World Athletics Triton Invitational",
     "date": "2026-04-03",
