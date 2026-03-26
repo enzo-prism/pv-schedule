@@ -725,21 +725,6 @@ type MeetPayload = {
     return format(parsed, "EEEE, MMMM d, yyyy");
   };
 
-  const getMeetInitials = (value: string) => {
-    const words = value
-      .split(" ")
-      .map((word) => word.trim())
-      .filter(Boolean);
-    if (words.length === 0) {
-      return "ME";
-    }
-    return words
-      .slice(0, 2)
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -817,7 +802,6 @@ type MeetPayload = {
   const heroObjectPosition = `${heroFocusX}% ${heroFocusY}%`;
   const dayDifferenceLabel = getDayDifference(meet.date);
   const displayMeetName = formatMeetName(meet.name ?? "Meet", meet.date);
-  const meetInitials = getMeetInitials(displayMeetName);
   const metricTiles = [
     {
       label: "Height Cleared",
@@ -903,7 +887,7 @@ type MeetPayload = {
 
       <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-4 pb-32">
         <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-card/70">
-          <div className="relative aspect-[16/9] sm:aspect-[21/9]">
+          <div className="relative aspect-[16/9] bg-zinc-700 sm:aspect-[21/9]">
             {heroMedia ? (
               heroIsVideo ? (
                 <video
@@ -925,19 +909,7 @@ type MeetPayload = {
                   decoding="async"
                 />
               )
-            ) : (
-              <div
-                className="absolute inset-0 flex items-center justify-center"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(120% 120% at 10% 0%, rgba(255,255,255,0.08), transparent 60%), radial-gradient(120% 120% at 90% 20%, rgba(255,255,255,0.06), transparent 55%), linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.35))",
-                }}
-              >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-black/30 text-lg font-semibold text-white/80">
-                  {meetInitials}
-                </div>
-              </div>
-            )}
+            ) : null}
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
               <div className="flex flex-wrap items-center gap-2 text-xs">
