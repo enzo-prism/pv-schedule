@@ -13,39 +13,6 @@ type MeetTitleParts = {
 
 const SANCTION_PREFIXES: SanctionPrefix[] = ["USATF", "World Athletics"];
 
-const MEET_EMOJI_BY_TITLE: Record<string, string> = {
-  "west coast relays": "🏃‍♀️",
-  "jack albiani invitational": "🥇",
-  "stanford invite": "🎓",
-  "philippine national championship": "🏅",
-  "aggie open": "🚀",
-  "bulldog invite": "🐶",
-  "pat ryan invite": "🎯",
-  "patafa pole vault challenge": "🧗",
-  "chabot finale": "🌅",
-  "johnny mathis invitational": "🎤",
-  "atletang ayala world pole vault challenge": "🪂",
-  "rta winterfest indoor": "⛷️",
-  "reno holiday invite": "🎄",
-  "silver state invite": "⛰️",
-  "pole vault summit": "🏔️",
-  "wolf pack classic": "🐺",
-  "battle born invitational": "⚔️",
-  "beach opener": "🏖️",
-  "triton invitational": "🐬",
-  "mt. sac relays bronze cont. tour": "🥉",
-  "duke invitational": "🦁",
-  "bryan clay invitational": "🗽",
-  "beach invitational": "🌴",
-  "uc santa barbara invitational": "🏄",
-  "penn relays silver cont. tour": "🚩",
-  "fresno state invitational": "🌾",
-  "payton jordan @ stanford": "🎧",
-  "titan tuneup": "⚙️",
-  "oregon twilight": "🌇",
-  "la track festival silver cont. tour": "🎉",
-};
-
 const sanitizeTitle = (name: string): string => {
   return name
     .replace(TRAILING_EMOJI_PATTERN, "")
@@ -72,44 +39,20 @@ const splitSanction = (name: string) => {
   };
 };
 
-const getEmojiForTitle = (name: string): string => {
-  const normalizedName = name.trim().toLowerCase();
-
-  if (MEET_EMOJI_BY_TITLE[normalizedName]) {
-    return MEET_EMOJI_BY_TITLE[normalizedName];
-  }
-
-  if (normalizedName.includes("relay")) {
-    return "🏁";
-  }
-
-  if (normalizedName.includes("invite")) {
-    return "🏆";
-  }
-
-  if (normalizedName.includes("tournament") || normalizedName.includes("championship")) {
-    return "🏅";
-  }
-
-  return "🏟️";
-};
-
 export const getMeetTitleParts = (
   name: string,
   date?: string | Date | null,
 ): MeetTitleParts => {
   const titleWithNoEmoji = sanitizeTitle(name);
   const { sanction, title } = splitSanction(titleWithNoEmoji);
-  const emoji = getEmojiForTitle(title);
   const effectiveSanction =
     sanction ??
     (date && !isPastDate(date) ? "USATF" : null);
-  const decoratedTitle = `${title} ${emoji}`.trim();
 
   return {
     sanction: effectiveSanction,
-    title: decoratedTitle,
-    full: effectiveSanction ? `${effectiveSanction} ${decoratedTitle}` : decoratedTitle,
+    title,
+    full: effectiveSanction ? `${effectiveSanction} ${title}` : title,
   };
 };
 
