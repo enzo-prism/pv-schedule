@@ -158,7 +158,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               <div className="mt-1 text-sm text-muted-foreground space-y-0.5">
                 <div>{formatDate(meet.date)}</div>
                 <div>{formatLocationWithFlag(meet.location)}</div>
-                {!isPast && daysUntil !== null && (
+                {!isPast && isNextUpcoming && daysUntil !== null && (
                   <div
                     className={cn(
                       "text-xs font-medium",
