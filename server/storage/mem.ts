@@ -1,12 +1,17 @@
-import { type InsertMeet, type Meet, type MediaItem } from "@shared/schema";
-import { seedMeets, seedMeetMedia, type SeedMeet, type SeedMediaItem } from "@shared/fixtures/meets";
-import { toYmdDateString } from "@shared/dates";
+import { type InsertMeet, type Meet, type MediaItem } from "../../shared/schema.js";
+import {
+  seedMeets,
+  seedMeetMedia,
+  type SeedMeet,
+  type SeedMediaItem,
+} from "../../shared/fixtures/meets.js";
+import { toYmdDateString } from "../../shared/dates.js";
 import {
   type DeleteMediaResult,
   type IStorage,
   type NewMediaInput,
   type UpdateMediaInput,
-} from "./types";
+} from "./types.js";
 
 export class MemStorage implements IStorage {
   private meets: Map<number, Meet> = new Map();

@@ -1,4 +1,4 @@
-import { type InsertMeet, type Meet, type MediaItem } from "@shared/schema";
+import { type InsertMeet, type Meet, type MediaItem } from "../../shared/schema.js";
 
 export interface NewMediaInput {
   type: "photo" | "video";

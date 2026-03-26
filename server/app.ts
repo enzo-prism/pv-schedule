@@ -1,8 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { MAX_MEDIA_BODY_BYTES } from "@shared/media";
-import { registerRoutes } from "./routes";
-import { getUploadsRoot, uploadsEnabled } from "./media";
-import { log } from "./log";
+import { MAX_MEDIA_BODY_BYTES } from "../shared/media.js";
+import { registerRoutes } from "./routes.js";
+import { getUploadsRoot, uploadsEnabled } from "./media.js";
+import { log } from "./log.js";
 
 export function createApp() {
   const app = express();

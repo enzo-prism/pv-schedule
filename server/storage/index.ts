@@ -1,7 +1,7 @@
-import { createDb } from "../db";
-import { MemStorage } from "./mem";
-import { PgStorage } from "./pg";
-import type { IStorage } from "./types";
+import { createDb } from "../db.js";
+import { MemStorage } from "./mem.js";
+import { PgStorage } from "./pg.js";
+import type { IStorage } from "./types.js";
 
 const preferMemory =
   process.env.USE_IN_MEMORY_STORAGE === "true" || process.env.USE_SAMPLE_DATA === "true";
@@ -71,4 +71,4 @@ if (useHardcodedData) {
 }
 
 export { storage };
-export * from "./types";
+export * from "./types.js";

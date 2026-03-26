@@ -257,22 +257,6 @@ export const seedMeets: SeedMeet[] = [
     "isFilamMeet": false
   },
   {
-    "id": 88,
-    "name": "West Coast Relays",
-    "date": "2026-03-29",
-    "location": "Fresno, CA \ud83c\uddfa\ud83c\uddf8",
-    "description": null,
-    "createdAt": "2025-11-09T17:27:11.391Z",
-    "heightCleared": null,
-    "poleUsed": null,
-    "deepestTakeoff": null,
-    "place": null,
-    "link": null,
-    "driveTime": null,
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
     "id": 89,
     "name": "Stanford Invite",
     "date": "2026-04-05",
@@ -366,22 +350,6 @@ export const seedMeets: SeedMeet[] = [
     "link": "",
     "driveTime": "",
     "registrationStatus": "registered",
-    "isFilamMeet": false
-  },
-  {
-    "id": 103,
-    "name": "World Athletics Triton Invitational",
-    "date": "2026-04-03",
-    "location": "San Diego, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
     "isFilamMeet": false
   },
   {

@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import type { Request } from "express";
-import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "@shared/media";
+import { MAX_MEDIA_BYTES, MAX_MEDIA_LABEL } from "../shared/media.js";
 
 const EXTENSION_MAP: Record<string, string> = {
   "image/jpeg": ".jpg",

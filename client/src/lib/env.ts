@@ -5,7 +5,9 @@ const normalizeBool = (value: string | undefined) => {
   return value.toLowerCase() === "true";
 };
 
-export const isReadOnlyMode = true;
+const configuredReadOnly = normalizeBool(import.meta.env.VITE_READ_ONLY);
+export const isReadOnlyMode =
+  configuredReadOnly !== undefined ? configuredReadOnly : import.meta.env.PROD;
 
 const uploadsConfigured = normalizeBool(import.meta.env.VITE_UPLOADS_ENABLED);
 export const uploadsEnabled =

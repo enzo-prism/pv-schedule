@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
-import { storage } from "./storage";
-import { insertMeetSchema } from "@shared/schema";
-import { normalizeMeetMetrics } from "@shared/metrics";
+import { storage } from "./storage/index.js";
+import { insertMeetSchema } from "../shared/schema.js";
+import { normalizeMeetMetrics } from "../shared/metrics.js";
 import { fromZodError } from "zod-validation-error";
 import {
   inferMediaType,
@@ -10,11 +10,26 @@ import {
   resolveMediaUrl,
   saveBase64Upload,
   uploadsEnabled,
-} from "./media";
+} from "./media.js";
+
+const normalizeBool = (value: string | undefined) => {
+  if (!value) {
+    return undefined;
+  }
+  return value.toLowerCase() === "true";
+};
 
 const isReadOnly = () => {
-  // Force read-only mode to support a hard-coded, streamlined schedule UI.
-  return true;
+  const configured = normalizeBool(process.env.READ_ONLY);
+  if (configured !== undefined) {
+    return configured;
+  }
+
+  const hardcoded = normalizeBool(process.env.USE_HARDCODED_DATA);
+  const vercelEnv =
+    process.env.VERCEL === "1" || process.env.VERCEL === "true";
+
+  return hardcoded ?? vercelEnv;
 };
 
 const rejectReadOnly = (res: express.Response) => {

@@ -1,13 +1,13 @@
-import { type Meet, type InsertMeet, type MediaItem } from "@shared/schema";
-import { demoMeets, seedMeets } from "@shared/fixtures/meets";
-import { toYmdDateString } from "@shared/dates";
-import type { DbClient } from "../db";
+import { type Meet, type InsertMeet, type MediaItem } from "../../shared/schema.js";
+import { demoMeets, seedMeets } from "../../shared/fixtures/meets.js";
+import { toYmdDateString } from "../../shared/dates.js";
+import type { DbClient } from "../db.js";
 import {
   type DeleteMediaResult,
   type IStorage,
   type NewMediaInput,
   type UpdateMediaInput,
-} from "./types";
+} from "./types.js";
 
 // Helpers to normalize the jsonb payload returned from Postgres
 // into the MediaItem[] shape shared with the client.
