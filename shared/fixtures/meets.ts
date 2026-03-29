@@ -257,22 +257,6 @@ export const seedMeets: SeedMeet[] = [
     "isFilamMeet": false
   },
   {
-    "id": 90,
-    "name": "Bryan Clay Invite",
-    "date": "2026-04-18",
-    "location": "Azusa, CA \ud83c\uddfa\ud83c\uddf8",
-    "description": null,
-    "createdAt": "2025-11-09T17:27:14.804Z",
-    "heightCleared": null,
-    "poleUsed": null,
-    "deepestTakeoff": null,
-    "place": null,
-    "link": null,
-    "driveTime": null,
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
     "id": 94,
     "name": "RTA Winterfest Indoor",
     "date": "2025-12-13",
@@ -353,22 +337,6 @@ export const seedMeets: SeedMeet[] = [
     "isFilamMeet": false
   },
   {
-    "id": 106,
-    "name": "USATF Bryan Clay Invitational",
-    "date": "2026-04-16",
-    "location": "Azusa, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
     "id": 107,
     "name": "World Athletics Beach Invitational",
     "date": "2026-04-17",
@@ -389,22 +357,6 @@ export const seedMeets: SeedMeet[] = [
     "name": "World Athletics UC Santa Barbara Invitational",
     "date": "2026-04-24",
     "location": "Santa Barbara, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
-    "id": 109,
-    "name": "World Athletics Penn Relays Silver Cont. Tour",
-    "date": "2026-04-25",
-    "location": "Philadelphia, PA",
     "description": "",
     "createdAt": "2026-02-20T00:00:00.000Z",
     "heightCleared": "",

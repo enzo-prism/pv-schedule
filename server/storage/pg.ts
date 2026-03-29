@@ -9,7 +9,7 @@ import {
   type UpdateMediaInput,
 } from "./types.js";
 
-const RETIRED_DEMO_MEET_IDS = [89, 105];
+const RETIRED_DEMO_MEET_IDS = [89, 90, 105, 106, 109];
 const RENAMED_DEMO_MEETS = [
   { id: 104, name: 'Mt. Sac Relays' },
 ];
