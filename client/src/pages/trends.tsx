@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
@@ -69,6 +69,7 @@ type PolePoint = TrendRow & {
 type DotProps = {
   cx?: number;
   cy?: number;
+  index?: number;
   payload?: HeightPoint | TakeoffPoint | PolePoint;
 };
 
@@ -195,8 +196,29 @@ export default function Trends() {
   const [range, setRange] = useState("90");
   const [poleMetric, setPoleMetric] = useState<PoleMetric>("lengthFt");
   const [activeMobileChart, setActiveMobileChart] = useState(0);
+  const [isDesktopView, setIsDesktopView] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 640 : false,
+  );
   const mobileChartScrollerRef = useRef<HTMLDivElement>(null);
   const mobileChartSlideRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia("(min-width: 640px)");
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsDesktopView(event.matches);
+    };
+
+    setIsDesktopView(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
 
   const { data: meets = [], isLoading, isError } = useQuery<Meet[]>({
     queryKey: ["/api/meets"],
@@ -395,7 +417,7 @@ export default function Trends() {
     setActiveMobileChart(index);
   };
 
-  const renderHeightDot = ({ cx, cy, payload }: DotProps) => {
+  const renderHeightDot = ({ cx, cy, payload, index }: DotProps) => {
     if (
       cx === undefined ||
       cy === undefined ||
@@ -403,11 +425,21 @@ export default function Trends() {
       !("meters" in payload) ||
       payload.meters === null
     ) {
-      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
+      return (
+        <circle
+          key={`height-dot-empty-${index ?? 0}`}
+          cx={0}
+          cy={0}
+          r={0}
+          fill="transparent"
+          pointerEvents="none"
+        />
+      );
     }
 
     return (
       <circle
+        key={`height-dot-${payload.id}-${payload.dateValue}-${index ?? 0}`}
         cx={cx}
         cy={cy}
         r={4}
@@ -420,7 +452,7 @@ export default function Trends() {
     );
   };
 
-  const renderTakeoffDot = ({ cx, cy, payload }: DotProps) => {
+  const renderTakeoffDot = ({ cx, cy, payload, index }: DotProps) => {
     if (
       cx === undefined ||
       cy === undefined ||
@@ -428,11 +460,21 @@ export default function Trends() {
       !("takeoffFeet" in payload) ||
       payload.takeoffFeet === null
     ) {
-      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
+      return (
+        <circle
+          key={`takeoff-dot-empty-${index ?? 0}`}
+          cx={0}
+          cy={0}
+          r={0}
+          fill="transparent"
+          pointerEvents="none"
+        />
+      );
     }
 
     return (
       <circle
+        key={`takeoff-dot-${payload.id}-${payload.dateValue}-${index ?? 0}`}
         cx={cx}
         cy={cy}
         r={4}
@@ -445,17 +487,36 @@ export default function Trends() {
     );
   };
 
-  const renderPoleDot = ({ cx, cy, payload }: DotProps) => {
+  const renderPoleDot = ({ cx, cy, payload, index }: DotProps) => {
     if (cx === undefined || cy === undefined || !payload || !("value" in payload)) {
-      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
+      return (
+        <circle
+          key={`pole-dot-empty-${index ?? 0}`}
+          cx={0}
+          cy={0}
+          r={0}
+          fill="transparent"
+          pointerEvents="none"
+        />
+      );
     }
 
     if (payload.value === null) {
-      return <circle cx={0} cy={0} r={0} fill="transparent" pointerEvents="none" />;
+      return (
+        <circle
+          key={`pole-dot-empty-value-${index ?? 0}`}
+          cx={0}
+          cy={0}
+          r={0}
+          fill="transparent"
+          pointerEvents="none"
+        />
+      );
     }
 
     return (
       <circle
+        key={`pole-dot-${payload.id}-${payload.dateValue}-${index ?? 0}`}
         cx={cx}
         cy={cy}
         r={5}
@@ -510,44 +571,50 @@ export default function Trends() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden pb-app-nav">
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-24 space-y-6">
-        <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <UserProfile name="Enzo Sison" />
+      <main className="app-shell space-y-6 pt-6 pb-10 sm:pt-8 sm:pb-12">
+        <section className="app-header-shell">
+          <div className="px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <UserProfile name="Enzo Sison" />
+                <FilterSection
+                  currentPage="trends"
+                  className="w-full sm:max-w-[420px]"
+                />
+              </div>
+              <div className="space-y-1">
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground text-pretty sm:text-[2rem]">
+                  Trends
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Review height, takeoff, and pole progress with a cleaner read on each meet.
+                </p>
+              </div>
             </div>
-            <FilterSection
-              currentPage="trends"
-              className="self-start sm:self-end"
-            />
-          </div>
-          <div className="mt-4">
-            <h1 className="text-2xl font-semibold text-foreground">Trends</h1>
-          </div>
-
-          <div className="mt-4">
-            <div
-              aria-label="Date range"
-              className="inline-flex w-full items-center gap-1 overflow-x-auto whitespace-nowrap rounded-full border border-white/10 bg-card/45 p-1.5 backdrop-blur-sm [scrollbar-width:none]"
-            >
-              {rangeOptions.map((option) => {
-                const isActive = range === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setRange(option.value)}
-                    className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium transition-colors min-h-[40px] whitespace-nowrap ${
-                      isActive
-                        ? "bg-white/10 text-foreground"
-                        : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
-                    }`}
-                    aria-pressed={isActive}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
+            <div className="mt-4">
+              <div
+                aria-label="Date range"
+                className="inline-flex w-full items-center gap-1 overflow-x-auto whitespace-nowrap rounded-[22px] border border-white/[0.08] bg-white/[0.03] p-1.5 backdrop-blur-sm [scrollbar-width:none]"
+              >
+                {rangeOptions.map((option) => {
+                  const isActive = range === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setRange(option.value)}
+                      className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] whitespace-nowrap ${
+                        isActive
+                          ? "bg-white/[0.09] text-foreground"
+                          : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
@@ -623,57 +690,63 @@ export default function Trends() {
 
         {isLoading ? (
           <>
-            <div className="mb-3 flex gap-2 overflow-x-auto px-4 -mx-4 pb-1 sm:hidden">
-              {mobileTrendCharts.map((chart) => (
-                <button
-                  type="button"
-                  key={chart.id}
-                  className="rounded-full border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground"
-                  disabled
-                >
-                  {chart.label}
-                </button>
-              ))}
-            </div>
+            {!isDesktopView && (
+              <>
+                <div className="mb-3 flex gap-2 overflow-x-auto px-4 -mx-4 pb-1">
+                  {mobileTrendCharts.map((chart) => (
+                    <button
+                      type="button"
+                      key={chart.id}
+                      className="rounded-full border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                      disabled
+                    >
+                      {chart.label}
+                    </button>
+                  ))}
+                </div>
 
-            <div className="sm:hidden">
-              <div
-                ref={mobileChartScrollerRef}
-                onScroll={handleMobileChartScroll}
-                className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-snap-type:x_mandatory]"
-              >
-                <div
-                  ref={(element) => {
-                    mobileChartSlideRefs.current[0] = element;
-                  }}
-                  className="min-w-full snap-start"
-                >
-                  <TrendCardSkeleton />
+                <div>
+                  <div
+                    ref={mobileChartScrollerRef}
+                    onScroll={handleMobileChartScroll}
+                    className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-snap-type:x_mandatory]"
+                  >
+                    <div
+                      ref={(element) => {
+                        mobileChartSlideRefs.current[0] = element;
+                      }}
+                      className="min-w-full snap-start"
+                    >
+                      <TrendCardSkeleton />
+                    </div>
+                    <div
+                      ref={(element) => {
+                        mobileChartSlideRefs.current[1] = element;
+                      }}
+                      className="min-w-full snap-start"
+                    >
+                      <TrendCardSkeleton />
+                    </div>
+                    <div
+                      ref={(element) => {
+                        mobileChartSlideRefs.current[2] = element;
+                      }}
+                      className="min-w-full snap-start"
+                    >
+                      <TrendCardSkeleton />
+                    </div>
+                  </div>
                 </div>
-                <div
-                  ref={(element) => {
-                    mobileChartSlideRefs.current[1] = element;
-                  }}
-                  className="min-w-full snap-start"
-                >
-                  <TrendCardSkeleton />
-                </div>
-                <div
-                  ref={(element) => {
-                    mobileChartSlideRefs.current[2] = element;
-                  }}
-                  className="min-w-full snap-start"
-                >
-                  <TrendCardSkeleton />
-                </div>
+              </>
+            )}
+
+            {isDesktopView && (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <TrendCardSkeleton />
+                <TrendCardSkeleton />
+                <TrendCardSkeleton />
               </div>
-            </div>
-
-            <div className="hidden sm:grid sm:grid-cols-1 gap-6 lg:grid-cols-2">
-              <TrendCardSkeleton />
-              <TrendCardSkeleton />
-              <TrendCardSkeleton />
-            </div>
+            )}
           </>
         ) : isError ? (
           <Card>
@@ -686,29 +759,31 @@ export default function Trends() {
           </Card>
         ) : (
           <>
-            <div className="mb-3 flex gap-2 overflow-x-auto px-4 -mx-4 pb-1 sm:hidden">
-              {mobileTrendCharts.map((chart, index) => (
-                <button
-                  type="button"
-                  key={chart.id}
-                  onClick={() => scrollToMobileChart(index)}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                    activeMobileChart === index
-                      ? "border-primary/70 bg-primary text-primary-foreground"
-                      : "border-border/80 bg-background text-muted-foreground"
-                  }`}
-                >
-                  {chart.label}
-                </button>
-              ))}
-            </div>
+            {!isDesktopView && (
+              <>
+                <div className="mb-3 flex gap-2 overflow-x-auto px-4 -mx-4 pb-1">
+                  {mobileTrendCharts.map((chart, index) => (
+                    <button
+                      type="button"
+                      key={chart.id}
+                      onClick={() => scrollToMobileChart(index)}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                        activeMobileChart === index
+                          ? "border-primary/70 bg-primary text-primary-foreground"
+                          : "border-border/80 bg-background text-muted-foreground"
+                      }`}
+                    >
+                      {chart.label}
+                    </button>
+                  ))}
+                </div>
 
-            <div className="sm:hidden">
-              <div
-                ref={mobileChartScrollerRef}
-                onScroll={handleMobileChartScroll}
-                className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-snap-type:x_mandatory]"
-              >
+                <div>
+                  <div
+                    ref={mobileChartScrollerRef}
+                    onScroll={handleMobileChartScroll}
+                    className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-snap-type:x_mandatory]"
+                  >
                 <div
                   ref={(element) => {
                     mobileChartSlideRefs.current[0] = element;
@@ -1025,10 +1100,13 @@ export default function Trends() {
                     </CardContent>
                   </Card>
                 </div>
-              </div>
-            </div>
+                  </div>
+                </div>
+              </>
+            )}
 
-            <div className="hidden sm:grid sm:grid-cols-1 gap-6 lg:grid-cols-2">
+            {isDesktopView && (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <Card className="min-w-0">
                 <CardHeader className="pb-4 space-y-2">
                   <div className="flex items-start justify-between gap-4">
@@ -1325,6 +1403,7 @@ export default function Trends() {
                 </CardContent>
               </Card>
             </div>
+            )}
           </>
         )}
       </main>

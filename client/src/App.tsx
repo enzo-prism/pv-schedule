@@ -1,5 +1,4 @@
 import { Switch, Route, useLocation } from "wouter";
-import { Plus } from "lucide-react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
@@ -11,9 +10,7 @@ import Trends from "@/pages/trends";
 import Cycle from "@/pages/cycle";
 import CycleWeek from "@/pages/cycle-week";
 import CycleDay from "@/pages/cycle-day";
-import { Button } from "@/components/ui/button";
 import { normalizeAnalyticsEvent, normalizeAnalyticsPath } from "@/lib/analytics";
-import { isReadOnlyMode } from "@/lib/env";
 
 function Router() {
   return (
@@ -30,9 +27,7 @@ function Router() {
 }
 
 function App() {
-  const [location, setLocation] = useLocation();
-  const isReadOnly = isReadOnlyMode;
-  const showFab = !isReadOnly && !location.startsWith("/meet/");
+  const [location] = useLocation();
   const analyticsPath = normalizeAnalyticsPath(location);
 
   return (
@@ -45,25 +40,6 @@ function App() {
           path={analyticsPath}
           route={analyticsPath}
         />
-        {showFab && (
-          <Button
-            onClick={() => {
-              const params = new URLSearchParams(window.location.search);
-              params.set("add", "1");
-              const search = params.toString();
-              setLocation(search ? `/?${search}` : "/?add=1");
-            }}
-            className="fixed left-1/2 z-50 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-semibold shadow-none border border-white/10"
-            style={{
-              bottom:
-                "calc(var(--app-bottom-nav-height) + env(safe-area-inset-bottom) + 12px)",
-            }}
-            aria-label="Add meet"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add meet
-          </Button>
-        )}
       </div>
       <Toaster />
     </QueryClientProvider>

@@ -96,14 +96,16 @@ export default function CycleDay() {
 
     return (
       <div className="min-h-screen bg-background pb-20">
-        <main className="mx-auto max-w-3xl px-4 sm:px-6 pt-7">
-          <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:py-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <UserProfile name="Enzo Sison" />
-              <FilterSection
-                currentPage="cycle"
-                className="self-start sm:self-auto"
-              />
+        <main className="app-shell pt-6 sm:pt-8">
+          <section className="app-header-shell">
+            <div className="px-4 py-4 sm:px-6 sm:py-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <UserProfile name="Enzo Sison" />
+                <FilterSection
+                  currentPage="cycle"
+                  className="w-full sm:max-w-[420px]"
+                />
+              </div>
             </div>
           </section>
           <Card className="mt-4">
@@ -127,19 +129,21 @@ export default function CycleDay() {
 
   const hasReferences = day.detailSections != null && day.detailSections.length > 0;
   return (
-    <div className="relative min-h-screen bg-background pb-[calc(var(--app-bottom-nav-height)+96px)]">
-      <main className="mx-auto max-w-3xl px-4 pb-6 pt-7 sm:px-6">
-        <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <UserProfile name="Enzo Sison" />
-            <FilterSection
-              currentPage="cycle"
-              className="self-start sm:self-auto"
-            />
+    <div className="relative min-h-screen bg-background pb-[calc(env(safe-area-inset-bottom)+112px)]">
+      <main className="app-shell pb-6 pt-6 sm:pt-8">
+        <section className="app-header-shell">
+          <div className="px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <UserProfile name="Enzo Sison" />
+              <FilterSection
+                currentPage="cycle"
+                className="w-full sm:max-w-[420px]"
+              />
+            </div>
           </div>
         </section>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-5 space-y-4 sm:mt-6">
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
@@ -266,8 +270,8 @@ export default function CycleDay() {
         </div>
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-background/95 px-4 pb-[env(safe-area-inset-bottom)] pt-2">
-        <div className="mx-auto flex max-w-3xl flex-col gap-2">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-background/92 px-4 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-3 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-4xl flex-col gap-2">
           <div className="text-center text-xs text-muted-foreground">
             {copyState === "copied"
               ? "Link copied to clipboard"
@@ -275,7 +279,7 @@ export default function CycleDay() {
                 ? "Copy failed, try again"
                 : ""}
           </div>
-          <div className="mx-auto flex w-full max-w-3xl gap-2">
+          <div className="mx-auto flex w-full max-w-4xl gap-2">
           {navigation.prev ? (
             <Link
               href={`/cycle/week/${weekData.week}/day/${navigation.prev}`}

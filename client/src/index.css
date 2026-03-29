@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --app-bottom-nav-height: 72px;
+  --app-bottom-nav-height: 0px;
   color-scheme: dark;
 }
 
@@ -17,6 +17,8 @@ body,
 
 body {
   overscroll-behavior-x: none;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.08);
 }
 
 img,
@@ -99,13 +101,46 @@ svg {
   }
 }
 
+@layer components {
+  .app-shell {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 64rem;
+    padding-inline: 1rem;
+  }
+
+  .app-header-shell {
+    position: sticky;
+    top: 0.75rem;
+    z-index: 30;
+    overflow: hidden;
+    border-radius: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03)),
+      rgba(10, 12, 16, 0.82);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+  }
+
+  @media (min-width: 640px) {
+    .app-shell {
+      padding-inline: 1.5rem;
+    }
+
+    .app-header-shell {
+      top: 1rem;
+    }
+  }
+}
+
 @layer utilities {
   .pb-app-nav {
-    padding-bottom: calc(var(--app-bottom-nav-height) + env(safe-area-inset-bottom));
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
   }
 
   .bottom-app-nav {
-    bottom: calc(var(--app-bottom-nav-height) + env(safe-area-inset-bottom));
+    bottom: calc(env(safe-area-inset-bottom) + 1rem);
   }
 
   .safe-bottom {

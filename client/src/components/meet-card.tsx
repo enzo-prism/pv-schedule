@@ -108,14 +108,13 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   return (
     <Link
       href={`/meet/${meet.id}`}
-      className="block cursor-pointer transition-transform duration-150 hover:-translate-y-px"
+      className="block cursor-pointer rounded-[1.5rem] transition-transform duration-150 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0"
     >
       <Card
-        className={`overflow-hidden ${
-          isNextUpcoming && !isPast
-            ? "border-l-2 border-l-white/25"
-            : ""
-        } hover:bg-white/5 hover:border-white/15 transition-colors duration-150 relative`}
+        className={cn(
+          "group relative overflow-hidden border-white/[0.08] bg-white/[0.03] transition-[transform,background-color,border-color] duration-200 hover:border-white/[0.14] hover:bg-white/[0.045]",
+          isNextUpcoming && !isPast && "border-white/[0.14] bg-white/[0.05]",
+        )}
       >
         {firstMedia && (
           <div className="relative aspect-video bg-white/5 overflow-hidden hidden sm:block">
@@ -147,17 +146,22 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>
         )}
-        <CardContent className="p-3 sm:p-5">
+        <CardContent className="p-4 sm:p-5">
           <div className="flex justify-between items-start">
             <div className="flex-grow">
               <div className="flex flex-wrap gap-2 items-center">
-                <h3 className="font-medium text-foreground leading-tight line-clamp-2 flex-1 min-w-[160px]">
+                <h3 className="min-w-[160px] flex-1 text-[15px] font-semibold leading-tight text-foreground text-pretty sm:text-base">
                   {titleParts.title}
                 </h3>
+                {isNextUpcoming && !isPast && (
+                  <Badge variant="outline" className="border-white/12 bg-white/[0.05] text-[11px] text-white/80">
+                    Next Up
+                  </Badge>
+                )}
               </div>
-              <div className="mt-1 text-sm text-muted-foreground space-y-0.5">
+              <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                 <div>{formatDate(meet.date)}</div>
-                <div>{formatLocationWithFlag(meet.location)}</div>
+                <div className="text-muted-foreground/90">{formatLocationWithFlag(meet.location)}</div>
                 {!isPast && isNextUpcoming && daysUntil !== null && (
                   <div
                     className={cn(
@@ -182,7 +186,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
                     e.preventDefault();
                   }}
                 >
-                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                  <Button variant="ghost" size="sm" className="h-9 w-9 rounded-full p-0" aria-label={`Open actions for ${titleParts.full}`}>
                     <MoreVertical className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DrawerTrigger>

@@ -11,18 +11,20 @@ export default function Cycle() {
 
   return (
     <div className="min-h-screen bg-background relative pb-app-nav">
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-16">
-        <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <UserProfile name="Enzo Sison" />
-            <FilterSection
-              currentPage="cycle"
-              className="self-start sm:self-auto"
-            />
+      <main className="app-shell pt-6 pb-10 sm:pt-8 sm:pb-12">
+        <section className="app-header-shell">
+          <div className="px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <UserProfile name="Enzo Sison" />
+              <FilterSection
+                currentPage="cycle"
+                className="w-full sm:max-w-[420px]"
+              />
+            </div>
           </div>
         </section>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-5 space-y-4 sm:mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-xl">2026 Cycle Plan</CardTitle>

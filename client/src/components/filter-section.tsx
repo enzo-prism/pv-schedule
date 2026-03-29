@@ -55,18 +55,18 @@ export default function FilterSection({
   const isPastActive = currentFilter === "past";
 
   return (
-    <div className={`w-full space-y-2 ${className}`}>
-      <div className="inline-flex w-full items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-card/45 p-1.5 backdrop-blur-sm [scrollbar-width:none]">
+    <div className={`w-full space-y-2.5 ${className}`}>
+      <div className="inline-flex w-full items-center gap-1 overflow-x-auto rounded-[22px] border border-white/[0.08] bg-white/[0.03] p-1.5 backdrop-blur-sm [scrollbar-width:none]">
         {pageTabs.map(({ key, href, Icon, label, shortLabel }) => {
           const isActive = currentPage === key;
           return (
             <Link
               key={key}
               href={href}
-              className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium transition-colors min-h-[40px] sm:min-w-[88px] ${
+              className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] sm:min-w-[96px] ${
                 isActive
-                  ? "bg-white/10 text-foreground"
-                  : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  ? "bg-white/[0.09] text-foreground"
+                  : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
               }`}
               aria-current={isActive ? "page" : undefined}
             >
@@ -79,12 +79,13 @@ export default function FilterSection({
       </div>
 
       {showFilters ? (
-        <div className="inline-flex w-full items-center gap-1 rounded-full border border-white/10 bg-card/45 p-1.5 backdrop-blur-sm">
+        <div className="inline-flex w-full items-center gap-1 rounded-[22px] border border-white/[0.08] bg-white/[0.03] p-1.5 backdrop-blur-sm">
           <button
-            className={`rounded-full px-4 py-2.5 text-sm font-medium transition-colors min-h-[40px] min-w-[88px] ${
+            type="button"
+            className={`rounded-full px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] min-w-[88px] ${
               isUpcomingActive
-                ? "bg-white/10 text-foreground"
-                : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                ? "bg-white/[0.09] text-foreground"
+                : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
             }`}
             onClick={() => onFilterChange("upcoming")}
             aria-pressed={isUpcomingActive}
@@ -92,10 +93,11 @@ export default function FilterSection({
             Upcoming
           </button>
           <button
-            className={`rounded-full px-4 py-2.5 text-sm font-medium transition-colors min-h-[40px] min-w-[88px] ${
+            type="button"
+            className={`rounded-full px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] min-w-[88px] ${
               isPastActive
-                ? "bg-white/10 text-foreground"
-                : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                ? "bg-white/[0.09] text-foreground"
+                : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
             }`}
             onClick={() => onFilterChange("past")}
             aria-pressed={isPastActive}

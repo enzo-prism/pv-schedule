@@ -231,26 +231,39 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background relative pb-app-nav">
-      {/* Main content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-7 pb-16">
-        <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <UserProfile name="Enzo Sison" />
+      <main className="app-shell pt-6 pb-10 sm:pt-8 sm:pb-12">
+        <section className="app-header-shell">
+          <div className="px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex items-start justify-between gap-3">
+              <UserProfile name="Enzo Sison" />
+              {!isReadOnly && currentFilter === "upcoming" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddMeetOpen(true)}
+                  className="h-10 rounded-full border-white/[0.12] bg-white/[0.04] px-4 text-foreground"
+                >
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">Add meet</span>
+                  <span className="sm:hidden">Add</span>
+                </Button>
+              )}
+            </div>
             <FilterSection
               currentPage="meets"
               currentFilter={currentFilter}
               showFilters
               onFilterChange={handleFilterChange}
-              className="self-start sm:self-auto"
+              className="mt-4"
             />
           </div>
         </section>
 
-        <div className="mt-4">
+        <div className="mt-5 sm:mt-6">
           {isLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 bg-white/5 animate-pulse rounded-2xl" />
+                <div key={i} className="h-24 animate-pulse rounded-[1.5rem] bg-white/[0.05]" />
               ))}
             </div>
           ) : filteredMeets.length > 0 ? (
@@ -273,20 +286,6 @@ export default function Home() {
             </div>
           )}
         </div>
-
-        {currentFilter === "upcoming" && !isReadOnly && (
-          <div className="mt-8 hidden justify-center sm:flex">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAddMeetOpen(true)}
-              className="gap-2 text-muted-foreground"
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              Add meet
-            </Button>
-          </div>
-        )}
       </main>
 
       {/* Add Meet Dialog */}

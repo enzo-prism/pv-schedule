@@ -32,14 +32,16 @@ export default function CycleWeek() {
   if (!rawWeek || !weekData) {
     return (
       <div className="min-h-screen bg-background pb-app-nav">
-        <main className="mx-auto max-w-3xl px-4 sm:px-6 pt-7 pb-16">
-          <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <UserProfile name="Enzo Sison" />
-              <FilterSection
-                currentPage="cycle"
-                className="self-start sm:self-auto"
-              />
+        <main className="app-shell pt-6 pb-10 sm:pt-8 sm:pb-12">
+          <section className="app-header-shell">
+            <div className="px-4 py-4 sm:px-6 sm:py-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <UserProfile name="Enzo Sison" />
+                <FilterSection
+                  currentPage="cycle"
+                  className="w-full sm:max-w-[420px]"
+                />
+              </div>
             </div>
           </section>
           <Card className="mt-4">
@@ -67,14 +69,16 @@ export default function CycleWeek() {
 
   return (
     <div className="min-h-screen bg-background pb-app-nav">
-      <main className="mx-auto max-w-3xl px-4 sm:px-6 pt-7 pb-16">
-        <section className="sticky top-0 z-30 rounded-b-3xl border-b border-white/10 bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <UserProfile name="Enzo Sison" />
-            <FilterSection
-              currentPage="cycle"
-              className="self-start sm:self-auto"
-            />
+      <main className="app-shell pt-6 pb-10 sm:pt-8 sm:pb-12">
+        <section className="app-header-shell">
+          <div className="px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <UserProfile name="Enzo Sison" />
+              <FilterSection
+                currentPage="cycle"
+                className="w-full sm:max-w-[420px]"
+              />
+            </div>
           </div>
         </section>
 
