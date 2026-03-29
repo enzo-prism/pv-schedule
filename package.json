@@ -16,6 +16,7 @@
     "test:e2e:local": "PLAYWRIGHT_BROWSERS_PATH=/tmp/playwright-browsers npm run test:e2e"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "@hookform/resolvers": "^3.9.1",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",

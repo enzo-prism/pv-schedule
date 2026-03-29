@@ -7,12 +7,28 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "\"SF Pro Rounded\"",
+          "\"Inter Variable\"",
+          "\"Inter\"",
+          "ui-sans-serif",
           "system-ui",
           "-apple-system",
           "BlinkMacSystemFont",
           "\"Segoe UI\"",
           "sans-serif",
+        ],
+        serif: [
+          "\"Inter Variable\"",
+          "\"Inter\"",
+          "ui-serif",
+          "Georgia",
+          "serif",
+        ],
+        mono: [
+          "\"Inter Variable\"",
+          "\"Inter\"",
+          "ui-monospace",
+          "SFMono-Regular",
+          "monospace",
         ],
       },
       borderRadius: {
