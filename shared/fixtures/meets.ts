@@ -369,22 +369,6 @@ export const seedMeets: SeedMeet[] = [
     "isFilamMeet": false
   },
   {
-    "id": 112,
-    "name": "World Athletics Titan Tuneup",
-    "date": "2026-05-08",
-    "location": "Fullerton, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
     "id": 113,
     "name": "World Athletics Oregon Twilight",
     "date": "2026-05-08",
