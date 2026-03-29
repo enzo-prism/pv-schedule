@@ -9,6 +9,11 @@ import {
   type UpdateMediaInput,
 } from "./types.js";
 
+const RETIRED_DEMO_MEET_IDS = [89, 105];
+const RENAMED_DEMO_MEETS = [
+  { id: 104, name: 'Mt. Sac Relays' },
+];
+
 // Helpers to normalize the jsonb payload returned from Postgres
 // into the MediaItem[] shape shared with the client.
 type RawMedia =
@@ -125,8 +130,23 @@ export class PgStorage implements IStorage {
       } else {
         await this.seedMissingDemoMeets();
       }
+
+      await this.removeRetiredDemoMeets();
+      await this.renameSeededDemoMeets();
     } catch (error) {
       console.error(`[PgStorage] Error initializing database (${this.label}):`, error);
+    }
+  }
+
+  private async removeRetiredDemoMeets() {
+    for (const meetId of RETIRED_DEMO_MEET_IDS) {
+      await this.db.query('DELETE FROM meets WHERE id = $1', [meetId]);
+    }
+  }
+
+  private async renameSeededDemoMeets() {
+    for (const meet of RENAMED_DEMO_MEETS) {
+      await this.db.query('UPDATE meets SET name = $2 WHERE id = $1', [meet.id, meet.name]);
     }
   }
 
