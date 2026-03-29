@@ -9,9 +9,9 @@ import {
   type UpdateMediaInput,
 } from "./types.js";
 
-const RETIRED_DEMO_MEET_IDS = [89, 90, 105, 106, 109];
-const RENAMED_DEMO_MEETS = [
-  { id: 104, name: 'Mt. Sac Relays' },
+const RETIRED_DEMO_MEET_IDS = [89, 90, 105, 106, 107, 109, 110];
+const SYNCED_DEMO_MEETS = [
+  { id: 104, name: 'Mt. Sac Relays', date: '2026-04-18' },
 ];
 
 // Helpers to normalize the jsonb payload returned from Postgres
@@ -132,7 +132,7 @@ export class PgStorage implements IStorage {
       }
 
       await this.removeRetiredDemoMeets();
-      await this.renameSeededDemoMeets();
+      await this.syncSeededDemoMeets();
     } catch (error) {
       console.error(`[PgStorage] Error initializing database (${this.label}):`, error);
     }
@@ -144,9 +144,13 @@ export class PgStorage implements IStorage {
     }
   }
 
-  private async renameSeededDemoMeets() {
-    for (const meet of RENAMED_DEMO_MEETS) {
-      await this.db.query('UPDATE meets SET name = $2 WHERE id = $1', [meet.id, meet.name]);
+  private async syncSeededDemoMeets() {
+    for (const meet of SYNCED_DEMO_MEETS) {
+      await this.db.query('UPDATE meets SET name = $2, date = $3 WHERE id = $1', [
+        meet.id,
+        meet.name,
+        meet.date,
+      ]);
     }
   }
 
