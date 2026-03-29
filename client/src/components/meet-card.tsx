@@ -95,14 +95,15 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
   // Calculate days until the meet (for upcoming meets)
   const daysUntil = !isPast ? diffInDays(meet.date) : null;
   const firstMedia = meet.media && meet.media.length > 0 ? meet.media[0] : undefined;
+  const showCardMedia = !isPast ? firstMedia : undefined;
   const previewUrl =
-    firstMedia && firstMedia.type === "photo"
-      ? getOptimizedImageUrl(firstMedia.url, { width: 720 })
-      : firstMedia
-        ? getOptimizedVideoUrl(firstMedia.url, { width: 720 })
+    showCardMedia && showCardMedia.type === "photo"
+      ? getOptimizedImageUrl(showCardMedia.url, { width: 720 })
+      : showCardMedia
+        ? getOptimizedVideoUrl(showCardMedia.url, { width: 720 })
         : undefined;
-  const focusX = typeof firstMedia?.focusX === "number" ? firstMedia.focusX : 50;
-  const focusY = typeof firstMedia?.focusY === "number" ? firstMedia.focusY : 50;
+  const focusX = typeof showCardMedia?.focusX === "number" ? showCardMedia.focusX : 50;
+  const focusY = typeof showCardMedia?.focusY === "number" ? showCardMedia.focusY : 50;
   const objectPosition = `${focusX}% ${focusY}%`;
 
   return (
@@ -116,15 +117,15 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
           isNextUpcoming && !isPast && "border-white/[0.14] bg-white/[0.05]",
         )}
       >
-        {firstMedia && (
+        {showCardMedia && (
           <div className="relative aspect-video bg-white/5 overflow-hidden hidden sm:block">
-            {firstMedia.type === "video" ? (
+            {showCardMedia.type === "video" ? (
               <video
                 src={previewUrl}
                 poster={
-                  firstMedia.thumbnail
-                    ? getOptimizedImageUrl(firstMedia.thumbnail, { width: 720 })
-                    : getOptimizedVideoPosterUrl(firstMedia.url, { width: 720 }) ?? undefined
+                  showCardMedia.thumbnail
+                    ? getOptimizedImageUrl(showCardMedia.thumbnail, { width: 720 })
+                    : getOptimizedVideoPosterUrl(showCardMedia.url, { width: 720 }) ?? undefined
                 }
                 className="w-full h-full object-cover"
                 muted
@@ -136,7 +137,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
             ) : (
               <img
                 src={previewUrl}
-                alt={firstMedia.caption || `${titleParts.full} preview`}
+                alt={showCardMedia.caption || `${titleParts.full} preview`}
                 className="w-full h-full object-cover"
                 style={{ objectPosition }}
                 loading="lazy"

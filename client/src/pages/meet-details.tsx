@@ -749,6 +749,7 @@ type MeetPayload = {
   }
 
   const isPast = isPastDate(meet.date);
+  const showMedia = !isPast;
   const statusClass = isPast
     ? "bg-white/10 text-muted-foreground"
     : "bg-emerald-500/15 text-emerald-200";
@@ -781,7 +782,7 @@ type MeetPayload = {
     ? Math.round((uploadProgress.current / uploadProgress.total) * 100)
     : 0;
   const showLinkPreview = mediaMode === "url" && isValidLink;
-  const heroMedia = meet.media?.[0] ?? null;
+  const heroMedia = showMedia ? meet.media?.[0] ?? null : null;
   const heroIsVideo = heroMedia?.type === "video";
   const heroImageUrl =
     heroMedia && heroMedia.type === "photo"
@@ -860,9 +861,11 @@ type MeetPayload = {
                   <DrawerDescription>Quick actions for this meet.</DrawerDescription>
                 </DrawerHeader>
                 <div className="grid gap-2 px-4 pb-4">
-                  <DrawerClose asChild>
-                    <Button onClick={() => setMediaDialogOpen(true)}>Add media</Button>
-                  </DrawerClose>
+                  {showMedia && (
+                    <DrawerClose asChild>
+                      <Button onClick={() => setMediaDialogOpen(true)}>Add media</Button>
+                    </DrawerClose>
+                  )}
                   <DrawerClose asChild>
                     <Button variant="outline" onClick={() => setEditMeet(meet)}>
                       <Edit2 className="mr-2 h-4 w-4" />
@@ -887,8 +890,14 @@ type MeetPayload = {
 
       <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-4 pb-32">
         <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-card/70">
-          <div className="relative aspect-[16/9] bg-zinc-700 sm:aspect-[21/9]">
-            {heroMedia ? (
+          <div
+            className={
+              showMedia
+                ? "relative aspect-[16/9] bg-zinc-700 sm:aspect-[21/9]"
+                : "relative bg-gradient-to-br from-white/[0.04] to-transparent p-5 sm:p-6"
+            }
+          >
+            {showMedia && heroMedia ? (
               heroIsVideo ? (
                 <video
                   src={heroVideoUrl ?? heroMedia.url}
@@ -910,8 +919,10 @@ type MeetPayload = {
                 />
               )
             ) : null}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+            {showMedia ? (
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+            ) : null}
+            <div className={showMedia ? "absolute inset-x-0 bottom-0 p-5 sm:p-6" : ""}>
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <Badge
                   variant="outline"
@@ -1046,99 +1057,103 @@ type MeetPayload = {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-card/70 p-4 sm:p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">Media</h2>
-              {!isReadOnly && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setMediaDialogOpen(true)}
-                  className="h-8"
-                >
-                  Add media
-                </Button>
+          {showMedia && (
+            <div className="rounded-2xl border border-white/10 bg-card/70 p-4 sm:p-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-foreground">Media</h2>
+                {!isReadOnly && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setMediaDialogOpen(true)}
+                    className="h-8"
+                  >
+                    Add media
+                  </Button>
+                )}
+              </div>
+
+              {meet.media && meet.media.length > 0 ? (
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {meet.media.map((item, index) => {
+                    const isPhoto = item.type === "photo";
+                    return (
+                      <div
+                        key={item.id}
+                        className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 aspect-[9/16] content-auto"
+                        role={isPhoto ? "button" : undefined}
+                        tabIndex={isPhoto ? 0 : undefined}
+                        onClick={isPhoto ? () => openLightbox(index) : undefined}
+                        onTouchStart={() => startMediaLongPress(index)}
+                        onTouchEnd={cancelMediaLongPress}
+                        onTouchMove={cancelMediaLongPress}
+                        onTouchCancel={cancelMediaLongPress}
+                        onKeyDown={
+                          isPhoto
+                            ? (event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                  event.preventDefault();
+                                  openLightbox(index);
+                                }
+                              }
+                            : undefined
+                        }
+                      >
+                        {item.type === "video" ? (
+                          <MinimalVideo
+                            src={getOptimizedVideoUrl(item.url, { width: 720 })}
+                            poster={
+                              item.thumbnail
+                                ? getOptimizedImageUrl(item.thumbnail, { width: 720 })
+                                : getOptimizedVideoPosterUrl(item.url, { width: 720 }) ?? undefined
+                            }
+                            className="h-full w-full"
+                          />
+                        ) : (
+                          <img
+                            src={getOptimizedImageUrl(item.url, { width: 720 })}
+                            alt={item.caption || `${displayMeetName} media`}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )}
+                        {!isReadOnly && (
+                          <button
+                            type="button"
+                            className="absolute right-2 top-2 rounded-full border border-white/10 bg-black/40 p-1.5 text-white/80 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setMediaActionIndex(index);
+                            }}
+                            aria-label="Media actions"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">No media yet.</p>
               )}
             </div>
-
-            {meet.media && meet.media.length > 0 ? (
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {meet.media.map((item, index) => {
-                  const isPhoto = item.type === "photo";
-                  return (
-                    <div
-                      key={item.id}
-                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-card/60 aspect-[9/16] content-auto"
-                      role={isPhoto ? "button" : undefined}
-                      tabIndex={isPhoto ? 0 : undefined}
-                      onClick={isPhoto ? () => openLightbox(index) : undefined}
-                      onTouchStart={() => startMediaLongPress(index)}
-                      onTouchEnd={cancelMediaLongPress}
-                      onTouchMove={cancelMediaLongPress}
-                      onTouchCancel={cancelMediaLongPress}
-                      onKeyDown={
-                        isPhoto
-                          ? (event) => {
-                              if (event.key === "Enter" || event.key === " ") {
-                                event.preventDefault();
-                                openLightbox(index);
-                              }
-                            }
-                          : undefined
-                      }
-                    >
-                      {item.type === "video" ? (
-                        <MinimalVideo
-                          src={getOptimizedVideoUrl(item.url, { width: 720 })}
-                          poster={
-                            item.thumbnail
-                              ? getOptimizedImageUrl(item.thumbnail, { width: 720 })
-                              : getOptimizedVideoPosterUrl(item.url, { width: 720 }) ?? undefined
-                          }
-                          className="h-full w-full"
-                        />
-                      ) : (
-                        <img
-                          src={getOptimizedImageUrl(item.url, { width: 720 })}
-                          alt={item.caption || `${displayMeetName} media`}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
-                      {!isReadOnly && (
-                        <button
-                          type="button"
-                          className="absolute right-2 top-2 rounded-full border border-white/10 bg-black/40 p-1.5 text-white/80 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setMediaActionIndex(index);
-                          }}
-                          aria-label="Media actions"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="mt-3 text-sm text-muted-foreground">No media yet.</p>
-            )}
-          </div>
+          )}
         </section>
       </main>
 
       {!isReadOnly && (
         <div className="fixed inset-x-0 z-30 px-4 bottom-app-nav">
           <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-2xl border border-white/10 bg-card/95 p-2 shadow-none">
-            <Button
-              className="flex-1"
-              onClick={() => setMediaDialogOpen(true)}
-            >
-              Add media
-            </Button>
+            {showMedia && (
+              <Button
+                className="flex-1"
+                onClick={() => setMediaDialogOpen(true)}
+              >
+                Add media
+              </Button>
+            )}
             <Button
               variant="outline"
               className="flex-1"
@@ -1175,7 +1190,7 @@ type MeetPayload = {
       )}
 
       {/* Featured Image Framing Dialog */}
-      {framingDialogOpen && (
+      {showMedia && framingDialogOpen && (
         <Dialog
           open={framingDialogOpen}
           onOpenChange={(open) => {
@@ -1284,7 +1299,7 @@ type MeetPayload = {
       )}
 
       {/* Media Upload Dialog */}
-      {!isReadOnly && mediaDialogOpen && (
+      {showMedia && !isReadOnly && mediaDialogOpen && (
         <Dialog
           open={mediaDialogOpen}
           onOpenChange={(open) => {
@@ -1660,7 +1675,7 @@ type MeetPayload = {
                 View
               </Button>
             </DrawerClose>
-            {mediaActionItem && !isReadOnly && isFeaturedAction && (
+            {showMedia && mediaActionItem && !isReadOnly && isFeaturedAction && (
               <DrawerClose asChild>
                 <Button
                   variant="outline"
@@ -1675,7 +1690,7 @@ type MeetPayload = {
                 </Button>
               </DrawerClose>
             )}
-            {mediaActionItem && !isReadOnly && (
+            {showMedia && mediaActionItem && !isReadOnly && (
               <DrawerClose asChild>
                 <Button
                   variant="destructive"
@@ -1696,7 +1711,7 @@ type MeetPayload = {
       </Drawer>
 
       {/* Media Lightbox */}
-      {lightboxOpen && meet?.media?.length ? (
+      {showMedia && lightboxOpen && meet?.media?.length ? (
         <Dialog
           open={lightboxOpen}
           onOpenChange={(open) => setLightboxOpen(open)}
