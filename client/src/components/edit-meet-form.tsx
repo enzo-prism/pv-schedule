@@ -25,6 +25,7 @@ const formSchema = z.object({
   date: z.string().min(1, {
     message: "Please select a date for the meet.",
   }),
+  startTime: z.string().optional(),
   location: z.string().min(2, {
     message: "Location must be at least 2 characters.",
   }),
@@ -55,6 +56,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
     defaultValues: {
       name: meet.name,
       date: formatDateForInput(meet.date),
+      startTime: meet.startTime || "",
       location: meet.location,
       description: meet.description || "",
       heightCleared: meet.heightCleared || "",
@@ -71,6 +73,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
     form.reset({
       name: meet.name,
       date: formatDateForInput(meet.date),
+      startTime: meet.startTime || "",
       location: meet.location,
       description: meet.description || "",
       heightCleared: meet.heightCleared || "",
@@ -129,6 +132,25 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                     type="date" 
                     className="bg-card/30"
                     {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="startTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Start Time (Optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., 1:30 PM Pacific"
+                    className="bg-card/30"
+                    autoComplete="off"
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage className="text-xs" />

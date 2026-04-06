@@ -83,6 +83,7 @@ function mapRowToMeet(row: any): Meet {
     id: row.id,
     name: row.name,
     date: dateStr,
+    startTime: row.start_time ?? null,
     location: row.location,
     description: row.description,
     heightCleared: row.height_cleared,
@@ -168,6 +169,7 @@ export class PgStorage implements IStorage {
           id,
           name,
           date,
+          start_time,
           location,
           description,
           height_cleared,
@@ -180,13 +182,14 @@ export class PgStorage implements IStorage {
           is_filam_meet,
           created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       `;
 
       await this.db.query(query, [
         seedMeet.id,
         seedMeet.name,
         toYmdDateString(seedMeet.date) ?? seedMeet.date,
+        seedMeet.startTime ?? null,
         seedMeet.location,
         seedMeet.description ?? null,
         seedMeet.heightCleared ?? null,
@@ -290,6 +293,7 @@ export class PgStorage implements IStorage {
         INSERT INTO meets (
           name,
           date,
+          start_time,
           location,
           description,
           height_cleared,
@@ -301,7 +305,7 @@ export class PgStorage implements IStorage {
           registration_status,
           is_filam_meet
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING id
       `;
 
@@ -310,6 +314,7 @@ export class PgStorage implements IStorage {
       const values = [
         insertMeet.name,
         toYmdDateString(insertMeet.date) ?? insertMeet.date,
+        insertMeet.startTime || null,
         insertMeet.location,
         insertMeet.description || null,
         insertMeet.heightCleared || null,
@@ -349,17 +354,18 @@ export class PgStorage implements IStorage {
         SET
           name = $1,
           date = $2,
-          location = $3,
-          description = $4,
-          height_cleared = $5,
-          pole_used = $6,
-          deepest_takeoff = $7,
-          place = $8,
-          link = $9,
-          drive_time = $10,
-          registration_status = $11,
-          is_filam_meet = $12
-        WHERE id = $13
+          start_time = $3,
+          location = $4,
+          description = $5,
+          height_cleared = $6,
+          pole_used = $7,
+          deepest_takeoff = $8,
+          place = $9,
+          link = $10,
+          drive_time = $11,
+          registration_status = $12,
+          is_filam_meet = $13
+        WHERE id = $14
         RETURNING id
       `;
 
@@ -371,6 +377,7 @@ export class PgStorage implements IStorage {
       const values = [
         updateMeet.name ?? existingMeet.name,
         toYmdDateString(updateMeet.date ?? existingMeet.date) ?? existingMeet.date,
+        updateMeet.startTime ?? existingMeet.startTime ?? null,
         updateMeet.location ?? existingMeet.location,
         updateMeet.description ?? existingMeet.description ?? null,
         updateMeet.heightCleared ?? existingMeet.heightCleared ?? null,

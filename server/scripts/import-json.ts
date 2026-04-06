@@ -6,6 +6,7 @@ type MeetRow = {
   id: number;
   name: string;
   date: string;
+  start_time?: string | null;
   location: string;
   description?: string | null;
   created_at?: string | null;
@@ -79,6 +80,7 @@ async function main() {
         id,
         name,
         date,
+        start_time,
         location,
         description,
         created_at,
@@ -91,11 +93,12 @@ async function main() {
         registration_status,
         is_filam_meet
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15
       )
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
         date = EXCLUDED.date,
+        start_time = EXCLUDED.start_time,
         location = EXCLUDED.location,
         description = EXCLUDED.description,
         created_at = EXCLUDED.created_at,
@@ -111,6 +114,7 @@ async function main() {
         meet.id,
         meet.name,
         meet.date,
+        meet.start_time ?? null,
         meet.location,
         meet.description ?? null,
         meet.created_at ?? null,

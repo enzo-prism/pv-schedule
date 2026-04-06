@@ -40,6 +40,7 @@ async function seedLocalDatabase(meets: Meet[]) {
         `INSERT INTO meets (
           name,
           date,
+          start_time,
           location,
           description,
           height_cleared,
@@ -52,11 +53,12 @@ async function seedLocalDatabase(meets: Meet[]) {
           is_filam_meet,
           created_at
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
         RETURNING id`,
         [
           meet.name,
           toYmdDateString(meet.date) ?? meet.date,
+          meet.startTime ?? null,
           meet.location,
           meet.description ?? null,
           meet.heightCleared ?? null,

@@ -37,6 +37,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
 
     return format(parsed, "EEEE, MMMM d, yyyy");
   };
+  const startTimeLabel = meet.startTime?.trim() || null;
 
   // We still calculate isPast for internal filtering, but don't display it on home page
   const isPast = isPastDate(meet.date);
@@ -162,6 +163,7 @@ export default function MeetCard({ meet, onEditClick, onDeleteClick, isNextUpcom
               </div>
               <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                 <div>{formatDate(meet.date)}</div>
+                {startTimeLabel && <div>{startTimeLabel}</div>}
                 <div className="text-muted-foreground/90">{formatLocationWithFlag(meet.location)}</div>
                 {!isPast && isNextUpcoming && daysUntil !== null && (
                   <div

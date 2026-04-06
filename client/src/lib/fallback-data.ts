@@ -47,6 +47,7 @@ export const fallbackMeets: Meet[] = seedMeets.map((meet) => ({
   id: meet.id,
   name: meet.name,
   date: meet.date,
+  startTime: meet.startTime ?? null,
   location: meet.location,
   description: meet.description ?? null,
   heightCleared: meet.heightCleared ?? null,

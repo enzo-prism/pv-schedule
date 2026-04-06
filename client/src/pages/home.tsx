@@ -27,6 +27,7 @@ const getInitialFilter = (): FilterType => {
 type MeetPayload = {
   name: string;
   date: string;
+  startTime?: string;
   location: string;
   description?: string;
   heightCleared?: string;

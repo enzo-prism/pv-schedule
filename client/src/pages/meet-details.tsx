@@ -125,6 +125,7 @@ export default function MeetDetails() {
 type MeetPayload = {
   name: string;
   date: string;
+  startTime?: string;
   location: string;
   description?: string;
   heightCleared?: string;
@@ -803,6 +804,10 @@ type MeetPayload = {
   const heroObjectPosition = `${heroFocusX}% ${heroFocusY}%`;
   const dayDifferenceLabel = getDayDifference(meet.date);
   const displayMeetName = formatMeetName(meet.name ?? "Meet", meet.date);
+  const startTimeLabel = meet.startTime?.trim() || null;
+  const scheduleLabel = startTimeLabel
+    ? `${formatDate(meet.date)} at ${startTimeLabel}`
+    : formatDate(meet.date);
   const metricTiles = [
     {
       label: "Height Cleared",
@@ -841,7 +846,7 @@ type MeetPayload = {
             <p className="truncate text-sm font-semibold text-foreground">
               {displayMeetName}
             </p>
-            <p className="text-xs text-muted-foreground">{formatDate(meet.date)}</p>
+            <p className="text-xs text-muted-foreground">{scheduleLabel}</p>
           </div>
           {!isReadOnly && (
             <Drawer>
@@ -963,6 +968,12 @@ type MeetPayload = {
                   <Calendar className="h-4 w-4" />
                   {formatDate(meet.date)}
                 </span>
+                {startTimeLabel && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="h-4 w-4" />
+                    {startTimeLabel}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin className="h-4 w-4" />
                   {formatLocationWithFlag(meet.location)}
@@ -1015,6 +1026,12 @@ type MeetPayload = {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span>{formatDate(meet.date)}</span>
               </div>
+              {startTimeLabel && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>{startTimeLabel}</span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span>{formatLocationWithFlag(meet.location)}</span>
@@ -1038,7 +1055,7 @@ type MeetPayload = {
                   <span>{meet.driveTime}</span>
                 </div>
               )}
-              {!meet.link && !meet.driveTime && (
+              {!meet.link && !meet.driveTime && !startTimeLabel && (
                 <p className="text-xs text-muted-foreground">
                   No additional logistics yet.
                 </p>

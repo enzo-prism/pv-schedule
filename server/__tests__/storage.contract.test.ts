@@ -7,6 +7,7 @@ describe("storage contract (memory)", () => {
     const created = await storage.createMeet({
       name: "Test Meet",
       date: "2024-02-01",
+      startTime: "1:30 PM Pacific",
       location: "Test Stadium",
     });
 
@@ -14,6 +15,7 @@ describe("storage contract (memory)", () => {
     expect(fetched?.name).toBe("Test Meet");
     expect(fetched?.location).toBe("Test Stadium");
     expect(fetched?.date).toBe("2024-02-01");
+    expect(fetched?.startTime).toBe("1:30 PM Pacific");
   });
 
   it("updates a meet", async () => {
@@ -28,12 +30,14 @@ describe("storage contract (memory)", () => {
     const updated = await storage.updateMeet(created.id, {
       name: "Updated Meet",
       date: "2024-03-12",
+      startTime: "10:00 AM Pacific",
       location: "Updated Location",
       registrationStatus: "registered",
     });
 
     expect(updated?.name).toBe("Updated Meet");
     expect(updated?.registrationStatus).toBe("registered");
+    expect(updated?.startTime).toBe("10:00 AM Pacific");
   });
 
   it("deletes a meet", async () => {

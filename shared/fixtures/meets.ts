@@ -4,6 +4,7 @@ export type SeedMeet = {
   id: number;
   name: string;
   date: string;
+  startTime?: string | null;
   location: string;
   description: string | null;
   createdAt: string | null;
@@ -318,6 +319,23 @@ export const seedMeets: SeedMeet[] = [
     "link": "",
     "driveTime": "",
     "registrationStatus": "registered",
+    "isFilamMeet": false
+  },
+  {
+    "id": 116,
+    "name": "Pomona-Pitzer Invite",
+    "date": "2026-04-11",
+    "startTime": "1:30 PM Pacific",
+    "location": "Claremont, CA",
+    "description": "",
+    "createdAt": "2026-04-06T00:00:00.000Z",
+    "heightCleared": "",
+    "poleUsed": "",
+    "deepestTakeoff": "",
+    "place": "",
+    "link": "",
+    "driveTime": "",
+    "registrationStatus": "not registered",
     "isFilamMeet": false
   },
   {
@@ -655,6 +673,7 @@ export const seedMeetMedia: SeedMediaItem[] = [
 export const demoMeets: InsertMeet[] = seedMeets.map((meet) => ({
   name: meet.name,
   date: meet.date,
+  startTime: meet.startTime ?? undefined,
   location: meet.location,
   description: meet.description ?? undefined,
   heightCleared: meet.heightCleared ?? undefined,

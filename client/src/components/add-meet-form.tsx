@@ -24,6 +24,7 @@ const formSchema = z.object({
   date: z.string().min(1, {
     message: "Please select a date for the meet.",
   }),
+  startTime: z.string().optional(),
   location: z.string().min(2, {
     message: "Location must be at least 2 characters.",
   }),
@@ -55,6 +56,7 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
     defaultValues: {
       name: "",
       date: today,
+      startTime: "",
       location: lastLocation,
       description: "",
       heightCleared: "",
@@ -140,6 +142,25 @@ export default function AddMeetForm({ onSubmit, isLoading }: AddMeetFormProps) {
                     min={today}
                     className="bg-card/30"
                     {...field} 
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="startTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Start Time (Optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., 1:30 PM Pacific"
+                    className="bg-card/30"
+                    autoComplete="off"
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage className="text-xs" />

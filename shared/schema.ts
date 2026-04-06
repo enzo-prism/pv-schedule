@@ -6,6 +6,7 @@ export const meets = pgTable("meets", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   date: date("date").notNull(),
+  startTime: text("start_time"),
   location: text("location").notNull(),
   description: text("description"),
   heightCleared: text("height_cleared"),
@@ -38,6 +39,7 @@ export const meetMedia = pgTable("meet_media", {
 export const insertMeetSchema = createInsertSchema(meets).pick({
   name: true,
   date: true,
+  startTime: true,
   location: true,
   description: true,
   heightCleared: true,
