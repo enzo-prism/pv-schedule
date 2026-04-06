@@ -12,6 +12,7 @@ import {
 const RETIRED_DEMO_MEET_IDS = [89, 90, 105, 106, 107, 109, 110, 112];
 const SYNCED_DEMO_MEETS = [
   { id: 104, name: 'Mt. Sac Relays', date: '2026-04-18' },
+  { id: 115, name: 'World Athletics Philippine National Championship', date: '2026-06-14' },
 ];
 
 // Helpers to normalize the jsonb payload returned from Postgres

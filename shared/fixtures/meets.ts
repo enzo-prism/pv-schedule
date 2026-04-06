@@ -100,7 +100,7 @@ export const seedMeets: SeedMeet[] = [
   {
     "id": 115,
     "name": "World Athletics Philippine National Championship",
-    "date": "2026-06-07",
+    "date": "2026-06-14",
     "location": "New Clark City, Philippines \ud83c\uddf5\ud83c\udded",
     "description": "",
     "createdAt": "2026-02-20T00:00:00.000Z",
