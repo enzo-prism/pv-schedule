@@ -339,22 +339,6 @@ export const seedMeets: SeedMeet[] = [
     "isFilamMeet": false
   },
   {
-    "id": 118,
-    "name": "Beach Invite",
-    "date": "2026-04-17",
-    "location": "Long Beach, CA",
-    "description": "",
-    "createdAt": "2026-04-12T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
     "id": 108,
     "name": "World Athletics UC Santa Barbara Invitational",
     "date": "2026-04-25",

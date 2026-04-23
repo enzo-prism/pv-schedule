@@ -9,7 +9,7 @@ import {
   type UpdateMediaInput,
 } from "./types.js";
 
-const RETIRED_DEMO_MEET_IDS = [89, 90, 104, 105, 106, 107, 109, 110, 112, 117, 119];
+const RETIRED_DEMO_MEET_IDS = [89, 90, 104, 105, 106, 107, 109, 110, 112, 117, 118, 119];
 const SYNCED_DEMO_MEETS = [
   { id: 108, name: 'World Athletics UC Santa Barbara Invitational', date: '2026-04-25' },
   { id: 115, name: 'World Athletics Philippine National Championship', date: '2026-06-14' },
