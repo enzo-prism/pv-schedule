@@ -114,8 +114,7 @@ function PinMarker({ pin, isSelected, onSelect }: PinMarkerProps) {
             fill="none"
             stroke="#f4cf8f"
             strokeWidth={1.5}
-            opacity={0.42}
-            className="motion-safe:animate-ping"
+            opacity={0.34}
           />
         ) : null}
         <circle
@@ -148,7 +147,7 @@ function PinMarker({ pin, isSelected, onSelect }: PinMarkerProps) {
 function PlacePanel({ pin, referenceDate }: PlacePanelProps) {
   if (!pin) {
     return (
-      <Card className="border-white/[0.08] bg-white/[0.035]">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg">Competition Places</CardTitle>
         </CardHeader>
@@ -164,10 +163,10 @@ function PlacePanel({ pin, referenceDate }: PlacePanelProps) {
   const featuredLabel = pin.nextMeet ? "Next meet" : "Most recent";
 
   return (
-    <aside className="rounded-[1.5rem] border border-white/[0.08] bg-white/[0.035] p-4 sm:p-5">
+    <aside className="app-panel p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="app-section-label">
             {pin.place.country}
           </p>
           <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground">
@@ -178,35 +177,35 @@ function PlacePanel({ pin, referenceDate }: PlacePanelProps) {
           ) : null}
         </div>
         {pin.nextMeet ? (
-          <Badge className="border border-amber-200/25 bg-amber-200/12 text-amber-100 hover:bg-amber-200/16">
+          <Badge className="border-[hsl(var(--athlete-warm))]/30 bg-[hsl(var(--athlete-warm))]/10 text-[hsl(var(--athlete-warm))] hover:bg-[hsl(var(--athlete-warm))]/10">
             Upcoming
           </Badge>
         ) : null}
       </div>
 
       <div className="mt-5 grid grid-cols-3 gap-2">
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Meets</p>
+        <div className="app-muted-panel p-3">
+          <p className="app-section-label">Meets</p>
           <p className="mt-1 text-xl font-semibold text-foreground">{pin.totalCount}</p>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Past</p>
+        <div className="app-muted-panel p-3">
+          <p className="app-section-label">Past</p>
           <p className="mt-1 text-xl font-semibold text-foreground">{pin.pastCount}</p>
         </div>
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Future</p>
+        <div className="app-muted-panel p-3">
+          <p className="app-section-label">Future</p>
           <p className="mt-1 text-xl font-semibold text-foreground">{pin.upcomingCount}</p>
         </div>
       </div>
 
-      <div className="mt-4 space-y-3 rounded-2xl border border-white/[0.08] bg-black/15 p-4">
+      <div className="mt-4 space-y-3 rounded-lg border border-border bg-background p-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Best mark</p>
+          <p className="app-section-label">Best mark</p>
           <p className="mt-1 text-sm font-medium text-foreground">{formatBestHeight(pin)}</p>
         </div>
         {featuredMeet ? (
           <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">{featuredLabel}</p>
+            <p className="app-section-label">{featuredLabel}</p>
             <p className="mt-1 text-sm font-medium text-foreground">
               {formatMeetName(featuredMeet.name, featuredMeet.date)}
             </p>
@@ -224,7 +223,7 @@ function PlacePanel({ pin, referenceDate }: PlacePanelProps) {
             <Link
               key={meet.id}
               href={`/meet/${meet.id}`}
-              className="group grid min-h-[64px] grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.025] px-3 py-3 transition-colors hover:border-white/[0.14] hover:bg-white/[0.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15"
+              className="group grid min-h-[64px] grid-cols-[1fr_auto] items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 transition-colors hover:border-ring/35 hover:bg-accent/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
@@ -232,7 +231,7 @@ function PlacePanel({ pin, referenceDate }: PlacePanelProps) {
                     {formatMeetName(meet.name, meet.date)}
                   </span>
                   {isUpcoming ? (
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-200" />
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[hsl(var(--athlete-warm))]" />
                   ) : null}
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -311,7 +310,7 @@ export default function CompetitionMap() {
 
             <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
               <div className="min-w-0">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground text-pretty sm:text-[2rem]">
+                <h1 className="text-2xl font-semibold text-foreground text-pretty sm:text-[2rem]">
                   Competition Map
                 </h1>
                 <p className="mt-1 max-w-xl text-sm text-muted-foreground">
@@ -319,22 +318,22 @@ export default function CompetitionMap() {
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-2 sm:min-w-[360px]">
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Places</p>
+                <div className="app-muted-panel p-3">
+                  <p className="app-section-label">Places</p>
                   <p className="mt-1 text-xl font-semibold text-foreground">{pins.length}</p>
                 </div>
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Meets</p>
+                <div className="app-muted-panel p-3">
+                  <p className="app-section-label">Meets</p>
                   <p className="mt-1 text-xl font-semibold text-foreground">{totalMappedMeets}</p>
                 </div>
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Countries</p>
+                <div className="app-muted-panel p-3">
+                  <p className="app-section-label">Countries</p>
                   <p className="mt-1 text-xl font-semibold text-foreground">{totalCountries}</p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 inline-flex w-full items-center gap-1 overflow-x-auto rounded-[22px] border border-white/[0.08] bg-white/[0.03] p-1.5 backdrop-blur-sm [scrollbar-width:none]">
+            <div className="mt-4 grid w-full grid-cols-4 gap-1 rounded-lg border border-border bg-secondary p-1 [scrollbar-width:none]">
               {mapFilters.map((option) => {
                 const isActive = activeFilter === option.value;
                 return (
@@ -343,10 +342,10 @@ export default function CompetitionMap() {
                     type="button"
                     onClick={() => setActiveFilter(option.value)}
                     className={cn(
-                      "inline-flex min-h-[42px] min-w-0 flex-1 items-center justify-center rounded-full px-2 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 sm:px-3",
+                      "inline-flex min-h-10 min-w-0 items-center justify-center rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-3",
                       isActive
-                        ? "bg-white/[0.09] text-foreground"
-                        : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground",
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:bg-accent/70 hover:text-foreground",
                     )}
                     aria-pressed={isActive}
                   >
@@ -361,8 +360,8 @@ export default function CompetitionMap() {
 
         {isLoading ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-            <Skeleton className="min-h-[360px] rounded-[1.75rem] sm:min-h-[480px]" />
-            <Skeleton className="min-h-[360px] rounded-[1.5rem]" />
+            <Skeleton className="min-h-[360px] rounded-lg sm:min-h-[480px]" />
+            <Skeleton className="min-h-[360px] rounded-lg" />
           </div>
         ) : isError ? (
           <Card>
@@ -377,9 +376,7 @@ export default function CompetitionMap() {
           </Card>
         ) : (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-            <section className="relative overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-[#080b0e] shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))]" />
-              <div className="absolute inset-x-0 top-0 h-px bg-white/15" />
+            <section className="relative overflow-hidden rounded-lg border border-border bg-card">
               <div className="relative aspect-[0.92] min-h-[360px] sm:aspect-[1.72] sm:min-h-[460px] lg:aspect-[1.45]">
                 <ComposableMap
                   width={920}
@@ -431,12 +428,12 @@ export default function CompetitionMap() {
               </div>
 
               <div className="pointer-events-none absolute left-4 top-4 flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-black/35 px-3 py-2 text-xs text-white/78 backdrop-blur-md">
+                <div className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground">
                   <Globe2 className="h-3.5 w-3.5" />
                   {filteredPins.length} place{filteredPins.length === 1 ? "" : "s"}
                 </div>
                 {nextPin?.nextMeet ? (
-                  <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/20 bg-amber-200/10 px-3 py-2 text-xs text-amber-100 backdrop-blur-md">
+                  <div className="inline-flex items-center gap-2 rounded-md border border-[hsl(var(--athlete-warm))]/25 bg-[hsl(var(--athlete-warm))]/10 px-3 py-2 text-xs text-[hsl(var(--athlete-warm))]">
                     <Trophy className="h-3.5 w-3.5" />
                     Next: {nextPin.place.shortLabel}
                   </div>

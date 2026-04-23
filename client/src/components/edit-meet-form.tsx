@@ -98,7 +98,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
           Update the details for this track and field meet
         </DialogDescription>
       </DialogHeader>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 pt-2 overflow-y-auto max-h-[65vh] pr-2">
           <FormField
@@ -110,7 +110,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., State Championships" 
-                    className="bg-card/30"
                     autoCapitalize="words"
                     autoComplete="off"
                     {...field} 
@@ -120,7 +119,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="date"
@@ -130,7 +129,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     type="date" 
-                    className="bg-card/30"
                     {...field} 
                   />
                 </FormControl>
@@ -148,7 +146,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input
                     placeholder="e.g., 1:30 PM Pacific"
-                    className="bg-card/30"
                     autoComplete="off"
                     {...field}
                   />
@@ -157,7 +154,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="location"
@@ -167,7 +164,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., Central Stadium, Springfield" 
-                    className="bg-card/30"
                     autoCapitalize="words"
                     autoComplete="off"
                     {...field} 
@@ -177,7 +173,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="description"
@@ -187,7 +183,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Textarea 
                     placeholder="Add any additional details about the meet" 
-                    className="resize-none bg-card/30"
+                    className="resize-none"
                     rows={3}
                     {...field} 
                   />
@@ -196,7 +192,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="heightCleared"
@@ -206,7 +202,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 2.10m" 
-                    className="bg-card/30"
                     inputMode="decimal"
                     {...field} 
                   />
@@ -215,7 +210,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="poleUsed"
@@ -225,7 +220,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., Carbon Fiber 4.5m" 
-                    className="bg-card/30"
                     autoCapitalize="words"
                     {...field} 
                   />
@@ -234,7 +228,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="deepestTakeoff"
@@ -244,7 +238,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 3.8m" 
-                    className="bg-card/30"
                     inputMode="decimal"
                     {...field} 
                   />
@@ -263,7 +256,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 1st, 2nd, 3rd" 
-                    className="bg-card/30"
                     inputMode="numeric"
                     {...field} 
                   />
@@ -272,7 +264,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="link"
@@ -283,7 +275,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                   <Input 
                     placeholder="e.g., https://athletic.net/meet/12345" 
                     type="url"
-                    className="bg-card/30"
                     inputMode="url"
                     {...field} 
                   />
@@ -292,7 +283,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="driveTime"
@@ -302,7 +293,6 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormControl>
                   <Input 
                     placeholder="e.g., 2:45" 
-                    className="bg-card/30"
                     inputMode="numeric"
                     {...field} 
                   />
@@ -311,7 +301,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="registrationStatus"
@@ -320,7 +310,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
                 <FormLabel className="text-sm font-medium">Registration Status</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-card/30">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select registration status" />
                     </SelectTrigger>
                   </FormControl>
@@ -334,7 +324,7 @@ export default function EditMeetForm({ meet, onSubmit, isLoading }: EditMeetForm
               </FormItem>
             )}
           />
-          
+
           <Button type="submit" className="w-full mt-3 mb-2" disabled={isLoading}>
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>

@@ -62,37 +62,40 @@ export default function FilterSection({
   const isPastActive = currentFilter === "past";
 
   return (
-    <div className={`w-full space-y-2.5 ${className}`}>
-      <div className="inline-flex w-full items-center gap-1 overflow-x-auto rounded-[22px] border border-white/[0.08] bg-white/[0.03] p-1.5 backdrop-blur-sm [scrollbar-width:none]">
+    <div className={`w-full space-y-2 ${className}`}>
+      <nav
+        className="grid w-full grid-cols-4 gap-1 rounded-lg border border-border bg-secondary p-1 [scrollbar-width:none]"
+        aria-label="Primary"
+      >
         {pageTabs.map(({ key, href, Icon, label, shortLabel }) => {
           const isActive = currentPage === key;
           return (
             <Link
               key={key}
               href={href}
-              className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] sm:min-w-[96px] ${
+              className={`inline-flex min-h-10 min-w-0 items-center justify-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 isActive
-                  ? "bg-white/[0.09] text-foreground"
-                  : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
               }`}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="whitespace-nowrap hidden sm:inline">{label}</span>
               <span className="whitespace-nowrap sm:hidden">{shortLabel}</span>
             </Link>
           );
         })}
-      </div>
+      </nav>
 
       {showFilters ? (
-        <div className="inline-flex w-full items-center gap-1 rounded-[22px] border border-white/[0.08] bg-white/[0.03] p-1.5 backdrop-blur-sm">
+        <div className="grid w-full grid-cols-2 gap-1 rounded-lg border border-border bg-secondary p-1">
           <button
             type="button"
-            className={`rounded-full px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] min-w-[88px] ${
+            className={`min-h-10 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               isUpcomingActive
-                ? "bg-white/[0.09] text-foreground"
-                : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                ? "bg-accent text-foreground"
+                : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
             }`}
             onClick={() => onFilterChange("upcoming")}
             aria-pressed={isUpcomingActive}
@@ -101,10 +104,10 @@ export default function FilterSection({
           </button>
           <button
             type="button"
-            className={`rounded-full px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] min-w-[88px] ${
+            className={`min-h-10 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               isPastActive
-                ? "bg-white/[0.09] text-foreground"
-                : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                ? "bg-accent text-foreground"
+                : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
             }`}
             onClick={() => onFilterChange("past")}
             aria-pressed={isPastActive}

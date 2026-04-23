@@ -14,7 +14,7 @@ export default function BottomNav({ className }: { className?: string }) {
   return (
     <nav
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-card/50 backdrop-blur-xl",
+        "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background",
         className
       )}
       aria-label="Primary"
@@ -27,7 +27,7 @@ export default function BottomNav({ className }: { className?: string }) {
               key={href}
               href={href}
               className={cn(
-                "flex flex-1 flex-col items-center gap-1 rounded-2xl px-3 py-2 text-xs font-medium transition-colors min-h-[64px] justify-center",
+                "flex flex-1 flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors min-h-[64px] justify-center",
                 isActive
                   ? "text-white"
                   : "text-muted-foreground hover:text-white"
@@ -37,7 +37,7 @@ export default function BottomNav({ className }: { className?: string }) {
               <span
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full border border-transparent transition-colors",
-                  isActive ? "bg-white/10 border-white/10" : "bg-transparent",
+                  isActive ? "border-border bg-accent" : "bg-transparent",
                 )}
                 aria-hidden="true"
               >

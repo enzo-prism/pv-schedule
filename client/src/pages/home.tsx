@@ -242,7 +242,7 @@ export default function Home() {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsAddMeetOpen(true)}
-                  className="h-10 rounded-full border-white/[0.12] bg-white/[0.04] px-4 text-foreground"
+                  className="h-10 px-4 text-foreground"
                 >
                   <Plus className="h-4 w-4" aria-hidden="true" />
                   <span className="hidden sm:inline">Add meet</span>
@@ -264,7 +264,7 @@ export default function Home() {
           {isLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 animate-pulse rounded-[1.5rem] bg-white/[0.05]" />
+                <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-card" />
               ))}
             </div>
           ) : filteredMeets.length > 0 ? (

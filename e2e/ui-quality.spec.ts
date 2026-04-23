@@ -54,13 +54,43 @@ test.describe("ui contrast", () => {
     await runColorContrastAudit(page);
   });
 
+  test("past meets page passes color contrast checks", async ({ page }) => {
+    await page.goto("/?filter=past");
+    await page.getByRole("main").waitFor();
+    await disableMotion(page);
+    await waitForFonts(page);
+    await runColorContrastAudit(page);
+  });
+
   test("meet details passes color contrast checks", async ({ page }) => {
     await openFirstMeet(page);
     await runColorContrastAudit(page);
   });
 
+  test("map page passes color contrast checks", async ({ page }) => {
+    await page.goto("/map");
+    await page.getByRole("main").waitFor();
+    await disableMotion(page);
+    await waitForFonts(page);
+    await runColorContrastAudit(page);
+  });
+
   test("trends page passes color contrast checks", async ({ page }) => {
     await page.goto("/trends");
+    await page.getByRole("main").waitFor();
+    await disableMotion(page);
+    await waitForFonts(page);
+    await runColorContrastAudit(page);
+  });
+
+  test("cycle pages pass color contrast checks", async ({ page }) => {
+    await page.goto("/cycle");
+    await page.getByRole("main").waitFor();
+    await disableMotion(page);
+    await waitForFonts(page);
+    await runColorContrastAudit(page);
+
+    await page.goto("/cycle/week/1");
     await page.getByRole("main").waitFor();
     await disableMotion(page);
     await waitForFonts(page);
@@ -88,6 +118,17 @@ test.describe("ui visual", () => {
     });
   });
 
+  test("map page matches snapshot", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto("/map");
+    await page.getByRole("main").waitFor();
+    await disableMotion(page);
+    await waitForFonts(page);
+    await expect(page).toHaveScreenshot("map.png", {
+      fullPage: true,
+    });
+  });
+
   test("trends page matches snapshot", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/trends");
@@ -95,6 +136,17 @@ test.describe("ui visual", () => {
     await disableMotion(page);
     await waitForFonts(page);
     await expect(page).toHaveScreenshot("trends.png", {
+      fullPage: true,
+    });
+  });
+
+  test("cycle page matches snapshot", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto("/cycle");
+    await page.getByRole("main").waitFor();
+    await disableMotion(page);
+    await waitForFonts(page);
+    await expect(page).toHaveScreenshot("cycle.png", {
       fullPage: true,
     });
   });

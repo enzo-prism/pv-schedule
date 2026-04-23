@@ -87,7 +87,7 @@ export default function CycleWeek() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="inline-flex items-center gap-2">
-                  <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                  <span className="inline-flex rounded-md border border-border bg-secondary px-2 py-0.5 text-xs text-foreground">
                     W{weekData.week}
                   </span>
                 </div>
@@ -154,7 +154,7 @@ export default function CycleWeek() {
           <CardContent className="space-y-3">
             {isAvailable ? (
               <>
-                <div className="divide-y divide-white/10 rounded-lg border border-white/10">
+                <div className="divide-y divide-border rounded-lg border border-border">
                   {cycleDayOrder.map((dayId) => {
                     const day = weekData.days?.[dayId];
                     const dayLabel = day
@@ -166,7 +166,7 @@ export default function CycleWeek() {
                       <Link
                         key={dayId}
                         href={`/cycle/week/${weekData.week}/day/${dayId}`}
-                        className="grid min-h-[58px] grid-cols-[1fr_auto] items-center gap-2 px-3 py-3 text-sm transition-colors hover:bg-white/[0.02] sm:px-4 sm:py-3"
+                        className="grid min-h-[58px] grid-cols-[1fr_auto] items-center gap-2 px-3 py-3 text-sm transition-colors hover:bg-accent/35 sm:px-4 sm:py-3"
                       >
                         <div className="min-w-0">
                           <p className="font-medium text-foreground">{dayLabel}</p>
@@ -181,7 +181,7 @@ export default function CycleWeek() {
                 </div>
               </>
             ) : (
-              <div className="rounded-md border border-amber-200/20 bg-amber-200/10 px-3 py-3 text-sm text-amber-100">
+              <div className="rounded-lg border border-[hsl(var(--athlete-warm))]/25 bg-[hsl(var(--athlete-warm))]/10 px-3 py-3 text-sm text-[hsl(var(--athlete-warm))]">
                 Full day-level details for this week are coming soon. Use weeks 1–5 for now.
               </div>
             )}

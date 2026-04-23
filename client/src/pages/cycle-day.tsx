@@ -184,7 +184,7 @@ export default function CycleDay() {
                           key={dayId}
                           variant="default"
                           size="sm"
-                          className="h-10 min-w-max bg-white/10 text-sm text-white"
+                          className="h-10 min-w-max bg-accent text-sm text-foreground"
                           aria-current="page"
                         >
                           {label}
@@ -221,7 +221,7 @@ export default function CycleDay() {
                 return (
                   <section
                     key={session.title}
-                    className="rounded-lg border border-white/10 bg-white/[0.02] p-3"
+                    className="rounded-lg border border-border bg-secondary p-3"
                   >
                     <h3 className="text-sm font-medium text-foreground">{session.title}</h3>
                     <div className="mt-2">{renderSimpleList(session.summary, "Session details not available")}</div>
@@ -246,7 +246,7 @@ export default function CycleDay() {
                 {day.detailSections?.map((section) => (
                   <details
                     key={section.title}
-                    className="rounded-lg border border-white/10 bg-white/[0.02]"
+                    className="rounded-lg border border-border bg-secondary"
                   >
                     <summary className="flex cursor-pointer items-center justify-between px-3 py-3 text-sm font-medium text-foreground">
                       <span>{section.title}</span>
@@ -270,7 +270,7 @@ export default function CycleDay() {
         </div>
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-background/92 px-4 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-3 backdrop-blur-xl">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background px-4 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-3">
         <div className="mx-auto flex max-w-4xl flex-col gap-2">
           <div className="text-center text-xs text-muted-foreground">
             {copyState === "copied"

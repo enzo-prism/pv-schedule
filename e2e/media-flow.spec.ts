@@ -7,50 +7,58 @@ const formatLocalDate = (date: Date) => {
 
 test("user can add multiple media items to a meet", async ({ page }) => {
   const meetName = `Media Flow ${Date.now()}`;
+  let createdMeetId: string | null = null;
 
-  await page.goto("/");
-  await expect(page.getByText("Enzo Sison")).toBeVisible();
-  await page.getByRole("main").getByRole("button", { name: "Add meet" }).click();
+  try {
+    await page.goto("/");
+    await expect(page.getByText("Enzo Sison")).toBeVisible();
+    await page.getByRole("main").getByRole("button", { name: "Add meet" }).click();
 
-  await expect(page.getByLabel("Meet Name")).toBeVisible();
-  await page.getByLabel("Meet Name").fill(meetName);
-  await page.getByLabel("Date").fill(formatLocalDate(new Date()));
-  await page.getByLabel("Location").fill("Test Track");
-  await page.getByRole("button", { name: "Add Meet" }).click();
+    await expect(page.getByLabel("Meet Name")).toBeVisible();
+    await page.getByLabel("Meet Name").fill(meetName);
+    await page.getByLabel("Date").fill(formatLocalDate(new Date()));
+    await page.getByLabel("Location").fill("Test Track");
+    await page.getByRole("button", { name: "Add Meet" }).click();
 
-  await expect(page.getByRole("dialog", { name: "Add New Meet" })).toBeHidden();
-  await expect(page.getByText(meetName)).toBeVisible();
-  await page.getByText(meetName).click();
-  await page.waitForURL(/\/meet\/\d+/);
+    await expect(page.getByRole("dialog", { name: "Add New Meet" })).toBeHidden();
+    await expect(page.getByText(meetName)).toBeVisible();
+    await page.getByText(meetName).click();
+    await page.waitForURL(/\/meet\/\d+/);
+    createdMeetId = new URL(page.url()).pathname.split("/").pop() ?? null;
 
-  await page.getByRole("button", { name: "Add media" }).first().click();
-  await expect(page.getByRole("dialog", { name: "Add Media" })).toBeVisible();
+    await page.getByRole("button", { name: "Add media" }).first().click();
+    await expect(page.getByRole("dialog", { name: "Add Media" })).toBeVisible();
 
-  const uploadInput = page.locator('input[type="file"][multiple]');
-  await uploadInput.setInputFiles([
-    {
-      name: "jump.png",
-      mimeType: "image/png",
-      buffer: Buffer.from("fake image"),
-    },
-    {
-      name: "vault.mp4",
-      mimeType: "video/mp4",
-      buffer: Buffer.from("fake video"),
-    },
-  ]);
+    const uploadInput = page.locator('input[type="file"][multiple]');
+    await uploadInput.setInputFiles([
+      {
+        name: "jump.png",
+        mimeType: "image/png",
+        buffer: Buffer.from("fake image"),
+      },
+      {
+        name: "vault.mp4",
+        mimeType: "video/mp4",
+        buffer: Buffer.from("fake video"),
+      },
+    ]);
 
-  await expect(page.getByText("jump.png")).toBeVisible();
-  await expect(page.getByText("vault.mp4")).toBeVisible();
+    await expect(page.getByText("jump.png")).toBeVisible();
+    await expect(page.getByText("vault.mp4")).toBeVisible();
 
-  const saveButton = page.getByRole("button", { name: "Save to meet" });
-  await expect(saveButton).toBeEnabled();
-  await saveButton.click();
+    const saveButton = page.getByRole("button", { name: /Upload 2 items|Save to meet/ });
+    await expect(saveButton).toBeEnabled();
+    await saveButton.click();
 
-  await expect(page.getByRole("dialog", { name: "Add Media" })).toBeHidden({
-    timeout: 20000,
-  });
-  const main = page.getByRole("main");
-  await expect(main.locator("img")).toHaveCount(1);
-  await expect(main.locator("video")).toHaveCount(1);
+    await expect(page.getByRole("dialog", { name: "Add Media" })).toBeHidden({
+      timeout: 20000,
+    });
+    const main = page.getByRole("main");
+    await expect(main.locator("img")).toHaveCount(2);
+    await expect(main.locator("video")).toHaveCount(1);
+  } finally {
+    if (createdMeetId) {
+      await page.request.delete(`/api/meets/${createdMeetId}`);
+    }
+  }
 });

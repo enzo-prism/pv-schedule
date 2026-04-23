@@ -30,59 +30,65 @@ svg {
 
 @layer base {
   :root {
-    --background: 220 14% 6%;
-    --foreground: 210 20% 94%;
-    --muted: 220 12% 12%;
-    --muted-foreground: 220 10% 60%;
-    --popover: 220 14% 6%;
-    --popover-foreground: 210 20% 94%;
-    --border: 220 12% 18%;
-    --input: 220 12% 18%;
-    --card: 220 12% 9%;
-    --card-foreground: 210 20% 92%;
-    --primary: 210 20% 96%;
-    --primary-foreground: 220 14% 6%;
-    --secondary: 220 12% 14%;
-    --secondary-foreground: 210 20% 94%;
-    --accent: 220 12% 16%;
-    --accent-foreground: 210 20% 96%;
-    --destructive: 0 60% 40%;
-    --destructive-foreground: 210 20% 96%;
-    --ring: 220 12% 30%;
-    --radius: 1rem;
-    --chart-1: 210 12% 72%;
-    --chart-2: 210 10% 58%;
-    --chart-3: 210 8% 42%;
-    --chart-4: 210 12% 66%;
-    --chart-5: 210 14% 78%;
+    --background: 220 18% 4%;
+    --foreground: 220 18% 93%;
+    --muted: 220 10% 12%;
+    --muted-foreground: 220 8% 63%;
+    --popover: 220 16% 6%;
+    --popover-foreground: 220 18% 93%;
+    --border: 220 9% 18%;
+    --input: 220 9% 18%;
+    --card: 220 14% 7%;
+    --card-foreground: 220 16% 91%;
+    --primary: 220 18% 94%;
+    --primary-foreground: 220 18% 5%;
+    --secondary: 220 10% 10%;
+    --secondary-foreground: 220 16% 88%;
+    --accent: 220 10% 13%;
+    --accent-foreground: 220 18% 94%;
+    --destructive: 0 62% 42%;
+    --destructive-foreground: 220 18% 96%;
+    --ring: 42 34% 56%;
+    --radius: 0.5rem;
+    --chart-1: 42 34% 66%;
+    --chart-2: 174 29% 58%;
+    --chart-3: 214 18% 68%;
+    --chart-4: 220 10% 50%;
+    --chart-5: 220 8% 38%;
+    --athlete-warm: 42 34% 62%;
+    --athlete-line: 220 9% 18%;
+    --athlete-panel: 220 13% 8%;
   }
  
   .dark {
-    --background: 220 14% 6%;
-    --foreground: 210 20% 94%;
-    --muted: 220 12% 12%;
-    --muted-foreground: 220 10% 60%;
-    --accent: 220 12% 16%;
-    --accent-foreground: 210 20% 96%;
-    --popover: 220 14% 6%;
-    --popover-foreground: 210 20% 94%;
-    --border: 220 12% 18%;
-    --input: 220 12% 18%;
-    --card: 220 12% 9%;
-    --card-foreground: 210 20% 92%;
-    --primary: 210 20% 96%;
-    --primary-foreground: 220 14% 6%;
-    --secondary: 220 12% 14%;
-    --secondary-foreground: 210 20% 94%;
-    --destructive: 0 60% 40%;
-    --destructive-foreground: 210 20% 96%;
-    --ring: 220 12% 30%;
-    --radius: 1rem;
-    --chart-1: 210 12% 72%;
-    --chart-2: 210 10% 58%;
-    --chart-3: 210 8% 42%;
-    --chart-4: 210 12% 66%;
-    --chart-5: 210 14% 78%;
+    --background: 220 18% 4%;
+    --foreground: 220 18% 93%;
+    --muted: 220 10% 12%;
+    --muted-foreground: 220 8% 63%;
+    --accent: 220 10% 13%;
+    --accent-foreground: 220 18% 94%;
+    --popover: 220 16% 6%;
+    --popover-foreground: 220 18% 93%;
+    --border: 220 9% 18%;
+    --input: 220 9% 18%;
+    --card: 220 14% 7%;
+    --card-foreground: 220 16% 91%;
+    --primary: 220 18% 94%;
+    --primary-foreground: 220 18% 5%;
+    --secondary: 220 10% 10%;
+    --secondary-foreground: 220 16% 88%;
+    --destructive: 0 62% 42%;
+    --destructive-foreground: 220 18% 96%;
+    --ring: 42 34% 56%;
+    --radius: 0.5rem;
+    --chart-1: 42 34% 66%;
+    --chart-2: 174 29% 58%;
+    --chart-3: 214 18% 68%;
+    --chart-4: 220 10% 50%;
+    --chart-5: 220 8% 38%;
+    --athlete-warm: 42 34% 62%;
+    --athlete-line: 220 9% 18%;
+    --athlete-panel: 220 13% 8%;
   }
 
   * {
@@ -94,10 +100,8 @@ svg {
     font-family: "Inter Variable", "Inter", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image:
-      radial-gradient(1200px 600px at 10% -10%, rgba(255, 255, 255, 0.06), transparent),
-      radial-gradient(900px 500px at 90% 0%, rgba(255, 255, 255, 0.04), transparent);
-    background-attachment: fixed;
+    font-variant-numeric: tabular-nums;
+    background-image: none;
   }
 }
 
@@ -105,7 +109,7 @@ svg {
   .app-shell {
     margin-inline: auto;
     width: 100%;
-    max-width: 64rem;
+    max-width: 72rem;
     padding-inline: 1rem;
   }
 
@@ -114,13 +118,39 @@ svg {
     top: 0.75rem;
     z-index: 30;
     overflow: hidden;
-    border-radius: 1.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03)),
-      rgba(10, 12, 16, 0.82);
-    backdrop-filter: blur(18px);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+    box-shadow: none;
+  }
+
+  .app-panel {
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+  }
+
+  .app-muted-panel {
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--secondary));
+  }
+
+  .app-section-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .app-warm-text {
+    color: hsl(var(--athlete-warm));
+  }
+
+  .app-warm-border {
+    border-color: hsl(var(--athlete-warm) / 0.42);
   }
 
   @media (min-width: 640px) {

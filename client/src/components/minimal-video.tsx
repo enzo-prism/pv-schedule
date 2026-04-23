@@ -228,7 +228,7 @@ export default function MinimalVideo({
           poster={poster}
         />
       ) : (
-        <div className="h-full w-full bg-white/5" />
+        <div className="h-full w-full bg-secondary" />
       )}
 
       {/* Gradient scrim — tied to bottom controls */}
@@ -254,7 +254,7 @@ export default function MinimalVideo({
           showPlayButton ? "opacity-100" : "opacity-0",
         )}
       >
-        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white/90 backdrop-blur">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-background text-white/90">
           <Play className="h-5 w-5 ml-0.5" />
         </div>
       </div>
@@ -267,12 +267,12 @@ export default function MinimalVideo({
         )}
       >
         <div
-          className="relative h-1 w-full cursor-pointer overflow-hidden rounded-full bg-white/20"
+          className="relative h-1 w-full cursor-pointer overflow-hidden rounded-md bg-white/20"
           onClick={handleSeek}
           onPointerDown={(e) => e.stopPropagation()}
           aria-hidden="true"
         >
-          <div className="h-full bg-white/80" style={{ width: `${progress}%` }} />
+          <div className="h-full bg-[hsl(var(--athlete-warm))]" style={{ width: `${progress}%` }} />
         </div>
         <button
           type="button"
@@ -282,7 +282,7 @@ export default function MinimalVideo({
             if (isPlaying) startIdle();
           }}
           onPointerDown={(e) => e.stopPropagation()}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white/80 backdrop-blur"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-white/80"
           aria-label={isMuted ? "Unmute video" : "Mute video"}
         >
           {isMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}

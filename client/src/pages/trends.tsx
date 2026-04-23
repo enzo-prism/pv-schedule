@@ -583,7 +583,7 @@ export default function Trends() {
                 />
               </div>
               <div className="space-y-1">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground text-pretty sm:text-[2rem]">
+                <h1 className="text-2xl font-semibold text-foreground text-pretty sm:text-[2rem]">
                   Trends
                 </h1>
                 <p className="text-sm text-muted-foreground">
@@ -594,7 +594,7 @@ export default function Trends() {
             <div className="mt-4">
               <div
                 aria-label="Date range"
-                className="inline-flex w-full items-center gap-1 overflow-x-auto whitespace-nowrap rounded-[22px] border border-white/[0.08] bg-white/[0.03] p-1.5 backdrop-blur-sm [scrollbar-width:none]"
+                className="grid w-full grid-cols-3 gap-1 whitespace-nowrap rounded-lg border border-border bg-secondary p-1 [scrollbar-width:none]"
               >
                 {rangeOptions.map((option) => {
                   const isActive = range === option.value;
@@ -603,10 +603,10 @@ export default function Trends() {
                       key={option.value}
                       type="button"
                       onClick={() => setRange(option.value)}
-                      className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-0 min-h-[42px] whitespace-nowrap ${
+                      className={`inline-flex min-h-10 min-w-0 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring whitespace-nowrap ${
                         isActive
-                          ? "bg-white/[0.09] text-foreground"
-                          : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                          ? "bg-accent text-foreground"
+                          : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
                       }`}
                       aria-pressed={isActive}
                     >
@@ -621,22 +621,22 @@ export default function Trends() {
 
         {isLoading ? (
           <div className="grid gap-3 sm:grid-cols-3">
-            <Skeleton className="h-24 w-full rounded-2xl" />
-            <Skeleton className="h-24 w-full rounded-2xl" />
-            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
           </div>
         ) : isError ? null : (
           <div className="grid gap-3 sm:grid-cols-3">
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Meets</p>
+                <p className="app-section-label">Meets</p>
                 <div className="mt-2 text-2xl font-semibold text-foreground">{meetsInRange}</div>
                 <p className="mt-1 text-xs text-muted-foreground">{rangeLabel}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Height PR</p>
+                <p className="app-section-label">Height PR</p>
                 <div className="mt-2 text-2xl font-semibold text-foreground">{heightPrValue}</div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {heightPrImperial || "No height data"}
@@ -645,7 +645,7 @@ export default function Trends() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Best Takeoff</p>
+                <p className="app-section-label">Best Takeoff</p>
                 <div className="mt-2 text-2xl font-semibold text-foreground">{takeoffBestValue}</div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {takeoffBest ? "Best in range" : "No takeoff data"}
@@ -668,16 +668,16 @@ export default function Trends() {
         ) : isError ? null : (
           <Card>
             <CardContent className="p-4">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Insights</p>
+              <p className="app-section-label">Insights</p>
               <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
                 <div className="flex items-start gap-2">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-300/70" />
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[hsl(var(--athlete-warm))]/80" />
                   <span>
                     <span className="text-foreground">Height trend:</span> {heightTrendLabel}
                   </span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-300/70" />
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[hsl(var(--chart-2))]/80" />
                   <span>
                     <span className="text-foreground">Most visited venue:</span>{" "}
                     {venueInsightLabel}
@@ -697,7 +697,7 @@ export default function Trends() {
                     <button
                       type="button"
                       key={chart.id}
-                      className="rounded-full border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                      className="rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground"
                       disabled
                     >
                       {chart.label}
@@ -767,9 +767,9 @@ export default function Trends() {
                       type="button"
                       key={chart.id}
                       onClick={() => scrollToMobileChart(index)}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                         activeMobileChart === index
-                          ? "border-primary/70 bg-primary text-primary-foreground"
+                          ? "border-border bg-accent text-foreground"
                           : "border-border/80 bg-background text-muted-foreground"
                       }`}
                     >
@@ -867,6 +867,7 @@ export default function Trends() {
                               strokeWidth={2}
                               dot={renderHeightDot}
                               activeDot={{ r: 6 }}
+                              isAnimationActive={false}
                             />
                             {heightPr && (
                               <ReferenceDot
@@ -964,6 +965,7 @@ export default function Trends() {
                               strokeWidth={2}
                               dot={renderTakeoffDot}
                               activeDot={{ r: 6 }}
+                              isAnimationActive={false}
                             />
                           </LineChart>
                         </ChartContainer>
@@ -1093,6 +1095,7 @@ export default function Trends() {
                               strokeWidth={2}
                               dot={renderPoleDot}
                               activeDot={{ r: 6 }}
+                              isAnimationActive={false}
                             />
                           </LineChart>
                         </ChartContainer>
@@ -1184,6 +1187,7 @@ export default function Trends() {
                           strokeWidth={2}
                           dot={renderHeightDot}
                           activeDot={{ r: 6 }}
+                          isAnimationActive={false}
                         />
                         {heightPr && (
                           <ReferenceDot
@@ -1274,6 +1278,7 @@ export default function Trends() {
                           strokeWidth={2}
                           dot={renderTakeoffDot}
                           activeDot={{ r: 6 }}
+                          isAnimationActive={false}
                         />
                       </LineChart>
                     </ChartContainer>
@@ -1396,6 +1401,7 @@ export default function Trends() {
                           strokeWidth={2}
                           dot={renderPoleDot}
                           activeDot={{ r: 6 }}
+                          isAnimationActive={false}
                         />
                       </LineChart>
                     </ChartContainer>

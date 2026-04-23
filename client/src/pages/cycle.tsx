@@ -44,7 +44,7 @@ export default function Cycle() {
 
           <Card>
             <CardContent className="p-0">
-              <div className="divide-y divide-white/10">
+              <div className="divide-y divide-border">
                 {cycleWeekSummaries.map((entry) => {
                   const weekData = getCycleWeek(entry.week);
                   const isAvailable = weekData?.detailStatus === "available";
@@ -53,9 +53,9 @@ export default function Cycle() {
                     <Link
                       key={entry.week}
                       href={`/cycle/week/${entry.week}`}
-                      className="grid min-h-[72px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.02] sm:py-4"
+                      className="grid min-h-[72px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/35 sm:py-4"
                     >
-                      <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
+                      <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-md border border-border bg-secondary px-3 py-1 text-xs font-semibold text-foreground">
                         W{entry.week}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -74,7 +74,7 @@ export default function Cycle() {
                       key={entry.week}
                       className="grid min-h-[72px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:py-4"
                     >
-                      <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
+                      <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-md border border-border bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
                         W{entry.week}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -83,7 +83,7 @@ export default function Cycle() {
                         </div>
                         <div className="text-xs text-muted-foreground">{entry.phase}</div>
                       </div>
-                      <div className="inline-flex rounded-full border border-amber-200/30 bg-amber-200/10 px-2 py-1 text-xs text-amber-200/90">
+                      <div className="inline-flex rounded-md border border-[hsl(var(--athlete-warm))]/25 bg-[hsl(var(--athlete-warm))]/10 px-2 py-1 text-xs text-[hsl(var(--athlete-warm))]">
                         Coming soon
                       </div>
                     </div>
