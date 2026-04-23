@@ -1,9 +1,10 @@
 import { Link, useLocation } from "wouter";
-import { Home, TrendingUp } from "lucide-react";
+import { Home, MapPin, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "Meets", Icon: Home },
+  { href: "/map", label: "Map", Icon: MapPin },
   { href: "/trends", label: "Trends", Icon: TrendingUp },
 ];
 

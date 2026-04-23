@@ -8,6 +8,7 @@ import {
 describe("normalizeAnalyticsPath", () => {
   it("keeps top-level routes stable", () => {
     expect(normalizeAnalyticsPath("/")).toBe("/");
+    expect(normalizeAnalyticsPath("/map")).toBe("/map");
     expect(normalizeAnalyticsPath("/trends")).toBe("/trends");
     expect(normalizeAnalyticsPath("/cycle/")).toBe("/cycle");
   });

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -12,17 +13,22 @@ import CycleWeek from "@/pages/cycle-week";
 import CycleDay from "@/pages/cycle-day";
 import { normalizeAnalyticsEvent, normalizeAnalyticsPath } from "@/lib/analytics";
 
+const CompetitionMap = lazy(() => import("@/pages/map"));
+
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/meet/:id" component={MeetDetails} />
-      <Route path="/trends" component={Trends} />
-      <Route path="/cycle" component={Cycle} />
-      <Route path="/cycle/week/:week/day/:day" component={CycleDay} />
-      <Route path="/cycle/week/:week" component={CycleWeek} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/meet/:id" component={MeetDetails} />
+        <Route path="/map" component={CompetitionMap} />
+        <Route path="/trends" component={Trends} />
+        <Route path="/cycle" component={Cycle} />
+        <Route path="/cycle/week/:week/day/:day" component={CycleDay} />
+        <Route path="/cycle/week/:week" component={CycleWeek} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 

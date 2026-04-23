@@ -1,7 +1,7 @@
-import { CalendarDays, CircleDashed, TrendingUp } from "lucide-react";
+import { CalendarDays, CircleDashed, MapPin, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 
-export type PageTab = "meets" | "trends" | "cycle";
+export type PageTab = "meets" | "map" | "trends" | "cycle";
 export type FilterTab = "upcoming" | "past";
 
 type FilterSectionProps = {
@@ -27,6 +27,13 @@ const pageTabs: PageTabItem[] = [
     shortLabel: "Meets",
     href: "/",
     Icon: CalendarDays,
+  },
+  {
+    key: "map",
+    label: "Map",
+    shortLabel: "Map",
+    href: "/map",
+    Icon: MapPin,
   },
   {
     key: "trends",

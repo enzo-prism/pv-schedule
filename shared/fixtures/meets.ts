@@ -357,7 +357,7 @@ export const seedMeets: SeedMeet[] = [
   {
     "id": 108,
     "name": "World Athletics UC Santa Barbara Invitational",
-    "date": "2026-04-24",
+    "date": "2026-04-25",
     "location": "Santa Barbara, CA",
     "description": "",
     "createdAt": "2026-02-20T00:00:00.000Z",
