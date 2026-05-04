@@ -361,13 +361,13 @@ export const seedMeets: SeedMeet[] = [
     "location": "Palo Alto, CA",
     "description": "",
     "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
+    "heightCleared": "14'7\"",
     "poleUsed": "",
     "deepestTakeoff": "",
     "place": "",
     "link": "",
     "driveTime": "",
-    "registrationStatus": "not registered",
+    "registrationStatus": "registered",
     "isFilamMeet": false
   },
   {

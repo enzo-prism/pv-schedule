@@ -10,8 +10,23 @@ import {
 } from "./types.js";
 
 const RETIRED_DEMO_MEET_IDS = [89, 90, 104, 105, 106, 107, 109, 110, 112, 117, 118, 119];
-const SYNCED_DEMO_MEETS = [
+type SyncedDemoMeet = {
+  id: number;
+  name: string;
+  date: string;
+  heightCleared?: string;
+  registrationStatus?: string;
+};
+
+const SYNCED_DEMO_MEETS: SyncedDemoMeet[] = [
   { id: 108, name: 'World Athletics UC Santa Barbara Invitational', date: '2026-04-25' },
+  {
+    id: 111,
+    name: 'World Athletics Payton Jordan @ Stanford',
+    date: '2026-05-01',
+    heightCleared: '14\'7"',
+    registrationStatus: 'registered',
+  },
   { id: 115, name: 'World Athletics Philippine National Championship', date: '2026-06-14' },
 ];
 
@@ -148,11 +163,24 @@ export class PgStorage implements IStorage {
 
   private async syncSeededDemoMeets() {
     for (const meet of SYNCED_DEMO_MEETS) {
-      await this.db.query('UPDATE meets SET name = $2, date = $3 WHERE id = $1', [
-        meet.id,
-        meet.name,
-        meet.date,
-      ]);
+      await this.db.query(
+        `
+          UPDATE meets
+          SET
+            name = $2,
+            date = $3,
+            height_cleared = COALESCE($4, height_cleared),
+            registration_status = COALESCE($5, registration_status)
+          WHERE id = $1
+        `,
+        [
+          meet.id,
+          meet.name,
+          meet.date,
+          meet.heightCleared ?? null,
+          meet.registrationStatus ?? null,
+        ],
+      );
     }
   }
 
