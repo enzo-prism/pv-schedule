@@ -20,7 +20,7 @@ describe("competition map location matching", () => {
     expect(findCompetitionPlace("College of San Mateo")?.id).toBe("san-mateo-ca");
   });
 
-  it("maps the Oregon Twilight fixture typo to Eugene, Oregon", () => {
+  it("maps a Eugene state typo to Eugene, Oregon", () => {
     const place = findCompetitionPlace("Eugene, CA");
 
     expect(place?.id).toBe("eugene-or");

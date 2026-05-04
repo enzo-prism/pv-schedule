@@ -369,38 +369,6 @@ export const seedMeets: SeedMeet[] = [
     "driveTime": "",
     "registrationStatus": "registered",
     "isFilamMeet": false
-  },
-  {
-    "id": 113,
-    "name": "World Athletics Oregon Twilight",
-    "date": "2026-05-08",
-    "location": "Eugene, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
-  },
-  {
-    "id": 114,
-    "name": "World Athletics LA Track Festival Silver Cont. Tour",
-    "date": "2026-05-23",
-    "location": "Los Angeles, CA",
-    "description": "",
-    "createdAt": "2026-02-20T00:00:00.000Z",
-    "heightCleared": "",
-    "poleUsed": "",
-    "deepestTakeoff": "",
-    "place": "",
-    "link": "",
-    "driveTime": "",
-    "registrationStatus": "not registered",
-    "isFilamMeet": false
   }
 ];
 

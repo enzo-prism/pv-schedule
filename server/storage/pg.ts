@@ -9,7 +9,7 @@ import {
   type UpdateMediaInput,
 } from "./types.js";
 
-const RETIRED_DEMO_MEET_IDS = [89, 90, 104, 105, 106, 107, 109, 110, 112, 117, 118, 119];
+const RETIRED_DEMO_MEET_IDS = [89, 90, 104, 105, 106, 107, 109, 110, 112, 113, 114, 117, 118, 119];
 type SyncedDemoMeet = {
   id: number;
   name: string;
