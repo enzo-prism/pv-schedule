@@ -14,6 +14,7 @@ type SyncedDemoMeet = {
   id: number;
   name: string;
   date: string;
+  startTime?: string;
   heightCleared?: string;
   registrationStatus?: string;
 };
@@ -27,7 +28,12 @@ const SYNCED_DEMO_MEETS: SyncedDemoMeet[] = [
     heightCleared: '14\'7"',
     registrationStatus: 'registered',
   },
-  { id: 115, name: 'World Athletics Philippine National Championship', date: '2026-06-14' },
+  {
+    id: 115,
+    name: 'World Athletics Philippine National Championship',
+    date: '2026-06-10',
+    startTime: '4:00 PM Philippine Time',
+  },
 ];
 
 // Helpers to normalize the jsonb payload returned from Postgres
@@ -169,14 +175,16 @@ export class PgStorage implements IStorage {
           SET
             name = $2,
             date = $3,
-            height_cleared = COALESCE($4, height_cleared),
-            registration_status = COALESCE($5, registration_status)
+            start_time = COALESCE($4, start_time),
+            height_cleared = COALESCE($5, height_cleared),
+            registration_status = COALESCE($6, registration_status)
           WHERE id = $1
         `,
         [
           meet.id,
           meet.name,
           meet.date,
+          meet.startTime ?? null,
           meet.heightCleared ?? null,
           meet.registrationStatus ?? null,
         ],
